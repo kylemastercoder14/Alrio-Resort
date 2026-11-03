@@ -46,6 +46,7 @@ import {
 import { Kbd } from "@/components/ui/kbd";
 import { TENANT_NAVIGATION_DATA } from "@/constants/tenant-navigation";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import {
   canAccessTenantPath,
 } from "@/lib/tenant-permissions";
@@ -76,7 +77,7 @@ const SEARCH_ITEMS: SearchItem[] = TENANT_NAVIGATION_DATA.reduce<SearchItem[]>(
           href: child.href,
           group,
           parent: item.label,
-          locked: "locked" in child ? child.locked : false,
+          locked: "locked" in child ? Boolean(child.locked) : false,
           keywords:
             `${child.label} ${item.label} ${group} ${child.href}`.toLowerCase(),
         });
@@ -89,7 +90,7 @@ const SEARCH_ITEMS: SearchItem[] = TENANT_NAVIGATION_DATA.reduce<SearchItem[]>(
       label: item.label,
       href: item.href,
       group,
-      locked: "locked" in item ? item.locked : false,
+      locked: "locked" in item ? Boolean(item.locked) : false,
       keywords: `${item.label} ${group} ${item.href}`.toLowerCase(),
     });
 
@@ -165,7 +166,22 @@ export function TenantHeader() {
   );
 }
 
-function AccountDropdown() {
+export function AccountDropdown({
+  appearance = "tenant",
+  signOutRedirect = "/auth/sign-in",
+  includeTenantLinks = true,
+  initialUser,
+}: {
+  appearance?: "tenant" | "landing-light" | "landing-overlay";
+  signOutRedirect?: string;
+  includeTenantLinks?: boolean;
+  initialUser?: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  } | null;
+}) {
   const router = useRouter();
   const trpc = useTRPC();
   const { data: session } = authClient.useSession();
@@ -175,7 +191,7 @@ function AccountDropdown() {
     retry: false,
   });
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const user = session?.user;
+  const user = session?.user ?? initialUser;
   const name = user?.name?.trim() || "Admin";
   const email = user?.email || "admin@itps.com";
   const role = profile.data?.role ?? "Administrator";
@@ -194,7 +210,7 @@ function AccountDropdown() {
       return;
     }
 
-    router.replace("/auth/sign-in");
+    router.replace(signOutRedirect);
     router.refresh();
   }
 
@@ -203,7 +219,12 @@ function AccountDropdown() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="h-11 gap-2 px-2 text-white hover:bg-white/10 hover:text-white focus-visible:border-white/20 focus-visible:ring-white/20 aria-expanded:bg-white/10 aria-expanded:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white"
+          className={cn(
+            "h-11 gap-2 px-2",
+            appearance === "tenant" || appearance === "landing-overlay"
+              ? "text-white hover:bg-white/10 hover:text-white focus-visible:border-white/20 focus-visible:ring-white/20 aria-expanded:bg-white/10 aria-expanded:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white"
+              : "text-zinc-950 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:border-zinc-300 focus-visible:ring-zinc-300 aria-expanded:bg-zinc-100 aria-expanded:text-zinc-950 data-[state=open]:bg-zinc-100 data-[state=open]:text-zinc-950",
+          )}
         >
           <Avatar className="size-9">
             {avatarUrl ? <AvatarImage src={avatarUrl} alt={name} /> : null}
@@ -213,11 +234,25 @@ function AccountDropdown() {
           </Avatar>
           <div className="hidden flex-col items-start sm:flex">
             <p className="text-sm font-semibold leading-tight">{name}</p>
-            <p className="max-w-38 truncate text-xs leading-tight text-white/75">
+            <p
+              className={cn(
+                "max-w-38 truncate text-xs leading-tight",
+                appearance === "tenant" || appearance === "landing-overlay"
+                  ? "text-white/75"
+                  : "text-zinc-500",
+              )}
+            >
               {email}
             </p>
           </div>
-          <ChevronDown className="hidden size-4 text-white/60 sm:block" />
+          <ChevronDown
+            className={cn(
+              "hidden size-4 sm:block",
+              appearance === "tenant" || appearance === "landing-overlay"
+                ? "text-white/60"
+                : "text-zinc-500",
+            )}
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -255,12 +290,14 @@ function AccountDropdown() {
           <Settings className="size-4" />
           Account settings
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
-          <Link href="/tenant/payroll-history">
-            <ReceiptText className="size-4" />
-            Payroll history
-          </Link>
-        </DropdownMenuItem>
+        {includeTenantLinks ? (
+          <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+            <Link href="/tenant/payroll-history">
+              <ReceiptText className="size-4" />
+              Payroll history
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer rounded-lg"

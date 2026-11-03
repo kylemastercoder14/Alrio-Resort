@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/prisma";
+import { getPolarClient } from "@/lib/subscription/polar";
 
 type CheckoutSuccessPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -89,11 +91,43 @@ export default async function CheckoutSuccessPage({
   const checkIn = param(params, "checkIn", "2026-08-31");
   const checkOut = param(params, "checkOut", "2026-09-02");
   const checkoutId = param(params, "checkoutId", "");
+  const reservationId = param(params, "reservationId", "");
   const ownerName = param(params, "ownerName", "resort operations team");
   const operatorName = param(params, "operatorName", title.split(" - ")[0]);
 
-  const nightlyRate = parseAmount(price) || 3600;
-  const nights = 2;
+  let paymentConfirmed = false;
+  let reservation = null;
+  if (reservationId && checkoutId && checkoutId !== "{CHECKOUT_ID}" && process.env.POLAR_ACCESS_TOKEN) {
+    try {
+      const checkout = await getPolarClient().checkouts.get({ id: checkoutId });
+      const metadataReservationId = String(checkout.metadata.reservationId ?? "");
+      if (checkout.status === "succeeded" && metadataReservationId === reservationId) {
+        reservation = await prisma.tenantReservation.findUnique({ where: { id: reservationId } });
+        if (reservation && reservation.status === "PENDING") {
+          const paymentCode = `POLAR-${checkoutId}`.slice(0, 120);
+          await prisma.$transaction(async (tx) => {
+            await tx.tenantReservation.update({ where: { id: reservationId }, data: { status: "CONFIRMED", notes: `Paid with Polar checkout ${checkoutId}.` } });
+            const existingPayment = await tx.tenantPaymentLog.findFirst({ where: { code: paymentCode }, select: { id: true } });
+            if (!existingPayment) await tx.tenantPaymentLog.create({ data: { tenantProfileId: reservation!.tenantProfileId, reservationId, code: paymentCode, amount: reservation!.totalAmount, paymentMethod: "Polar", status: "RECORDED" } });
+          });
+          reservation = await prisma.tenantReservation.findUnique({ where: { id: reservationId } });
+        }
+        paymentConfirmed = reservation?.status === "CONFIRMED";
+      }
+    } catch (error) {
+      console.error("Unable to verify Polar booking checkout", error);
+    }
+  }
+
+  const nightlyRate = reservation ? Number(reservation.rate) : parseAmount(price) || 3600;
+  const nights = Math.max(
+    1,
+    Math.round(
+      (new Date(`${checkOut}T00:00:00`).getTime() -
+        new Date(`${checkIn}T00:00:00`).getTime()) /
+        86_400_000,
+    ) || 1,
+  );
   const subtotal = nightlyRate * nights;
   const serviceFee = Math.round(subtotal * 0.05);
   const total = subtotal + serviceFee;
@@ -106,16 +140,16 @@ export default async function CheckoutSuccessPage({
           <div>
             <div className="inline-flex items-center gap-3 rounded-full bg-sky-50 px-5 py-3 text-sm font-semibold text-sky-800">
               <CheckCircle2 className="size-5" />
-              Payment confirmed
+              {paymentConfirmed ? "Payment confirmed" : "Payment verification pending"}
             </div>
 
             <h1 className="mt-7 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-              Your resort booking is confirmed.
+              {paymentConfirmed ? "Your resort booking is confirmed." : "We are verifying your payment."}
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-zinc-600">
-              We sent the payment reference to {operatorName}. The resort team
-              can now prepare your reservation, guest services, room setup, and
-              arrival notes.
+              {paymentConfirmed
+                ? `We sent the payment reference to ${operatorName}. The resort team can now prepare your reservation, guest services, room setup, and arrival notes.`
+                : "Do not rely on this page as a booking confirmation until payment verification finishes."}
             </p>
 
             <div className="mt-8 rounded-[1.75rem] border border-zinc-200 bg-white p-6 shadow-xl shadow-zinc-200/70">

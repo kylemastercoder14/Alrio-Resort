@@ -4748,13 +4748,14 @@ export const appRouter = createTRPCRouter({
             },
           },
         });
-        const isStaff = appUser?.role === "TENANT_STAFF" && !!appUser.staffProfile;
+        const isStaff = ["TENANT_STAFF", "TENANT"].includes(appUser?.role ?? "");
         const today = getWorkdayStart();
         const activeLog = isStaff
-          ? await prisma.tenantTimeLog.findUnique({
+          ? appUser?.staffProfile
+            ? await prisma.tenantTimeLog.findUnique({
               where: {
                 staffProfileId_date: {
-                  staffProfileId: appUser.staffProfile!.id,
+                  staffProfileId: appUser.staffProfile.id,
                   date: today,
                 },
               },
@@ -4766,7 +4767,8 @@ export const appRouter = createTRPCRouter({
                   },
                 },
               },
-            })
+              })
+            : null
           : null;
 
         return {
@@ -4845,19 +4847,28 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        if (appUser?.role !== "TENANT_STAFF" || !appUser.staffProfile) {
+        if (!appUser || !["TENANT_STAFF", "TENANT"].includes(appUser.role)) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "Only staff can clock in.",
           });
         }
 
+        const staffProfile = appUser.staffProfile ?? await prisma.tenantStaffProfile.create({
+          data: {
+            appUserId: appUser.authUserId,
+            roleName: "Tenant owner",
+            status: "ACTIVE",
+            tenantProfileId: tenantProfile.id,
+          },
+        });
+
         const now = new Date();
         const today = getWorkdayStart(now);
         const existingLog = await prisma.tenantTimeLog.findUnique({
           where: {
             staffProfileId_date: {
-              staffProfileId: appUser.staffProfile.id,
+              staffProfileId: staffProfile.id,
               date: today,
             },
           },
@@ -4873,13 +4884,13 @@ export const appRouter = createTRPCRouter({
         const timeLog = await prisma.tenantTimeLog.upsert({
           where: {
             staffProfileId_date: {
-              staffProfileId: appUser.staffProfile.id,
+              staffProfileId: staffProfile.id,
               date: today,
             },
           },
           create: {
             tenantProfileId: tenantProfile.id,
-            staffProfileId: appUser.staffProfile.id,
+            staffProfileId: staffProfile.id,
             date: today,
             clockIn: now,
             flag: getTimeLogFlag(now),
@@ -4920,7 +4931,7 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        if (appUser?.role !== "TENANT_STAFF" || !appUser.staffProfile) {
+        if (!appUser || !["TENANT_STAFF", "TENANT"].includes(appUser.role) || !appUser.staffProfile) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "Only staff can clock out.",
@@ -6981,6 +6992,42 @@ export const appRouter = createTRPCRouter({
 
           await requireTenantPermission(authUser.id, "usersRoles.create");
           const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const normalizedEmail = input.email.toLowerCase();
+          const now = new Date();
+          const [pendingInvitation, existingStaff] = await Promise.all([
+            prisma.tenantStaffInvitation.findFirst({
+              where: {
+                tenantProfileId: tenantProfile.id,
+                status: "PENDING",
+                expiresAt: { gt: now },
+                email: {
+                  equals: normalizedEmail,
+                  mode: "insensitive",
+                },
+              },
+              select: { id: true },
+            }),
+            prisma.tenantStaffProfile.findFirst({
+              where: {
+                tenantProfileId: tenantProfile.id,
+                appUser: {
+                  email: {
+                    equals: normalizedEmail,
+                    mode: "insensitive",
+                  },
+                },
+              },
+              select: { id: true },
+            }),
+          ]);
+
+          if (pendingInvitation || existingStaff) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "A pending invitation or staff account already exists for this email.",
+            });
+          }
+
           const appUrl =
             process.env.NEXT_PUBLIC_APP_URL ??
             process.env.BETTER_AUTH_URL ??
@@ -6997,7 +7044,7 @@ export const appRouter = createTRPCRouter({
           const token = generateInviteToken();
           const invitation = await prisma.tenantStaffInvitation.create({
             data: {
-              email: input.email,
+              email: normalizedEmail,
               expiresAt: getInviteExpiresAt(),
               message: input.message,
               roleName: accessRole.name,
@@ -7884,12 +7931,28 @@ export const appRouter = createTRPCRouter({
           const tenantProfile = await getTenantProfileForSession(authUser.id);
           await requireInvoiceCreator(authUser.id);
           const code = input.code.toUpperCase();
+          const subtotal = parseMoneyAmount(input.subtotal);
+          const discount = parseMoneyAmount(input.discount);
+          const tax = parseMoneyAmount(input.tax);
+          const totalAmount = parseMoneyAmount(input.totalAmount);
+          const depositPaid = parseMoneyAmount(input.depositPaid);
+          const balanceDue = parseMoneyAmount(input.balanceDue);
+          const lineTotal = input.lineItems.reduce(
+            (total, item) => total + parseMoneyAmount(item.amount),
+            0,
+          );
 
-          if (input.status === "Paid") {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Record a payment transaction to mark invoices paid.",
-            });
+          if ([subtotal, discount, tax, totalAmount, depositPaid, balanceDue].some((value) => value < 0)) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Invoice amounts cannot be negative." });
+          }
+          if (!input.lineItems.length || input.lineItems.some((item) => parseMoneyAmount(item.rate) <= 0 || parseMoneyAmount(item.amount) <= 0)) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "At least one chargeable line item is required." });
+          }
+          if (Math.abs(lineTotal - subtotal) > 0.01 || Math.abs(totalAmount - (subtotal - discount + tax)) > 0.01 || Math.abs(balanceDue - Math.max(totalAmount - depositPaid, 0)) > 0.01) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Invoice totals do not match the line items and payment amounts." });
+          }
+          if (input.status === "Paid" && balanceDue > 0) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Record the full payment before marking this invoice paid." });
           }
 
           if (input.reservationId) {
@@ -7905,6 +7968,18 @@ export const appRouter = createTRPCRouter({
                 code: "BAD_REQUEST",
                 message: "Reservation not found.",
               });
+            }
+
+            const duplicateBookingInvoice = await prisma.tenantInvoice.findFirst({
+              where: {
+                tenantProfileId: tenantProfile.id,
+                reservationId: input.reservationId,
+                id: input.id ? { not: input.id } : undefined,
+                status: { not: "VOID" },
+              },
+            });
+            if (duplicateBookingInvoice) {
+              throw new TRPCError({ code: "CONFLICT", message: "This booking already has an invoice." });
             }
           }
 
@@ -7959,6 +8034,7 @@ export const appRouter = createTRPCRouter({
             paymentMethod: input.paymentMethod ?? null,
             reminderCadence: toTenantInvoiceReminderCadence(input.reminderCadence),
             reservationId: input.reservationId ?? null,
+            paidAt: input.status === "Paid" ? new Date() : null,
             status: toTenantInvoiceStatus(input.status),
             subtotal: input.subtotal,
             tax: input.tax,
@@ -10593,10 +10669,6 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const nextQuantity =
-            input.type === "IN"
-              ? item.quantity + input.quantity
-              : Math.max(0, item.quantity - input.quantity);
           const movementCount = await prisma.tenantInventoryMovement.count({
             where: {
               tenantProfileId: tenantProfile.id,
@@ -10604,10 +10676,34 @@ export const appRouter = createTRPCRouter({
           });
 
           const movement = await prisma.$transaction(async (tx) => {
-            await tx.tenantInventoryItem.update({
+            const currentItem = await tx.tenantInventoryItem.findFirst({
               where: {
                 id: item.id,
+                tenantProfileId: tenantProfile.id,
               },
+            });
+
+            if (!currentItem) {
+              throw new TRPCError({
+                code: "NOT_FOUND",
+                message: "Inventory item not found.",
+              });
+            }
+
+            if (input.type === "OUT" && input.quantity > currentItem.quantity) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: `Insufficient stock. Only ${currentItem.quantity} ${currentItem.unit} available.`,
+              });
+            }
+
+            const nextQuantity =
+              input.type === "IN"
+                ? currentItem.quantity + input.quantity
+                : currentItem.quantity - input.quantity;
+
+            await tx.tenantInventoryItem.update({
+              where: { id: currentItem.id },
               data: {
                 quantity: nextQuantity,
               },
@@ -11035,6 +11131,14 @@ export const appRouter = createTRPCRouter({
               id: input.id,
               tenantProfileId: tenantProfile.id,
             },
+            include: {
+              room: {
+                select: {
+                  code: true,
+                  name: true,
+                },
+              },
+            },
           });
 
           if (!report) {
@@ -11045,11 +11149,22 @@ export const appRouter = createTRPCRouter({
           }
 
           await prisma.tenantHousekeepingDamageReport.update({
+            where: { id: input.id },
+            data: { status: "RESOLVED" },
+          });
+
+          await prisma.tenantMaintenanceRequest.updateMany({
             where: {
-              id: input.id,
+              area: `${report.room.code} - ${report.room.name}`,
+              issue: report.title,
+              roomId: report.roomId,
+              status: "PENDING",
+              tenantProfileId: tenantProfile.id,
             },
             data: {
-              status: "RESOLVED",
+              completedAt: new Date(),
+              resolution: `Resolved from damage report ${report.id}.`,
+              status: "COMPLETED",
             },
           });
 

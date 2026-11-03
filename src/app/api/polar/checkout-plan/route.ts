@@ -9,6 +9,13 @@ const billingFrequencies = new Set<BillingFrequency>(["monthly", "yearly"]);
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+function isCheckoutEmail(value: string | null | undefined) {
+  if (!value || /\.(test|invalid|localhost)$/i.test(value.split("@")[1] ?? "")) {
+    return false;
+  }
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
+}
+
 function toTenantPlan(plan: PaidPlanKey) {
   if (plan === "starter") return "STARTER" as const;
   if (plan === "growth") return "GROWTH" as const;
@@ -91,7 +98,7 @@ export async function GET(request: NextRequest) {
 
   checkoutUrl.searchParams.set("customerExternalId", session.user.id);
 
-  if (session?.user?.email) {
+  if (isCheckoutEmail(session?.user?.email)) {
     checkoutUrl.searchParams.set("customerEmail", session.user.email);
   }
 

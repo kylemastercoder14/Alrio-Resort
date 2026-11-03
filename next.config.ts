@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
       {
         hostname: "onemarketphilippines.com",
         protocol: "https"
+      },
+      {
+        hostname: "pipsporetech.com",
+        protocol: "https"
       }
     ],
   },

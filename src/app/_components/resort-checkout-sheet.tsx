@@ -10,6 +10,9 @@ type ResortCheckoutSheetProps = {
   price: string;
   guests: number;
   image: string;
+  roomId: string;
+  checkIn?: string;
+  checkOut?: string;
   tenantProfileId?: string;
   operatorName?: string;
   ownerName?: string;
@@ -21,6 +24,9 @@ export function ResortCheckoutSheet({
   price,
   guests,
   image,
+  roomId,
+  checkIn,
+  checkOut,
   tenantProfileId,
   operatorName,
   ownerName,
@@ -34,8 +40,9 @@ export function ResortCheckoutSheet({
       price,
       guests: String(guests),
       image,
-      checkIn: "2026-08-31",
-      checkOut: "2026-09-02",
+      roomId,
+      checkIn: checkIn ?? "",
+      checkOut: checkOut ?? "",
     });
 
     if (tenantProfileId) params.set("tenantProfileId", tenantProfileId);

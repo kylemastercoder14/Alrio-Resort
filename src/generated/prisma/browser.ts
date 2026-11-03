@@ -48,6 +48,11 @@ export type AppUser = Prisma.AppUserModel
  */
 export type TenantProfile = Prisma.TenantProfileModel
 /**
+ * Model PolarWebhookEvent
+ * 
+ */
+export type PolarWebhookEvent = Prisma.PolarWebhookEventModel
+/**
  * Model TenantMessengerIntegration
  * 
  */

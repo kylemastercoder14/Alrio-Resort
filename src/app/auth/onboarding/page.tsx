@@ -22,7 +22,10 @@ export default async function Page() {
   const tenantOnboardingStatus =
     appUser.tenantProfile?.onboardingStatus ?? null;
 
-  if (tenantOnboardingStatus !== "PENDING") {
+  if (
+    tenantOnboardingStatus !== "PENDING" &&
+    tenantOnboardingStatus !== "IN_PROGRESS"
+  ) {
     redirect(
       getAppRedirectPath({
         role: appUser.role,

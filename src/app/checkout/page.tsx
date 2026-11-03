@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { getCurrentAppUser } from "@/lib/current-app-user";
 import { prisma } from "@/lib/prisma";
 import { CustomerAuthDialog } from "./_components/customer-auth-dialog";
+import { GuestDetailsPanel } from "./_components/guest-details-panel";
 import { OperatorMessagePanel } from "./_components/operator-message-panel";
 
 type CheckoutPageProps = {
@@ -65,7 +66,9 @@ export default async function CheckoutPage({
 }: CheckoutPageProps) {
   const resolvedSearchParams = await searchParams;
   const { session, appUser } = await getCurrentAppUser();
-  let isCustomer = appUser?.role === "CUSTOMER";
+  let canBookStay = appUser
+    ? ["CUSTOMER", "TENANT", "TENANT_STAFF"].includes(appUser.role)
+    : false;
 
   if (!appUser && session?.user?.id && session.user.email) {
     const [firstName, ...lastNameParts] = (
@@ -90,7 +93,7 @@ export default async function CheckoutPage({
       update: {},
     });
 
-    isCustomer = createdCustomer.role === "CUSTOMER";
+    canBookStay = createdCustomer.role === "CUSTOMER";
   }
 
   const title = param(
@@ -108,6 +111,18 @@ export default async function CheckoutPage({
   const checkOut = param(resolvedSearchParams, "checkOut", "2026-09-02");
   const checkoutStatus = param(resolvedSearchParams, "checkout", "");
   const tenantProfileId = param(resolvedSearchParams, "tenantProfileId", "");
+  const roomId = param(resolvedSearchParams, "roomId", "");
+  const listing = roomId
+    ? await prisma.tenantRoom.findUnique({
+        where: { id: roomId },
+        select: { tenantProfileId: true },
+      })
+    : null;
+  const memberTenantProfileId =
+    appUser?.tenantProfile?.id ?? appUser?.staffProfile?.tenantProfileId;
+  const isOwnListing = Boolean(
+    listing && memberTenantProfileId === listing.tenantProfileId,
+  );
   const queryOperatorName = param(
     resolvedSearchParams,
     "operatorName",
@@ -143,7 +158,14 @@ export default async function CheckoutPage({
   };
 
   const nightlyRate = parseAmount(price) || 3600;
-  const nights = 2;
+  const nights = Math.max(
+    1,
+    Math.round(
+      (new Date(`${checkOut}T00:00:00`).getTime() -
+        new Date(`${checkIn}T00:00:00`).getTime()) /
+        86_400_000,
+    ) || 1,
+  );
   const subtotal = nightlyRate * nights;
   const serviceFee = Math.round(subtotal * 0.05);
   const total = subtotal + serviceFee;
@@ -167,11 +189,19 @@ export default async function CheckoutPage({
           </h1>
         </div>
 
-        <CheckoutStatusBanner status={checkoutStatus} />
+        <CheckoutStatusBanner
+          status={checkoutStatus || (isOwnListing ? "own-listing" : "")}
+        />
 
         <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_600px] lg:items-start">
           <div className="space-y-7">
-            {isCustomer ? (
+            {isOwnListing ? (
+              <CheckoutStep number="1" title="Choose another resort">
+                <span className="max-w-xs text-right text-sm leading-5 text-zinc-500">
+                  Book another resort&apos;s published room or service to continue.
+                </span>
+              </CheckoutStep>
+            ) : canBookStay ? (
               <>
                 <PaymentMethodPanel />
                 <OperatorMessagePanel operator={operator} />
@@ -185,30 +215,38 @@ export default async function CheckoutPage({
                   checkIn={checkIn}
                   checkOut={checkOut}
                   tenantProfileId={tenantProfileId}
+                  roomId={roomId}
                   operator={operator}
                 />
               </>
             ) : (
               <>
-                <CheckoutStep active number="1" title="Log in or sign up">
+                <GuestDetailsPanel
+                  roomId={roomId}
+                  checkIn={checkIn}
+                  checkOut={checkOut}
+                />
+                <CheckoutStep active number="2" title="Log in or sign up">
                   <CustomerAuthDialog />
                 </CheckoutStep>
-                <CheckoutStep number="2" title="Add a payment method" />
+                <CheckoutStep number="3" title="Add a payment method" />
                 <CheckoutStep
-                  number="3"
+                  number="4"
                   title="Send booking notes to the resort"
                 />
-                <CheckoutStep number="4" title="Review your reservation" />
+                <CheckoutStep number="5" title="Review your reservation" />
                 <p className="max-w-2xl text-sm leading-6 text-zinc-500">
-                  You need a client account before payment details and final
-                  reservation review are enabled.
+                  Sign in before payment details and final reservation review
+                  are enabled. Your guest details will remain on this device.
                 </p>
               </>
             )}
           </div>
 
           <aside className="lg:sticky lg:top-28">
-            {isCustomer ? <RareFindBanner className="mb-6" /> : null}
+            {canBookStay && !isOwnListing ? (
+              <RareFindBanner className="mb-6" />
+            ) : null}
             <div className="rounded-[1.75rem] border border-zinc-200 bg-white p-6 shadow-sm">
               <div className="flex gap-4">
                 <div className="relative size-28 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
@@ -277,7 +315,9 @@ export default async function CheckoutPage({
               </a>
             </div>
 
-            {!isCustomer ? <RareFindBanner className="mt-8" /> : null}
+            {!(canBookStay && !isOwnListing) ? (
+              <RareFindBanner className="mt-8" />
+            ) : null}
           </aside>
         </div>
       </section>
@@ -356,6 +396,7 @@ function ReviewReservationPanel({
   checkIn,
   checkOut,
   tenantProfileId,
+  roomId,
   operator,
 }: {
   amountMinor: number;
@@ -367,6 +408,7 @@ function ReviewReservationPanel({
   checkIn: string;
   checkOut: string;
   tenantProfileId: string;
+  roomId: string;
   operator: CheckoutOperator;
 }) {
   return (
@@ -397,6 +439,7 @@ function ReviewReservationPanel({
         <input type="hidden" name="checkIn" value={checkIn} />
         <input type="hidden" name="checkOut" value={checkOut} />
         <input type="hidden" name="tenantProfileId" value={tenantProfileId} />
+        <input type="hidden" name="roomId" value={roomId} />
         <input type="hidden" name="operatorName" value={operator.resortName} />
         <input type="hidden" name="ownerName" value={operator.ownerName} />
         <Button
@@ -427,6 +470,34 @@ function CheckoutStatusBanner({ status }: { status: string }) {
     "invalid-amount": {
       tone: "border-red-200 bg-red-50 text-red-800",
       text: "Invalid booking amount. Please review the reservation price.",
+    },
+    "invalid-booking": {
+      tone: "border-red-200 bg-red-50 text-red-800",
+      text: "Choose valid check-in and check-out dates and at least one guest before continuing.",
+    },
+    "unavailable": {
+      tone: "border-amber-200 bg-amber-50 text-amber-900",
+      text: "This room is no longer available for the selected dates or guest count. Update your search and try again.",
+    },
+    "minimum-stay": {
+      tone: "border-amber-200 bg-amber-50 text-amber-900",
+      text: "This stay does not meet the room's minimum-night requirement. Choose longer dates and try again.",
+    },
+    "auth-required": {
+      tone: "border-sky-200 bg-sky-50 text-sky-950",
+      text: "Sign in or create a customer account to continue to payment.",
+    },
+    "customer-required": {
+      tone: "border-red-200 bg-red-50 text-red-800",
+      text: "This account cannot book stays. Sign in with a customer, tenant, or tenant-staff account to continue.",
+    },
+    "own-listing": {
+      tone: "border-amber-200 bg-amber-50 text-amber-900",
+      text: "You cannot book rooms or services from your own resort workspace. Choose another resort to continue.",
+    },
+    "checkout-canceled": {
+      tone: "border-amber-200 bg-amber-50 text-amber-900",
+      text: "Checkout was canceled. No payment was recorded, and you can safely review your stay and try again.",
     },
   };
   const message = messages[status];

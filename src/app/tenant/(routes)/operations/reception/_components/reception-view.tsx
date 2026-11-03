@@ -1503,8 +1503,16 @@ function RequestHandoffCard({
   const activeDepartments = departments.filter(
     (department) => department.status === "Active",
   );
-  const [department, setDepartment] = useState("");
-  const selectedDepartment = department || activeDepartments[0]?.name || "";
+  const departmentOptions = Array.from(
+    new Set([
+      ...activeDepartments.map((department) => department.name),
+      "Front desk",
+      "Housekeeping",
+      "Maintenance",
+    ]),
+  );
+  const [department, setDepartment] = useState("Front desk");
+  const selectedDepartment = department || departmentOptions[0] || "";
   const [priority, setPriority] = useState<"Normal" | "Urgent">("Normal");
   const [reservationId, setReservationId] = useState("");
   const [roomOrArea, setRoomOrArea] = useState("");
@@ -1591,9 +1599,9 @@ function RequestHandoffCard({
               <SelectValue placeholder="Select department" />
             </SelectTrigger>
             <SelectContent>
-              {activeDepartments.map((department) => (
-                <SelectItem key={department.id} value={department.name}>
-                  {department.name}
+              {departmentOptions.map((departmentName) => (
+                <SelectItem key={departmentName} value={departmentName}>
+                  {departmentName}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -60,12 +60,7 @@ const ICONS = {
   Settings: IconSettingsFilled,
 } as const;
 
-const PRIMARY_ITEMS = TENANT_NAVIGATION_DATA.filter(
-  (item) => item.label !== "Settings",
-);
-const SETTINGS_ITEM = TENANT_NAVIGATION_DATA.find(
-  (item) => item.label === "Settings",
-);
+const PRIMARY_ITEMS = TENANT_NAVIGATION_DATA;
 
 type TenantSidebarChild = {
   href: string;
@@ -92,9 +87,6 @@ export function TenantSidebar() {
   const primaryItems = PRIMARY_ITEMS.map((item) =>
     filterNavItem(item, permissions),
   ).filter((item): item is TenantSidebarItem => Boolean(item));
-  const settingsItem = SETTINGS_ITEM
-    ? filterNavItem(SETTINGS_ITEM, permissions)
-    : null;
 
   return (
     <aside className="hidden h-full w-60 shrink-0 flex-col overflow-hidden bg-[#EBEBEB] px-3 py-3 lg:flex">
@@ -115,9 +107,6 @@ export function TenantSidebar() {
           {primaryItems.slice(8).map((item) => (
             <NavItem key={item.label} item={item} pathname={pathname} />
           ))}
-          {settingsItem ? (
-            <NavItem item={settingsItem} pathname={pathname} />
-          ) : null}
         </SidebarSection>
       </nav>
       <div className="shrink-0 space-y-3 pt-3">
@@ -151,7 +140,7 @@ function filterNavItem(
       href: item.href,
       icon: item.icon,
       label: item.label,
-      locked: "locked" in item ? item.locked : undefined,
+      locked: "locked" in item ? Boolean(item.locked) : undefined,
     };
   }
 

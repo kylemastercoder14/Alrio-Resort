@@ -44,29 +44,6 @@ export const TENANT_NAVIGATION_DATA = [
     ],
   },
   {
-    label: "Guest Experience",
-    href: "/tenant/guest-experience",
-    icon: "Users",
-    group: "Booking & Sales",
-    children: [
-      {
-        label: "Inquiries",
-        href: "/tenant/guest-experience/inquiries",
-        locked: true,
-      },
-      {
-        label: "Guest Profiles",
-        href: "/tenant/guest-experience/profiles",
-        locked: true,
-      },
-      {
-        label: "Messages",
-        href: "/tenant/guest-experience/messages",
-        locked: true,
-      },
-    ],
-  },
-  {
     label: "Leads Pipeline",
     href: "/tenant/leads",
     icon: "Flame",
@@ -125,93 +102,11 @@ export const TENANT_NAVIGATION_DATA = [
     ],
   },
 
-  // ===== Dining =====
-  {
-    label: "Dining",
-    href: "/tenant/dining",
-    icon: "UtensilsCrossed",
-    group: "Dining",
-    children: [
-      {
-        label: "Kitchen Orders",
-        href: "/tenant/dining/kitchen-orders",
-        locked: true,
-      },
-      {
-        label: "Waiter Orders",
-        href: "/tenant/dining/waiter-orders",
-        locked: true,
-      },
-      {
-        label: "Checkout Charges",
-        href: "/tenant/dining/checkout-charges",
-        locked: true,
-      },
-    ],
-  },
-
-  // ===== Website & Marketing =====
-  {
-    label: "Website Builder",
-    href: "/tenant/website-builder",
-    icon: "Globe",
-    group: "Website & Marketing",
-    locked: true,
-  },
-  {
-    label: "Marketing",
-    href: "/tenant/marketing",
-    icon: "Megaphone",
-    group: "Website & Marketing",
-    children: [
-      { label: "Campaigns", href: "/tenant/marketing/campaigns", locked: true },
-      { label: "Ads", href: "/tenant/marketing/ads", locked: true },
-      {
-        label: "Email Marketing",
-        href: "/tenant/marketing/email",
-        locked: true,
-      },
-      { label: "Social Media", href: "/tenant/marketing/social", locked: true },
-    ],
-  },
-
   // ===== Analytics & Growth =====
   {
     label: "Reports & Analytics",
     href: "/tenant/analytics",
     icon: "BarChart3",
     group: "Analytics & Growth",
-  },
-  {
-    label: "AI & Growth",
-    href: "/tenant/ai-growth",
-    icon: "Sparkles",
-    group: "Analytics & Growth",
-    locked: true,
-  },
-
-  // ===== Settings =====
-  {
-    label: "Settings",
-    href: "/tenant/settings",
-    icon: "Settings",
-    children: [
-      { label: "General", href: "/tenant/settings/general", locked: true },
-      {
-        label: "Notifications",
-        href: "/tenant/settings/notifications",
-        locked: true,
-      },
-      {
-        label: "Billing & Subscription",
-        href: "/tenant/settings/billing",
-        locked: true,
-      },
-      {
-        label: "Integrations",
-        href: "/tenant/settings/integrations",
-        locked: true,
-      },
-    ],
   },
 ] as const;

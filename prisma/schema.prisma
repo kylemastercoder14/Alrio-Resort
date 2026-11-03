@@ -471,8 +471,20 @@ model TenantProfile {
   otUndertimeEntries        TenantOtUndertimeEntry[]
   payrollRuns               TenantPayrollRun[]
   payrollItems              TenantPayrollItem[]
+  polarWebhookEvents        PolarWebhookEvent[]
 
   @@map("tenant_profile")
+}
+
+model PolarWebhookEvent {
+  id             String   @id
+  type           String
+  tenantProfileId String?
+  receivedAt     DateTime @default(now())
+  tenantProfile  TenantProfile? @relation(fields: [tenantProfileId], references: [id], onDelete: SetNull)
+
+  @@index([tenantProfileId])
+  @@map("polar_webhook_event")
 }
 
 model TenantMessengerIntegration {

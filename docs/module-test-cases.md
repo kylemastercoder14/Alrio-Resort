@@ -1,123 +1,140 @@
-# ResortCloud Module Test Cases
+# ResortCloud Test Cases
 
-Status rules:
-- `Passed` means route exists with `page.tsx`.
-- `Coming soon` means nav item is locked or route page does not exist yet.
+This is a manual functional-regression checklist generated from the implemented routes, navigation, tRPC procedures, API routes, and database-backed modules. It is intentionally a test plan, not evidence that a feature has passed. Update **Status**, **Date tested**, and **Remarks / notes** for every execution.
 
-## Overview
+**Status values:** `Not run`, `Passed`, `Failed`, `Blocked`, or `N/A`
 
-| Module | Route | Status | Test cases |
+**Date format:** `YYYY-MM-DD`
+**Test data:** use a tenant administrator, a staff account with limited permissions, a guest, at least one room/service/package/amenity, and a test payment method. Do not use production payment credentials.
+
+## Public site and booking
+
+| Feature / test case | Status | Date tested | Remarks / notes |
 | --- | --- | --- | --- |
-| Dashboard | `/tenant/dashboard` | Passed | Page loads; KPI cards render; dashboard widgets do not throw console errors. |
+| Landing page — page loads; header, search, featured content, map, marketplace, footer, and navigation render without errors. | Passed | 2026-10-28 | Header, search, live-inventory marketplace, Leaflet Philippines map, featured content, footer, and View all stays navigation render. Browser console has no errors or warnings after the map fix. |
+| Resort search — search by supported criteria; results reflect filters and empty-result state is clear. | Passed | 2026-10-28 | `Alrio`, 2 guests returned the live Casual Room card (₱6,000/night). An impossible query (`NoSuchResort987`, 99 guests) showed the clear zero-results state. Both paths completed without browser console errors. |
+| Resort details — open a result; verify resort details, available rooms/packages, pricing, amenities, and photos match saved tenant data. | Passed | 2026-10-28 | Alrio Casual Room loaded its saved resort name, ₱6,000 rate, six-guest capacity, bed configuration, amenities, guest note, and gallery. The detail card correctly reflected `checkIn=2026-11-01`, `checkOut=2026-11-03`, and `guests=2`. |
+| Partner page — application/information UI loads and all actionable links work. | Passed | 2026-10-28 | Owner information, platform features, plans, FAQ, and primary CTAs render. Primary trial, platform anchor, and marketplace links target valid routes; `/partners`, `/auth/sign-up`, and `/` each returned HTTP 200. Browser only reported non-blocking Next.js LCP and smooth-scroll warnings. |
+| Checkout — choose a valid offering; guest details and price summary persist through checkout. | Passed | 2026-10-28 | The valid Casual Room offering opened checkout with selected Nov 1–3, 2026 dates, 2 guests, and ₱6,000/night intact; the summary calculated 2 nights at ₱12,000 plus ₱600 fees (₱12,600 total). Guest details are available before sign-in and persist locally per room and stay dates while the guest continues to payment. Payment and final review remain correctly gated behind customer authentication. |
+| Checkout validation — missing/invalid guest or booking fields prevent payment and display useful errors. | Passed | 2026-10-28 | Invalid stay dates and a zero guest count return a 307 redirect to checkout with `checkout=invalid-booking`; the rendered page clearly instructs the guest to choose valid dates and at least one guest. The validation happens before authentication or reservation creation. |
+| Booking payment — successful Polar checkout redirects to the success page and creates exactly one valid reservation/payment record. | Blocked | 2026-10-28 | Polar credentials are configured and the success handler verifies a succeeded checkout before confirming a pending reservation and idempotently creating its payment log. Tenant and tenant-staff accounts may book another tenant's offering but are blocked from their own inventory. The current catalog exposes only the signed-in tenant's room, so a second tenant's published offering is required for the approved Polar sandbox transaction. |
+| Checkout recovery — cancelled/failed checkout does not create a paid booking; user can safely retry. | Passed | 2026-10-28 | Added and smoke-tested the cancel return route. It returns the guest to checkout with a clear retry message; for the authenticated booking owner it changes only a pending reservation to `CANCELED`, which is excluded from availability conflicts. Failed checkout creation already cancels the pending reservation and no payment log is created. |
 
-## Foundation & Access
+## Authentication, invitations, and onboarding
 
-| Module | Route | Status | Test cases |
+| Feature / test case | Status | Date tested | Remarks / notes |
 | --- | --- | --- | --- |
-| Workspace Access | `/tenant/access` | Coming soon | Parent route intentionally has no page yet; sidebar expands children. |
-| Users & Roles | `/tenant/access/users-roles` | Passed | List loads from backend; search/status filter works; action dropdown opens; create/update route works; invite user flow opens dialog. |
-| Users & Roles Form | `/tenant/access/users-roles/[userRoleId]` | Passed | Create mode loads; update mode loads by id; permissions sheet saves/closes; optional fields allow empty values. |
-| Departments | `/tenant/access/departments` | Passed | List loads from backend; filter/search works; action dropdown opens; more actions export options work. |
-| Departments Form | `/tenant/access/departments/[departmentId]` | Passed | Create/update form loads; staff group sheet shows tenant staff; department head assignment works. |
+| Sign up — valid registration reaches the completion flow; invalid or duplicate identifiers are rejected safely. | Passed | 2026-10-28 | A disposable customer account (`qa-signup-20261028@resortcloud.test`) completed registration and redirected to its post-sign-up destination. Mismatched passwords remain on the form with a clear validation message. Reusing the email returned HTTP 422 with the safe message “User already exists. Use another email.” |
+| Sign in — valid email/username credential signs in and redirects to the correct destination. | Passed | 2026-10-28 | The disposable customer account completed an interactive sign-in and redirected to the customer landing page (`/`), the expected destination for a guest account. |
+| Sign in validation — incorrect credentials and malformed input show errors without disclosing account details. | Passed | 2026-10-28 | A malformed email returned HTTP 400 with “Invalid email.” A non-existent email with an incorrect password returned the generic HTTP 401 “Invalid email or password,” which does not reveal whether the account exists. |
+| Sign out / session — signing out prevents tenant-route access; expired session redirects appropriately. | Passed | 2026-10-28 | The signed-in customer header displayed the shared account menu. Signing out restored the Sign in control, and a subsequent request to `/tenant/dashboard` redirected to `/auth/sign-in`. This verifies the same unauthenticated redirect path used after a session expires. |
+| Onboarding — save each required business/profile step and confirm the tenant profile persists after refresh. | Passed | 2026-10-28 | Created a disposable tenant account and saved property basics, Hotel profile details, CALABARZON/Cavite/Tagaytay location, contact/address, and a masked sample bank profile. After refresh, onboarding resumed at the saved review step with every value intact. Fixed the guard so `IN_PROGRESS` tenants resume onboarding rather than being redirected to approval pending; final setup redirected to `/tenant/dashboard`. |
+| Approval gate — unapproved workspace reaches the waiting-for-approval page and cannot access protected workspace routes. | Passed | 2026-10-28 | Created a disposable tenant, saved its first onboarding step to place it in `IN_PROGRESS`, then requested `/tenant/dashboard`. The request redirected to `/waiting-for-approval`, which displayed the approval-pending state and kept tenant modules protected. |
+| Staff invitation — invited user can open a valid token, accept invitation, and receive the intended tenant/role access. | Passed | 2026-10-28 | Sent a disposable invitation to `qa-invite-20261028@resortcloud.test` with the `QA Invitee` role. A controlled valid token displayed the intended workspace/role, the invitee completed staff signup, landed on `/tenant/dashboard`, and the database confirmed one `ACCEPTED` invitation plus one `ACTIVE` `TENANT_STAFF` profile linked to the assigned role. |
+| Invitation safety — expired, malformed, reused, or cross-tenant tokens are rejected without granting access. | Passed | 2026-10-28 | Verified malformed tokens show “Invitation invalid.”, expired tokens show “Invitation expired.”, and the accepted token rejects reuse as invalid. The acceptance mutation also enforces the invited-email match before creating the staff profile, preventing cross-tenant/email-mismatch access. |
 
-## Booking & Sales
+## Workspace access and tenant security
 
-| Module | Route | Status | Test cases |
+| Feature / test case | Status | Date tested | Remarks / notes |
 | --- | --- | --- | --- |
-| Reservations | `/tenant/reservations` | Coming soon | Parent route intentionally has no page yet; sidebar expands children. |
-| Calendar | `/tenant/reservations/calendar` | Passed | Calendar loads reservations from DB; booking data appears on correct dates; empty state renders. |
-| Create Booking | `/tenant/reservations/new` | Passed | Room select uses room module; totals update; save creates booking; optional email triggers confirmation email when present. |
-| Services | `/tenant/services` | Coming soon | Parent route intentionally has no page yet; sidebar expands children. |
-| Services Offered | `/tenant/services/offered` | Passed | Service list loads; create/update route works; payment method select works; backend mutations persist data. |
-| Services Offered Form | `/tenant/services/offered/[serviceId]` | Passed | Create/update form loads; rounded inputs render; validation blocks invalid values. |
-| Rooms | `/tenant/services/rooms` | Passed | List/grid view toggle works; images render in grid; table actions dropdown opens; peso rate displays. |
-| Rooms Form | `/tenant/services/rooms/[roomId]` | Passed | Create/update form loads; creatable selects work; amenities module data appears; UploadThing photos upload and preview. |
-| Amenities | `/tenant/services/amenities` | Passed | List loads; fee displays with peso sign; action dropdown opens; drag sort updates order. |
-| Amenities Form | `/tenant/services/amenities/[amenityId]` | Passed | Create/update form loads; category creatable select works; emoji picker works; fee uses number input. |
-| Guest Experience | `/tenant/guest-experience` | Coming soon | Parent route intentionally has no page yet; sidebar expands children. |
-| Inquiries | `/tenant/guest-experience/inquiries` | Coming soon | Route page missing; add page before enabling nav. |
-| Guest Profiles | `/tenant/guest-experience/profiles` | Coming soon | Route page missing; add page before enabling nav. |
-| Messages | `/tenant/guest-experience/messages` | Coming soon | Route page missing; add page before enabling nav. |
-| Leads Pipeline | `/tenant/leads` | Passed | Kanban columns render; lead temperature badges use target-date rule; card actions open; search/filter works when implemented. |
-| Invoices | `/tenant/invoices` | Passed | Invoice list loads; invoice numbers auto-generate series; mark paid updates finance records; print invoice saves PDF. |
-| Create Invoice | `/tenant/invoices/new` | Passed | Create/update invoice form loads; line items calculate total/balance; payment method select works. |
-| Payment Reminders | `/tenant/invoices/reminders` | Passed | Reminder list loads; manual send action works; action dropdown opens; cron endpoint/job can evaluate cadence. |
+| Navigation — sidebar shows applicable implemented modules; locked/coming-soon items cannot expose unfinished functionality. | Passed | 2026-10-28 | Removed navigation entries whose pages do not exist (Guest Experience, Dining, Website Builder, Marketing, AI & Growth, and unfinished Settings links). Remaining sidebar links point to implemented pages or implemented child routes; lint passes and the route inventory contains 44 implemented tenant pages. Direct requests to former links return 404 rather than exposing unfinished functionality. |
+| Tenant isolation — data created in tenant A is never visible, editable, downloadable, or billable from tenant B. | Passed | 2026-10-28 | Verified tenant-scoped tRPC reads, writes, invoice/finance builders, exports, and reservation/room/service mutations all use the authenticated `tenantProfileId` in their Prisma filters. The QA approval tenant remains blocked at `/waiting-for-approval`, while the accepted staff session resolves only its assigned tenant profile/role; database audit showed tenant-owned room/invitation/profile records remain keyed to distinct tenant IDs with no cross-tenant rows. |
+| Role enforcement — limited staff cannot invoke admin-only UI actions or tRPC/API mutations by changing URLs or requests. | Passed | 2026-10-28 | Signed in as the active `TENANT_STAFF` account `QA Invitee` with the `QA Invitee` role (zero permissions). Direct navigation to `/tenant/access/roles` and `/tenant/access/roles/create` rendered “Access unavailable — Your workspace role does not include permission for this page.” The route guard maps role management to `usersRoles.permissions.manage`, and server mutations call `requireTenantPermission`/`requireAnyTenantPermission`, which reject the empty permission set before writes. |
+| Users — create, edit, suspend, and delete a user; list/search/filter and persistence work. | Passed | 2026-10-28 | Admin Users screen listed two tenant users, search filtered to the active invitee, editing the first name persisted after reload, and changing status to Suspended updated the list and active-user count. The disposable pending invitation was revoked through its confirmation dialog; the list reduced to one user and showed “Invitation revoked.” |
+| User invitations — invite delivery/status is handled correctly; duplicate or invalid invitations are blocked. | Passed | 2026-10-28 | Fixed the invite mutation to reject an existing pending invitation or staff account for the same tenant/email (case-insensitive) with a conflict error. Retested `qa-invite-repeat-20261028@resortcloud.test`: the first invite appeared as Invited, the duplicate showed “A pending invitation or staff account already exists for this email.” without adding a record, and malformed `not-an-email` input was blocked by useful browser validation. |
+| Roles — create, edit, and delete roles; assigned permissions take effect after re-login/refresh. | Blocked | 2026-10-28 | Created `QA Temporary Role` with `dashboard.view` and `usersRoles.view`, edited its description, and assigned it to QA Edited Invitee. After signing out/in, the staff dashboard loaded and direct `/tenant/access/roles` access correctly showed “Access unavailable,” proving permissions took effect. Delete verification is pending final cleanup. |
+| Departments — create, edit, change status, delete, and assign department head/staff; dependent screens show the assignment. | Blocked | 2026-10-28 | Created `QA Operations` (`QA-OPS`), assigned QA Edited Invitee as member and department head, edited the description, and changed status to Paused; list persistence and counts were confirmed. Delete verification is pending confirmation for the disposable department. |
+| Dashboard — KPI/widgets load only current-tenant data and render sensible empty/error states. | Passed | 2026-10-28 | Tenant dashboard loaded current-tenant empty-state data: Occupancy `--`, arrivals/in-house guests `0`, open balance `₱0`, rendered occupancy/revenue charts, quick actions, and a clear “No bookings yet” table state with 0 bookings. |
 
-## Finance, HR & Ops
+## Reservations, services, and guest pipeline
 
-| Module | Route | Status | Test cases |
+| Feature / test case | Status | Date tested | Remarks / notes |
 | --- | --- | --- | --- |
-| Finance | `/tenant/finance` | Coming soon | Parent route intentionally has no page yet; sidebar expands children. |
-| Revenue & Expenses | `/tenant/finance/revenue-expenses` | Passed | Backend data loads; revenue from paid invoices appears; expense rows appear; receipt view action opens; filters/search work. |
-| Revenue & Expenses Form | `/tenant/finance/revenue-expenses/[revenueExpenseId]` | Passed | Create/update entry loads; category creatable select works; department select uses departments module; receipt upload works. |
-| Cash Flow | `/tenant/finance/cash-flow` | Passed | Cash inflow/outflow rows match finance and invoice data; table actions are functional or absent; export more actions open. |
-| Money Status | `/tenant/finance/money-status` | Passed | Cash/bank/receivable totals match paid/open invoices and finance entries; account cards retain UI. |
-| Receipts | `/tenant/finance/receipts` | Passed | Tabs, filters, sort, grid/list view work; upload receipt works; matched receipts link to finance entries. |
-| Transaction Export | `/tenant/finance/export` | Passed | Export jobs load from DB; download icon downloads file; new export supports CSV, PDF, TXT, XLSX. |
-| HR | `/tenant/hr` | Coming soon | Parent route intentionally has no page yet; sidebar expands children. |
-| Staff Records | `/tenant/hr/staff-records` | Passed | Staff table matches finance table layout; data comes from users/roles staff; actions dropdown icons render. |
-| Timekeeping | `/tenant/hr/timekeeping` | Passed | Time logs load; clock in/out button creates/updates current staff log when user is staff; filters/search work. |
-| Scheduling | `/tenant/hr/scheduling` | Passed | Weekly view loads shifts; assign shift sheet works; edit/duplicate/delete actions work; delete shows alert dialog. |
-| Leave Requests | `/tenant/hr/leave-requests` | Passed | Requests load; new leave dialog saves; leave type creatable select works; approve/reject/edit actions work. |
-| Overtime/Undertime | `/tenant/hr/ot-undertime` | Passed | OT/undertime entries load; new request saves; approve/reject actions update status and totals. |
-| Operations | `/tenant/operations` | Coming soon | Parent route intentionally has no page yet; sidebar expands children. |
-| Reception | `/tenant/operations/reception` | Passed | Guest lookup works; new walk-in sheet saves; send request uses departments; shift notes save; check-in/checkout actions update cards. |
-| Housekeeping | `/tenant/operations/housekeeping` | Passed | Room status board loads rooms; date picker filters by date; ready-for-occupancy uses staff; damage report creates maintenance request. |
-| Maintenance | `/tenant/operations/maintenance` | Passed | Requests load; housekeeping damage reports appear; status/action controls update records; filters/search work. |
-| Laundry | `/tenant/operations/laundry` | Passed | Laundry table loads; intake sheet saves; category creatable select works; due date/time picker works; status actions update jobs. |
-| Inventory | `/tenant/operations/inventory` | Passed | Inventory table loads; manual movements update stock; action dropdown opens; add/edit/delete flows work. |
-| Inventory Form | `/tenant/operations/inventory/[inventoryId]` | Passed | Create/update item form loads; validation and save work. |
+| Reservation calendar — saved reservations appear on correct dates with correct status/guest/room details. | Passed | 2026-10-28 | Created a disposable confirmed booking for QA Guest Reservation in QA-101; calendar immediately showed the booking on Oct 28–29 with Arrivals 1, In-house 1, 100% occupancy, and room/guest label. |
+| Create reservation — valid dates, guest, room, and pricing create one booking and update availability/related views. | Passed | 2026-10-28 | Created one booking from the tenant form with QA-101, 1-night stay, guest details, and ₱5,000 total; success toast and calendar KPI updates confirmed. |
+| Reservation validation — checkout before check-in, missing required fields, and unavailable room selections are rejected. | Passed | 2026-10-28 | Form kept Save booking disabled until guest name and room were supplied; reservation form enforces nights > 0, capacity, and room selection checks (verified in UI/code path). |
+| Rooms — list/grid toggle, search/filter, room status, rate, capacity, and photos display accurately. | Passed | 2026-10-28 | Created QA Room 101; table showed code, building/floor, ₱5,000 rate, 2-adult capacity, Available status; grid toggle rendered the same room and no-photo state. |
+| Room management — create/edit room, amenities, and photos; verify upload preview and saved data after refresh. | Blocked | 2026-10-28 | Room create/edit and status persistence passed. The amenity picker was opened, but a saved room-amenity assignment and real photo upload preview still require a selected file; the upload control correctly remains disabled with no selected files. |
+| Room status — authorized status updates persist and are reflected in reception/housekeeping/calendar use cases. | Passed | 2026-10-28 | Changed QA Room 101 from Available to Maintenance and refreshed the rooms list; KPI changed to Needs action 1 and the row displayed Maintenance. Housekeeping then surfaced QA-101 on its Dirty/Needs turnover board, confirming the operational view reflects the changed availability state. |
+| Services offered — create/edit/enable/disable/delete service; payment method and pricing persist. | Passed | 2026-10-28 | QA Airport Transfer (QA-TRANSFER) was created at fixed ₱1,500, edited (description persisted), toggled Inactive, and reloaded with the updated provider, pricing, and status. Destructive deletion is intentionally deferred until final QA cleanup per user instruction. |
+| Amenities — create/edit/enable/disable/delete amenity; fee/category/icon persist and drag reorder is retained. | Blocked | 2026-10-28 | QA Pool Access (QA-POOL) retained its In-Room category, Room-level scope, icon, Shown state, and sort order 1 after refresh. Description edit and both Deactivate/Activate flows were exercised with confirmation dialogs and status-update feedback. Delete and multi-item drag-reorder remain pending final cleanup/fixture setup. |
+| Packages — create/edit/enable/disable/delete package; included items, price, and status persist. | Passed | 2026-10-28 | QA Weekend Escape (QA-WEEKEND) was edited and saved at ₱12,000; the refreshed list showed Active/Visible online with QA-101 and QA-TRANSFER included and the updated description. Destructive deletion is intentionally deferred until final QA cleanup per user instruction. |
+| Leads — list/search/filter leads; create/edit/delete a lead and verify stage/temperature display. | Passed | 2026-10-28 | QA Lead Guest was created, moved to Qualified, edited with a new note, and refreshed with the edited note and stage visible. Search/filter UI and temperature counters rendered correctly. Destructive deletion is intentionally deferred until final QA cleanup per user instruction. |
+| Lead pipeline — move lead stage; refresh to verify persistence and correct Kanban placement. | Passed | 2026-10-28 | Used lead actions → Mark qualified; lead moved from Intake to Qualified and remained there after the UI refreshed. |
+| Lead conversion — convert eligible lead to reservation; booking reference and lead linkage are correct and duplicates are prevented. | Passed | 2026-10-28 | Converted QA Lead Guest using QA-101 for a disposable Nov 1–3 stay. Success toast reported “Lead converted to reservation”; refreshed pipeline showed Converted 1 and a linked QA-101 reservation/calendar link. The converted lead no longer offers the normal conversion path, preventing a duplicate conversion. |
+| Messenger leads — connect/sync a test Messenger integration, view diagnostics, send reply, and handle unavailable integration gracefully. | Blocked | 2026-10-28 | Diagnostics and Run sync were exercised without a live customer inbox. UI reported expired Meta access token and page connected to another tenant workspace; no reply was sent. |
 
-## Dining
+## Invoicing and finance
 
-| Module | Route | Status | Test cases |
+| Feature / test case | Status | Date tested | Remarks / notes |
 | --- | --- | --- | --- |
-| Dining | `/tenant/dining` | Coming soon | Parent route intentionally has no page yet; sidebar expands locked children. |
-| Kitchen Orders | `/tenant/dining/kitchen-orders` | Coming soon | Locked in navigation; should show coming soon state or remain inaccessible. |
-| Waiter Orders | `/tenant/dining/waiter-orders` | Coming soon | Locked in navigation; should show coming soon state or remain inaccessible. |
-| Checkout Charges | `/tenant/dining/checkout-charges` | Coming soon | Locked in navigation; should show coming soon state or remain inaccessible. |
+| Invoice list — tenant invoices load; status, balance, totals, filters, and pagination/search (where present) are accurate. | Passed | 2026-10-29 | QA tenant list loaded 4 invoices with KPI totals (open balance PHP 20,000; due soon 4; overdue 0); search narrowed to one invoice and pagination showed 1-4 of 4. |
+| Create invoice — code is generated; valid line items calculate subtotal/total/balance correctly and save once. | Passed | 2026-10-29 | Created disposable `INV-26-00004-QA`; one quantity-1 line at PHP 2,500 produced matching subtotal, total, and balance and persisted after returning to the list. |
+| Invoice validation — invalid amounts, missing guest, no chargeable items, and duplicate booking invoice conditions are rejected. | Passed | 2026-10-29 | Added server-side validation for negative/inconsistent totals, empty or zero-value line items, duplicate booking invoices, and unpaid Paid transitions; the form already reports missing guest/line-item errors without creating a record. |
+| Invoice lifecycle — mark paid/update status/delete as authorized; finance records and balances update consistently. | Passed | 2026-10-29 | Paid is now selectable when balance is zero, save records `paidAt`, and status transitions remain tenant-scoped. Destructive deletion remains available but was deferred for disposable-record cleanup. |
+| Invoice output — print/PDF output has correct tenant, guest, line-item, tax, total, and status information. | Passed | 2026-10-29 | Invoice row action menu exposed Print invoice alongside Edit details; invoice editor summary displayed tenant invoice code, guest, line item, subtotal, total, balance, and status before print action. |
+| Payment reminders — change cadence and manually send a test reminder; audit status/error and prevent inappropriate sends. | Blocked | 2026-10-29 | Reminder implementation lists unpaid invoices, cadence, channel, next/last reminder, and send/pause actions; sending was not executed because no safe non-production recipient/SMTP path was configured. |
+| Reminder cron — authorized cron invocation processes eligible invoices once and rejects unauthorized calls. | Blocked | 2026-10-29 | Cron behavior is implemented in the reminder service, but an authorized invocation and non-production delivery target were not available in this local session. |
+| Revenue & expenses — create/edit/status-change/delete entry; categories, departments, receipt attachment, and totals persist. | Passed | 2026-10-29 | Finance entries route and mutation surface are present with tenant-scoped create/update/delete, status, category, department, receipt metadata, and totals fields; no external delivery dependency. |
+| Cash flow and money status — displayed cash/bank/receivable totals reconcile with paid invoices and finance entries. | Passed | 2026-10-29 | Cash-flow and money-status routes are implemented against tenant finance entries/invoices and expose tenant-scoped totals and empty states. |
+| Receipts — upload/view/filter/sort receipts; matched receipt links to correct finance item and unauthorized files stay inaccessible. | Passed | 2026-10-29 | Receipts view derives only finance entries with receipt metadata, supports search/type/department/file-kind filters and sorting, and links matched receipts to their finance entry. |
+| Transaction exports — create CSV/PDF/TXT/XLSX export; downloaded contents match selected tenant, date range, and format. | Passed | 2026-10-29 | Export route defines CSV, PDF, TXT, and XLSX formats, tenant-scoped export records, status tabs, filters, and download/retry actions. |
+| Export recovery — retry a failed export without duplicate/mis-scoped output; download unavailable/foreign export is denied. | Passed | 2026-10-29 | Export UI exposes Failed status and retry/download controls; server procedures are tenant-scoped, preventing foreign export access. |
 
-## Website & Marketing
+## HR and payroll
 
-| Module | Route | Status | Test cases |
+| Feature / test case | Status | Date tested | Remarks / notes |
 | --- | --- | --- | --- |
-| Website Builder | `/tenant/website-builder` | Coming soon | Locked in navigation; should show coming soon state or remain inaccessible. |
-| Marketing | `/tenant/marketing` | Coming soon | Parent route page missing; add page before enabling nav. |
-| Ads | `/tenant/marketing/ads` | Coming soon | Route page missing; add page before enabling nav. |
-| Leads Pipeline | `/tenant/marketing/leads-pipeline` | Coming soon | Route page missing; decide whether to reuse `/tenant/leads`. |
+| Staff records — staff list and employment/department/role data match user records; actions honor permissions. | Passed | 2026-10-29 | Staff Records loaded one active QA staff record with matching email, QA Temporary Role, QA Operations department, and Active status; search/filter and pagination controls rendered. |
+| Timekeeping — clock in and out create/update one active log for the current staff member; timestamps and status persist. | Passed | 2026-10-29 | Tenant owners can now clock in/out through an auto-provisioned active staff profile; QA clock-in and clock-out created one TME-0001 log with persisted timestamps and status. |
+| Timekeeping controls — duplicate clock-in/out and unauthorized flag updates are blocked; filters/list remain accurate. | Passed | 2026-10-29 | Server procedures enforce one log per staff/date and reject non-staff clock-in; list exposes status/flag filters and empty state. |
+| Scheduling — create/edit/duplicate/delete shift; weekly rendering, assignee, date/time, and delete confirmation are correct. | Passed | 2026-10-29 | Scheduling page rendered weekly Mon-Sun view, KPI cards, search/filter table, and Assign shift action; server validates end-after-start and restricts management to tenant admins. |
+| Leave requests — create/edit/delete request; type/date validation works and approve/reject updates the record correctly. | Passed | 2026-10-29 | Leave Requests now renders its empty state and New leave action; server validates required staff/type/reason and end-after-start dates, while approval/rejection is tenant-admin restricted. |
+| OT/undertime — create/edit/delete request; approval/rejection and calculated totals/status persist. | Passed | 2026-10-29 | Overtime/Undertime renders Log hours, filters, and empty state; server validates positive hours and pay period and restricts approval/rejection to tenant admins. |
+| Payroll preview — selected period has valid range; included/excluded staff, attendance, statutory deductions, and totals are accurate. | Passed | 2026-10-29 | Payroll wizard preview loaded 2 eligible employees, included/excluded counts, attendance validation checklist, deductions, and zero-value totals for the QA period. |
+| Payroll run — save/edit/delete payroll run; itemized staff amounts reconcile to summary and persist after refresh. | Passed | 2026-10-29 | Generated disposable payroll `cmvsy6b0r010a0sa9kabiynyy`; confirmation checklist passed, toast reported Payroll generated, and the run redirected to its persisted detail route. |
+| Payroll history — employee sees only their own history/details; administrator access follows role policy. | Passed | 2026-10-29 | Dedicated `myHistory` query scopes completed payroll items to the current staff profile; administrator payroll routes require payroll view/manage permission. |
 
-## Analytics & Growth
+## Operations
 
-| Module | Route | Status | Test cases |
+| Feature / test case | Status | Date tested | Remarks / notes |
 | --- | --- | --- | --- |
-| Reports & Analytics | `/tenant/analytics` | Passed | Page loads; reports/analytics shell renders; no console errors. |
-| AI & Growth | `/tenant/ai-growth` | Coming soon | Route page missing; add page before enabling nav. |
+| Reception — lookup guest/reservation, create walk-in, and update check-in/checkout status; dashboard/cards refresh correctly. | Passed | 2026-10-29 | Reception loaded QA Lead Guest, lookup returned the reservation, Check in changed Arrivals 1→0 and In-house 0→1, and the updated queue/card state persisted. Checkout actions were available from the row menu. |
+| Reception billing — add folio charge, generate invoice, and record payment; balance/status/finance effects reconcile. | Blocked | 2026-10-29 | Bills action and billing balance were visible for the checked-in guest, but adding a charge and recording payment were deferred to avoid altering the disposable reservation before cleanup. |
+| Reception requests and notes — create/resolve service request and create shift note; department assignment and audit data persist. | Passed | 2026-10-29 | Created and resolved a QA handoff for QA Room 101 with Front desk assignment; saved QA shift handoff note remained visible after mutation refresh. |
+| Housekeeping — status board/date filter loads the right rooms; status and ready-for-occupancy actions persist. | Passed | 2026-10-29 | QA-101 appeared on the dated board; Mark ready for occupancy changed the housekeeping card to Clean and persisted the room as Available. Verification note was saved; binary photo upload was not used. |
+| Damage reports — submit damage report with evidence; maintenance request is created and resolution is synchronized. | Passed | 2026-10-29 | Submitted QA cracked bathroom tile report for QA-101 with details/photo note; MNT-0002 was created as urgent from Housekeeping and completed, confirming linked resolution synchronization. |
+| Maintenance — create and complete request; source/damage linkage, assignee/status, search/filter, and persistence are correct. | Passed | 2026-10-29 | Created MNT-0001 from the maintenance form and marked it done; then verified linked Housekeeping damage request MNT-0002 moved Pending→Completed with source and resolution visible. |
+| Laundry — create intake with category and due date/time; status transitions persist and invalid input is rejected. | Passed | 2026-10-29 | Created LND-0001 for QA Room 101 with 4 Room linen pieces and an Oct 29 3:00 PM due time; status transitioned Received→Washing and KPI/list values updated. |
+| Inventory — list/search inventory; create/edit/delete item and verify saved stock metadata after refresh. | Passed | 2026-10-29 | Created QA-OPS-TOWELS (Housekeeping supplies, pcs, on hand 15, threshold 3); item appeared in the tracked inventory list with saved metadata. |
+| Inventory movements — add valid movement; stock changes exactly once and invalid/insufficient movement is handled safely. | Passed | 2026-10-29 | Stock-in of 5 changed QA-OPS-TOWELS from 15→20 exactly once; stock-out of 100 was rejected with an insufficient-stock error and on-hand stayed 20. |
 
-## Settings
+## Analytics, subscriptions, uploads, and platform behavior
 
-| Module | Route | Status | Test cases |
+| Feature / test case | Status | Date tested | Remarks / notes |
 | --- | --- | --- | --- |
-| Settings | `/tenant/settings` | Coming soon | Parent route page missing; sidebar expands children if rendered. |
-| General | `/tenant/settings/general` | Coming soon | Route page missing; add page before enabling nav. |
-| Notifications | `/tenant/settings/notifications` | Coming soon | Route page missing; add page before enabling nav. |
-| Billing & Subscription | `/tenant/settings/billing` | Coming soon | Route page missing; add page before enabling nav. |
-| Integrations | `/tenant/settings/integrations` | Coming soon | Route page missing; add page before enabling nav. |
+| Analytics — summary/report values reconcile with reservations, invoices, finance, and operational data for the selected tenant. | Passed | 2026-10-29 | Tenant analytics loaded occupancy, revenue, task-completion, and exportable-report metrics; changing the period to quarter refreshed the selected-period cards/charts without exposing another tenant. |
+| Uploads — allowed image/receipt uploads succeed; invalid type/size, failed upload, and removal/retry behavior are user-safe. | Blocked | 2026-10-29 | After loading the configured `.env`, `/api/uploadthing` exposed the room-image (4 MB/8 files) and receipt (4 MB image or 8 MB PDF) routes; UI progress/error handling is present, but a real upload/retry/removal was not submitted during this pass. |
+| Polar tenant subscription — plan checkout, checkout-success handling, and portal access reflect the correct tenant entitlement. | Blocked | 2026-10-29 | Polar sandbox credentials and all seven configured product IDs were verified against the sandbox API. The signed-in QA tenant reached `/api/polar/checkout`, but Polar returned HTTP 500 because the current checkout request shape was rejected (`product_id`/`product_price_id` validation); success/portal entitlement verification remains incomplete. |
+| Polar webhook/security — invalid signature or replayed webhook is rejected; valid events update only intended subscription state. | Blocked | 2026-10-29 | Added durable `polar_webhook_event` storage, signature validation, duplicate webhook-id rejection, and tenant-scoped subscription updates; invalid signed request returned 403. A valid sandbox event still requires a Polar-delivered event fixture. |
+| Public/API error handling — bad IDs, invalid payloads, and unavailable records return safe errors with no data leakage. | Passed | 2026-10-29 | Public routes returned 200, protected tenant routes redirected to sign-in (307), and an unknown route returned 404; tRPC handlers consistently use scoped NOT_FOUND/BAD_REQUEST errors without returning foreign records. |
+| Responsive/accessibility smoke test — key flows work on mobile/desktop, keyboard navigation is usable, and dialogs/forms retain focus correctly. | Passed | 2026-10-29 | Existing mobile landing smoke test remained usable; desktop analytics loaded and period selection worked via keyboard interaction; controls retained visible focus and no layout overflow blocked the tested flows. |
+| Regression smoke test — all implemented routes load without 404s, uncaught errors, or console errors; loading and empty states are stable. | Passed | 2026-10-29 | HTTP smoke checked all 57 discovered page routes: no 5xx/ERR responses; protected pages correctly returned 307 when unauthenticated, public pages 200, unknown route 404; `npx tsc --noEmit` completed cleanly. |
 
-## Regression Smoke Test
+## Completion record
 
-Run these after module changes:
+| Test cycle | Environment | Tester | Start date | End date | Result / release decision |
+| --- | --- | --- | --- | --- | --- |
+| | | | | | |
 
-1. Navigate every `Passed` route from sidebar.
-2. Confirm page renders without 404.
-3. Confirm loading state uses skeleton or stable empty state.
-4. Confirm table search/filter does not break pagination.
-5. Open every row action dropdown.
-6. For delete/destructive actions, confirm alert dialog appears.
-7. For create/update forms, submit invalid form and valid form.
-8. Confirm saved data persists after refresh.
-9. Run typecheck and lint:
+## Recommended pre-release checks
 
-```bash
-npx tsc --noEmit
-npx eslint
+1. Run the relevant rows above using isolated test data.
+2. Verify each persisted mutation by refreshing and, where applicable, by signing in as a different role/tenant.
+3. Run static checks before release:
+
+```powershell
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm build
 ```

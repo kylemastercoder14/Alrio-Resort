@@ -241,12 +241,12 @@ export function LandingSearchBar({
   ) => {
     const active = panel === segment;
     return [
-      "relative flex min-h-13 lg:min-h-16 cursor-pointer items-center gap-3 rounded-full px-4 text-left transition-all duration-200",
+      "relative flex min-h-13 cursor-pointer items-center gap-3 rounded-xl px-4 text-left transition-all duration-200 md:min-h-16 md:rounded-full",
       active
-        ? "z-10 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.15)] scale-[1.02]"
+        ? "z-10 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.15)] md:scale-[1.02]"
         : "hover:bg-zinc-100",
       withDivider && !active
-        ? "lg:border-l lg:rounded-l-none border-t border-zinc-200 lg:border-t-0"
+        ? "border-t border-zinc-200 md:border-l md:border-t-0 md:rounded-l-none"
         : "",
     ].join(" ");
   };
@@ -261,8 +261,8 @@ export function LandingSearchBar({
 
   return (
     <div ref={searchRef} className="relative z-50 mt-10">
-      <div className="rounded-full border border-white/15 bg-white/95 p-2 text-zinc-950 shadow-2xl shadow-black/30 backdrop-blur">
-        <div className="grid gap-1 lg:grid-cols-[1.2fr_1fr_.9fr_auto] lg:items-center">
+      <div className="rounded-3xl border border-white/15 bg-white/95 p-2 text-zinc-950 shadow-2xl shadow-black/30 backdrop-blur md:rounded-full">
+        <div className="grid gap-1 md:grid-cols-[1.2fr_1fr_.9fr_auto] md:items-center">
           <button
             type="button"
             onClick={() => setPanel(panel === "where" ? null : "where")}
@@ -309,8 +309,8 @@ export function LandingSearchBar({
             type="button"
             onClick={handleSearch}
             className={[
-              "min-h-13 shrink-0 rounded-full bg-sky-700 transition-all duration-200 hover:bg-sky-800 lg:min-h-16",
-              isPanelOpen ? "w-13 px-0 lg:w-16" : "w-full px-8 text-sm",
+              "min-h-13 shrink-0 rounded-xl bg-sky-700 transition-all duration-200 hover:bg-sky-800 md:min-h-16 md:rounded-full",
+              isPanelOpen ? "w-13 px-0 md:w-16" : "w-full px-8 text-sm",
             ].join(" ")}
           >
             <Search className="size-4" />
@@ -320,7 +320,7 @@ export function LandingSearchBar({
       </div>
 
       {panel === "where" ? (
-        <div className="animate-in fade-in-0 slide-in-from-top-2 duration-200 absolute left-0 top-[calc(100%+12px)] z-30 w-full max-w-130 rounded-[1.75rem] bg-white p-5 text-zinc-950 shadow-2xl shadow-black/25">
+        <div className="animate-in fade-in-0 slide-in-from-top-2 duration-200 absolute left-0 top-[calc(100%+12px)] z-[100] max-h-[min(70vh,42rem)] w-full max-w-130 overflow-y-auto rounded-[1.75rem] bg-white p-5 text-zinc-950 shadow-2xl shadow-black/25">
           <label className="flex h-14 items-center gap-3 rounded-full border-2 border-sky-700 px-4">
             <Search className="size-5 text-zinc-400" />
             <input
@@ -405,7 +405,7 @@ export function LandingSearchBar({
       ) : null}
 
       {panel === "when" ? (
-        <div className="animate-in fade-in-0 slide-in-from-top-2 duration-200 absolute left-1/2 top-[calc(100%+12px)] z-30 w-[min(850px,calc(100vw-2rem))] -translate-x-1/2 rounded-[1.75rem] bg-white p-5 text-zinc-950 shadow-2xl shadow-black/25 sm:p-6">
+        <div className="animate-in fade-in-0 slide-in-from-top-2 duration-200 absolute left-1/2 top-[calc(100%+12px)] z-[100] max-h-[min(70vh,42rem)] w-[min(850px,calc(100vw-2rem))] -translate-x-1/2 overflow-y-auto rounded-[1.75rem] bg-white p-5 text-zinc-950 shadow-2xl shadow-black/25 sm:p-6">
           <Tabs
             value={whenMode}
             onValueChange={(value) => setWhenMode(value as WhenMode)}
@@ -574,7 +574,7 @@ export function LandingSearchBar({
       ) : null}
 
       {panel === "who" ? (
-        <div className="animate-in fade-in-0 slide-in-from-top-2 duration-200 absolute right-0 top-[calc(100%+12px)] z-30 w-full max-w-130 rounded-[1.75rem] bg-white p-6 text-zinc-950 shadow-2xl shadow-black/25">
+        <div className="animate-in fade-in-0 slide-in-from-top-2 duration-200 absolute right-0 top-[calc(100%+12px)] z-[100] max-h-[min(70vh,42rem)] w-full max-w-130 overflow-y-auto rounded-[1.75rem] bg-white p-6 text-zinc-950 shadow-2xl shadow-black/25">
           <div className="divide-y divide-zinc-200">
             {guestGroups.map((group) => (
               <div

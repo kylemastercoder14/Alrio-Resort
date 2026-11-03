@@ -22,7 +22,19 @@ export const metadata: Metadata = {
   description:
     "ResortCloud is a SaaS-based resort management platform that streamlines reservations, guest experience, staff coordination, and property operations — all in one place.",
   icons: {
-    icon: "/main/logo-dark.png",
+    icon: [
+      {
+        url: "/main/logo-light.png?v=2",
+        media: "(prefers-color-scheme: light)",
+        type: "image/png",
+      },
+      {
+        url: "/main/logo-dark.png?v=2",
+        media: "(prefers-color-scheme: dark)",
+        type: "image/png",
+      },
+    ],
+    shortcut: "/main/logo-dark.png?v=2",
   },
 };
 

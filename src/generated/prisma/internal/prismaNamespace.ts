@@ -390,6 +390,7 @@ export const ModelName = {
   Verification: 'Verification',
   AppUser: 'AppUser',
   TenantProfile: 'TenantProfile',
+  PolarWebhookEvent: 'PolarWebhookEvent',
   TenantMessengerIntegration: 'TenantMessengerIntegration',
   TenantLead: 'TenantLead',
   TenantLeadMessage: 'TenantLeadMessage',
@@ -438,7 +439,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "appUser" | "tenantProfile" | "tenantMessengerIntegration" | "tenantLead" | "tenantLeadMessage" | "tenantStaffProfile" | "tenantAccessRole" | "tenantTimeLog" | "tenantScheduleShift" | "tenantLeaveRequest" | "tenantOtUndertimeEntry" | "tenantPayrollRun" | "tenantPayrollItem" | "tenantDepartment" | "tenantStaffInvitation" | "tenantAmenity" | "tenantRoom" | "tenantRoomPhoto" | "tenantHousekeepingRoom" | "tenantHousekeepingDamageReport" | "tenantLaundryJob" | "tenantReservation" | "tenantReceptionRequest" | "tenantReceptionShiftNote" | "tenantMaintenanceRequest" | "tenantInventoryItem" | "tenantInventoryMovement" | "tenantService" | "tenantPackage" | "tenantInvoice" | "tenantInvoiceLineItem" | "tenantFolioCharge" | "tenantPaymentLog" | "tenantFinanceEntry" | "tenantTransactionExport"
+    modelProps: "user" | "session" | "account" | "verification" | "appUser" | "tenantProfile" | "polarWebhookEvent" | "tenantMessengerIntegration" | "tenantLead" | "tenantLeadMessage" | "tenantStaffProfile" | "tenantAccessRole" | "tenantTimeLog" | "tenantScheduleShift" | "tenantLeaveRequest" | "tenantOtUndertimeEntry" | "tenantPayrollRun" | "tenantPayrollItem" | "tenantDepartment" | "tenantStaffInvitation" | "tenantAmenity" | "tenantRoom" | "tenantRoomPhoto" | "tenantHousekeepingRoom" | "tenantHousekeepingDamageReport" | "tenantLaundryJob" | "tenantReservation" | "tenantReceptionRequest" | "tenantReceptionShiftNote" | "tenantMaintenanceRequest" | "tenantInventoryItem" | "tenantInventoryMovement" | "tenantService" | "tenantPackage" | "tenantInvoice" | "tenantInvoiceLineItem" | "tenantFolioCharge" | "tenantPaymentLog" | "tenantFinanceEntry" | "tenantTransactionExport"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -883,6 +884,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TenantProfileCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TenantProfileCountAggregateOutputType> | number
+        }
+      }
+    }
+    PolarWebhookEvent: {
+      payload: Prisma.$PolarWebhookEventPayload<ExtArgs>
+      fields: Prisma.PolarWebhookEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PolarWebhookEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PolarWebhookEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>
+        }
+        findFirst: {
+          args: Prisma.PolarWebhookEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PolarWebhookEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>
+        }
+        findMany: {
+          args: Prisma.PolarWebhookEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>[]
+        }
+        create: {
+          args: Prisma.PolarWebhookEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>
+        }
+        createMany: {
+          args: Prisma.PolarWebhookEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PolarWebhookEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>[]
+        }
+        delete: {
+          args: Prisma.PolarWebhookEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>
+        }
+        update: {
+          args: Prisma.PolarWebhookEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.PolarWebhookEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PolarWebhookEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PolarWebhookEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.PolarWebhookEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PolarWebhookEventPayload>
+        }
+        aggregate: {
+          args: Prisma.PolarWebhookEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePolarWebhookEvent>
+        }
+        groupBy: {
+          args: Prisma.PolarWebhookEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PolarWebhookEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PolarWebhookEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PolarWebhookEventCountAggregateOutputType> | number
         }
       }
     }
@@ -3491,6 +3566,16 @@ export const TenantProfileScalarFieldEnum = {
 export type TenantProfileScalarFieldEnum = (typeof TenantProfileScalarFieldEnum)[keyof typeof TenantProfileScalarFieldEnum]
 
 
+export const PolarWebhookEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  tenantProfileId: 'tenantProfileId',
+  receivedAt: 'receivedAt'
+} as const
+
+export type PolarWebhookEventScalarFieldEnum = (typeof PolarWebhookEventScalarFieldEnum)[keyof typeof PolarWebhookEventScalarFieldEnum]
+
+
 export const TenantMessengerIntegrationScalarFieldEnum = {
   id: 'id',
   tenantProfileId: 'tenantProfileId',
@@ -5123,6 +5208,7 @@ export type GlobalOmitConfig = {
   verification?: Prisma.VerificationOmit
   appUser?: Prisma.AppUserOmit
   tenantProfile?: Prisma.TenantProfileOmit
+  polarWebhookEvent?: Prisma.PolarWebhookEventOmit
   tenantMessengerIntegration?: Prisma.TenantMessengerIntegrationOmit
   tenantLead?: Prisma.TenantLeadOmit
   tenantLeadMessage?: Prisma.TenantLeadMessageOmit

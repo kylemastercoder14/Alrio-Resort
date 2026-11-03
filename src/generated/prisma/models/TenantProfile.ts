@@ -575,6 +575,7 @@ export type TenantProfileWhereInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryListRelationFilter
   payrollRuns?: Prisma.TenantPayrollRunListRelationFilter
   payrollItems?: Prisma.TenantPayrollItemListRelationFilter
+  polarWebhookEvents?: Prisma.PolarWebhookEventListRelationFilter
 }
 
 export type TenantProfileOrderByWithRelationInput = {
@@ -655,6 +656,7 @@ export type TenantProfileOrderByWithRelationInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryOrderByRelationAggregateInput
   payrollRuns?: Prisma.TenantPayrollRunOrderByRelationAggregateInput
   payrollItems?: Prisma.TenantPayrollItemOrderByRelationAggregateInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventOrderByRelationAggregateInput
 }
 
 export type TenantProfileWhereUniqueInput = Prisma.AtLeast<{
@@ -738,6 +740,7 @@ export type TenantProfileWhereUniqueInput = Prisma.AtLeast<{
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryListRelationFilter
   payrollRuns?: Prisma.TenantPayrollRunListRelationFilter
   payrollItems?: Prisma.TenantPayrollItemListRelationFilter
+  polarWebhookEvents?: Prisma.PolarWebhookEventListRelationFilter
 }, "id" | "appUserId">
 
 export type TenantProfileOrderByWithAggregationInput = {
@@ -923,6 +926,7 @@ export type TenantProfileCreateInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateInput = {
@@ -1002,6 +1006,7 @@ export type TenantProfileUncheckedCreateInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUpdateInput = {
@@ -1081,6 +1086,7 @@ export type TenantProfileUpdateInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateInput = {
@@ -1160,6 +1166,7 @@ export type TenantProfileUncheckedUpdateInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateManyInput = {
@@ -1531,6 +1538,22 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type TenantProfileCreateNestedOneWithoutPolarWebhookEventsInput = {
+  create?: Prisma.XOR<Prisma.TenantProfileCreateWithoutPolarWebhookEventsInput, Prisma.TenantProfileUncheckedCreateWithoutPolarWebhookEventsInput>
+  connectOrCreate?: Prisma.TenantProfileCreateOrConnectWithoutPolarWebhookEventsInput
+  connect?: Prisma.TenantProfileWhereUniqueInput
+}
+
+export type TenantProfileUpdateOneWithoutPolarWebhookEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantProfileCreateWithoutPolarWebhookEventsInput, Prisma.TenantProfileUncheckedCreateWithoutPolarWebhookEventsInput>
+  connectOrCreate?: Prisma.TenantProfileCreateOrConnectWithoutPolarWebhookEventsInput
+  upsert?: Prisma.TenantProfileUpsertWithoutPolarWebhookEventsInput
+  disconnect?: Prisma.TenantProfileWhereInput | boolean
+  delete?: Prisma.TenantProfileWhereInput | boolean
+  connect?: Prisma.TenantProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantProfileUpdateToOneWithWhereWithoutPolarWebhookEventsInput, Prisma.TenantProfileUpdateWithoutPolarWebhookEventsInput>, Prisma.TenantProfileUncheckedUpdateWithoutPolarWebhookEventsInput>
 }
 
 export type TenantProfileCreateNestedOneWithoutMessengerIntegrationsInput = {
@@ -2029,6 +2052,7 @@ export type TenantProfileCreateWithoutAppUserInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutAppUserInput = {
@@ -2107,6 +2131,7 @@ export type TenantProfileUncheckedCreateWithoutAppUserInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutAppUserInput = {
@@ -2201,10 +2226,344 @@ export type TenantProfileUpdateWithoutAppUserInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutAppUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionPlan?: Prisma.EnumTenantSubscriptionPlanFieldUpdateOperationsInput | $Enums.TenantSubscriptionPlan
+  subscriptionStatus?: Prisma.EnumTenantSubscriptionStatusFieldUpdateOperationsInput | $Enums.TenantSubscriptionStatus
+  billingCycle?: Prisma.EnumTenantBillingCycleFieldUpdateOperationsInput | $Enums.TenantBillingCycle
+  trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  polarCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  polarSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  polarProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingPhoneCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingStateProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumTenantPaymentMethodFieldUpdateOperationsInput | $Enums.TenantPaymentMethod | null
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardholderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLastFour?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardExpiry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStatus?: Prisma.EnumTenantOnboardingStatusFieldUpdateOperationsInput | $Enums.TenantOnboardingStatus
+  onboardingCurrentStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.TenantDepartmentUncheckedUpdateManyWithoutTenantProfileNestedInput
+  amenities?: Prisma.TenantAmenityUncheckedUpdateManyWithoutTenantProfileNestedInput
+  rooms?: Prisma.TenantRoomUncheckedUpdateManyWithoutTenantProfileNestedInput
+  reservations?: Prisma.TenantReservationUncheckedUpdateManyWithoutTenantProfileNestedInput
+  services?: Prisma.TenantServiceUncheckedUpdateManyWithoutTenantProfileNestedInput
+  packages?: Prisma.TenantPackageUncheckedUpdateManyWithoutTenantProfileNestedInput
+  invoices?: Prisma.TenantInvoiceUncheckedUpdateManyWithoutTenantProfileNestedInput
+  financeEntries?: Prisma.TenantFinanceEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
+  transactionExports?: Prisma.TenantTransactionExportUncheckedUpdateManyWithoutTenantProfileNestedInput
+  messengerIntegrations?: Prisma.TenantMessengerIntegrationUncheckedUpdateManyWithoutTenantProfileNestedInput
+  leads?: Prisma.TenantLeadUncheckedUpdateManyWithoutTenantProfileNestedInput
+  folioCharges?: Prisma.TenantFolioChargeUncheckedUpdateManyWithoutTenantProfileNestedInput
+  paymentLogs?: Prisma.TenantPaymentLogUncheckedUpdateManyWithoutTenantProfileNestedInput
+  receptionRequests?: Prisma.TenantReceptionRequestUncheckedUpdateManyWithoutTenantProfileNestedInput
+  receptionShiftNotes?: Prisma.TenantReceptionShiftNoteUncheckedUpdateManyWithoutTenantProfileNestedInput
+  maintenanceRequests?: Prisma.TenantMaintenanceRequestUncheckedUpdateManyWithoutTenantProfileNestedInput
+  inventoryItems?: Prisma.TenantInventoryItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  inventoryMovements?: Prisma.TenantInventoryMovementUncheckedUpdateManyWithoutTenantProfileNestedInput
+  housekeepingRooms?: Prisma.TenantHousekeepingRoomUncheckedUpdateManyWithoutTenantProfileNestedInput
+  housekeepingDamageReports?: Prisma.TenantHousekeepingDamageReportUncheckedUpdateManyWithoutTenantProfileNestedInput
+  laundryJobs?: Prisma.TenantLaundryJobUncheckedUpdateManyWithoutTenantProfileNestedInput
+  staffProfiles?: Prisma.TenantStaffProfileUncheckedUpdateManyWithoutTenantProfileNestedInput
+  accessRoles?: Prisma.TenantAccessRoleUncheckedUpdateManyWithoutTenantProfileNestedInput
+  staffInvitations?: Prisma.TenantStaffInvitationUncheckedUpdateManyWithoutTenantProfileNestedInput
+  timeLogs?: Prisma.TenantTimeLogUncheckedUpdateManyWithoutTenantProfileNestedInput
+  scheduleShifts?: Prisma.TenantScheduleShiftUncheckedUpdateManyWithoutTenantProfileNestedInput
+  leaveRequests?: Prisma.TenantLeaveRequestUncheckedUpdateManyWithoutTenantProfileNestedInput
+  otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
+  payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
+  payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
+}
+
+export type TenantProfileCreateWithoutPolarWebhookEventsInput = {
+  id?: string
+  resortName?: string | null
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  subscriptionPlan?: $Enums.TenantSubscriptionPlan
+  subscriptionStatus?: $Enums.TenantSubscriptionStatus
+  billingCycle?: $Enums.TenantBillingCycle
+  trialStartedAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  suspendedAt?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  polarCustomerId?: string | null
+  polarSubscriptionId?: string | null
+  polarProductId?: string | null
+  businessName?: string | null
+  billingEmail?: string | null
+  billingPhoneCountryCode?: string | null
+  billingPhoneNumber?: string | null
+  billingAddress?: string | null
+  billingCity?: string | null
+  billingStateProvince?: string | null
+  billingPostalCode?: string | null
+  billingCountry?: string | null
+  paymentMethod?: $Enums.TenantPaymentMethod | null
+  paymentProvider?: string | null
+  paymentAccountName?: string | null
+  paymentAccountNumber?: string | null
+  cardholderName?: string | null
+  cardBrand?: string | null
+  cardLastFour?: string | null
+  cardExpiry?: string | null
+  onboardingStatus?: $Enums.TenantOnboardingStatus
+  onboardingCurrentStep?: number
+  onboardingCompletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appUser: Prisma.AppUserCreateNestedOneWithoutTenantProfileInput
+  departments?: Prisma.TenantDepartmentCreateNestedManyWithoutTenantProfileInput
+  amenities?: Prisma.TenantAmenityCreateNestedManyWithoutTenantProfileInput
+  rooms?: Prisma.TenantRoomCreateNestedManyWithoutTenantProfileInput
+  reservations?: Prisma.TenantReservationCreateNestedManyWithoutTenantProfileInput
+  services?: Prisma.TenantServiceCreateNestedManyWithoutTenantProfileInput
+  packages?: Prisma.TenantPackageCreateNestedManyWithoutTenantProfileInput
+  invoices?: Prisma.TenantInvoiceCreateNestedManyWithoutTenantProfileInput
+  financeEntries?: Prisma.TenantFinanceEntryCreateNestedManyWithoutTenantProfileInput
+  transactionExports?: Prisma.TenantTransactionExportCreateNestedManyWithoutTenantProfileInput
+  messengerIntegrations?: Prisma.TenantMessengerIntegrationCreateNestedManyWithoutTenantProfileInput
+  leads?: Prisma.TenantLeadCreateNestedManyWithoutTenantProfileInput
+  folioCharges?: Prisma.TenantFolioChargeCreateNestedManyWithoutTenantProfileInput
+  paymentLogs?: Prisma.TenantPaymentLogCreateNestedManyWithoutTenantProfileInput
+  receptionRequests?: Prisma.TenantReceptionRequestCreateNestedManyWithoutTenantProfileInput
+  receptionShiftNotes?: Prisma.TenantReceptionShiftNoteCreateNestedManyWithoutTenantProfileInput
+  maintenanceRequests?: Prisma.TenantMaintenanceRequestCreateNestedManyWithoutTenantProfileInput
+  inventoryItems?: Prisma.TenantInventoryItemCreateNestedManyWithoutTenantProfileInput
+  inventoryMovements?: Prisma.TenantInventoryMovementCreateNestedManyWithoutTenantProfileInput
+  housekeepingRooms?: Prisma.TenantHousekeepingRoomCreateNestedManyWithoutTenantProfileInput
+  housekeepingDamageReports?: Prisma.TenantHousekeepingDamageReportCreateNestedManyWithoutTenantProfileInput
+  laundryJobs?: Prisma.TenantLaundryJobCreateNestedManyWithoutTenantProfileInput
+  staffProfiles?: Prisma.TenantStaffProfileCreateNestedManyWithoutTenantProfileInput
+  accessRoles?: Prisma.TenantAccessRoleCreateNestedManyWithoutTenantProfileInput
+  staffInvitations?: Prisma.TenantStaffInvitationCreateNestedManyWithoutTenantProfileInput
+  timeLogs?: Prisma.TenantTimeLogCreateNestedManyWithoutTenantProfileInput
+  scheduleShifts?: Prisma.TenantScheduleShiftCreateNestedManyWithoutTenantProfileInput
+  leaveRequests?: Prisma.TenantLeaveRequestCreateNestedManyWithoutTenantProfileInput
+  otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
+  payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
+  payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+}
+
+export type TenantProfileUncheckedCreateWithoutPolarWebhookEventsInput = {
+  id?: string
+  appUserId: string
+  resortName?: string | null
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  subscriptionPlan?: $Enums.TenantSubscriptionPlan
+  subscriptionStatus?: $Enums.TenantSubscriptionStatus
+  billingCycle?: $Enums.TenantBillingCycle
+  trialStartedAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  suspendedAt?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  polarCustomerId?: string | null
+  polarSubscriptionId?: string | null
+  polarProductId?: string | null
+  businessName?: string | null
+  billingEmail?: string | null
+  billingPhoneCountryCode?: string | null
+  billingPhoneNumber?: string | null
+  billingAddress?: string | null
+  billingCity?: string | null
+  billingStateProvince?: string | null
+  billingPostalCode?: string | null
+  billingCountry?: string | null
+  paymentMethod?: $Enums.TenantPaymentMethod | null
+  paymentProvider?: string | null
+  paymentAccountName?: string | null
+  paymentAccountNumber?: string | null
+  cardholderName?: string | null
+  cardBrand?: string | null
+  cardLastFour?: string | null
+  cardExpiry?: string | null
+  onboardingStatus?: $Enums.TenantOnboardingStatus
+  onboardingCurrentStep?: number
+  onboardingCompletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  departments?: Prisma.TenantDepartmentUncheckedCreateNestedManyWithoutTenantProfileInput
+  amenities?: Prisma.TenantAmenityUncheckedCreateNestedManyWithoutTenantProfileInput
+  rooms?: Prisma.TenantRoomUncheckedCreateNestedManyWithoutTenantProfileInput
+  reservations?: Prisma.TenantReservationUncheckedCreateNestedManyWithoutTenantProfileInput
+  services?: Prisma.TenantServiceUncheckedCreateNestedManyWithoutTenantProfileInput
+  packages?: Prisma.TenantPackageUncheckedCreateNestedManyWithoutTenantProfileInput
+  invoices?: Prisma.TenantInvoiceUncheckedCreateNestedManyWithoutTenantProfileInput
+  financeEntries?: Prisma.TenantFinanceEntryUncheckedCreateNestedManyWithoutTenantProfileInput
+  transactionExports?: Prisma.TenantTransactionExportUncheckedCreateNestedManyWithoutTenantProfileInput
+  messengerIntegrations?: Prisma.TenantMessengerIntegrationUncheckedCreateNestedManyWithoutTenantProfileInput
+  leads?: Prisma.TenantLeadUncheckedCreateNestedManyWithoutTenantProfileInput
+  folioCharges?: Prisma.TenantFolioChargeUncheckedCreateNestedManyWithoutTenantProfileInput
+  paymentLogs?: Prisma.TenantPaymentLogUncheckedCreateNestedManyWithoutTenantProfileInput
+  receptionRequests?: Prisma.TenantReceptionRequestUncheckedCreateNestedManyWithoutTenantProfileInput
+  receptionShiftNotes?: Prisma.TenantReceptionShiftNoteUncheckedCreateNestedManyWithoutTenantProfileInput
+  maintenanceRequests?: Prisma.TenantMaintenanceRequestUncheckedCreateNestedManyWithoutTenantProfileInput
+  inventoryItems?: Prisma.TenantInventoryItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  inventoryMovements?: Prisma.TenantInventoryMovementUncheckedCreateNestedManyWithoutTenantProfileInput
+  housekeepingRooms?: Prisma.TenantHousekeepingRoomUncheckedCreateNestedManyWithoutTenantProfileInput
+  housekeepingDamageReports?: Prisma.TenantHousekeepingDamageReportUncheckedCreateNestedManyWithoutTenantProfileInput
+  laundryJobs?: Prisma.TenantLaundryJobUncheckedCreateNestedManyWithoutTenantProfileInput
+  staffProfiles?: Prisma.TenantStaffProfileUncheckedCreateNestedManyWithoutTenantProfileInput
+  accessRoles?: Prisma.TenantAccessRoleUncheckedCreateNestedManyWithoutTenantProfileInput
+  staffInvitations?: Prisma.TenantStaffInvitationUncheckedCreateNestedManyWithoutTenantProfileInput
+  timeLogs?: Prisma.TenantTimeLogUncheckedCreateNestedManyWithoutTenantProfileInput
+  scheduleShifts?: Prisma.TenantScheduleShiftUncheckedCreateNestedManyWithoutTenantProfileInput
+  leaveRequests?: Prisma.TenantLeaveRequestUncheckedCreateNestedManyWithoutTenantProfileInput
+  otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
+  payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
+  payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+}
+
+export type TenantProfileCreateOrConnectWithoutPolarWebhookEventsInput = {
+  where: Prisma.TenantProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantProfileCreateWithoutPolarWebhookEventsInput, Prisma.TenantProfileUncheckedCreateWithoutPolarWebhookEventsInput>
+}
+
+export type TenantProfileUpsertWithoutPolarWebhookEventsInput = {
+  update: Prisma.XOR<Prisma.TenantProfileUpdateWithoutPolarWebhookEventsInput, Prisma.TenantProfileUncheckedUpdateWithoutPolarWebhookEventsInput>
+  create: Prisma.XOR<Prisma.TenantProfileCreateWithoutPolarWebhookEventsInput, Prisma.TenantProfileUncheckedCreateWithoutPolarWebhookEventsInput>
+  where?: Prisma.TenantProfileWhereInput
+}
+
+export type TenantProfileUpdateToOneWithWhereWithoutPolarWebhookEventsInput = {
+  where?: Prisma.TenantProfileWhereInput
+  data: Prisma.XOR<Prisma.TenantProfileUpdateWithoutPolarWebhookEventsInput, Prisma.TenantProfileUncheckedUpdateWithoutPolarWebhookEventsInput>
+}
+
+export type TenantProfileUpdateWithoutPolarWebhookEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionPlan?: Prisma.EnumTenantSubscriptionPlanFieldUpdateOperationsInput | $Enums.TenantSubscriptionPlan
+  subscriptionStatus?: Prisma.EnumTenantSubscriptionStatusFieldUpdateOperationsInput | $Enums.TenantSubscriptionStatus
+  billingCycle?: Prisma.EnumTenantBillingCycleFieldUpdateOperationsInput | $Enums.TenantBillingCycle
+  trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  polarCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  polarSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  polarProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingPhoneCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingStateProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumTenantPaymentMethodFieldUpdateOperationsInput | $Enums.TenantPaymentMethod | null
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardholderName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLastFour?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardExpiry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStatus?: Prisma.EnumTenantOnboardingStatusFieldUpdateOperationsInput | $Enums.TenantOnboardingStatus
+  onboardingCurrentStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appUser?: Prisma.AppUserUpdateOneRequiredWithoutTenantProfileNestedInput
+  departments?: Prisma.TenantDepartmentUpdateManyWithoutTenantProfileNestedInput
+  amenities?: Prisma.TenantAmenityUpdateManyWithoutTenantProfileNestedInput
+  rooms?: Prisma.TenantRoomUpdateManyWithoutTenantProfileNestedInput
+  reservations?: Prisma.TenantReservationUpdateManyWithoutTenantProfileNestedInput
+  services?: Prisma.TenantServiceUpdateManyWithoutTenantProfileNestedInput
+  packages?: Prisma.TenantPackageUpdateManyWithoutTenantProfileNestedInput
+  invoices?: Prisma.TenantInvoiceUpdateManyWithoutTenantProfileNestedInput
+  financeEntries?: Prisma.TenantFinanceEntryUpdateManyWithoutTenantProfileNestedInput
+  transactionExports?: Prisma.TenantTransactionExportUpdateManyWithoutTenantProfileNestedInput
+  messengerIntegrations?: Prisma.TenantMessengerIntegrationUpdateManyWithoutTenantProfileNestedInput
+  leads?: Prisma.TenantLeadUpdateManyWithoutTenantProfileNestedInput
+  folioCharges?: Prisma.TenantFolioChargeUpdateManyWithoutTenantProfileNestedInput
+  paymentLogs?: Prisma.TenantPaymentLogUpdateManyWithoutTenantProfileNestedInput
+  receptionRequests?: Prisma.TenantReceptionRequestUpdateManyWithoutTenantProfileNestedInput
+  receptionShiftNotes?: Prisma.TenantReceptionShiftNoteUpdateManyWithoutTenantProfileNestedInput
+  maintenanceRequests?: Prisma.TenantMaintenanceRequestUpdateManyWithoutTenantProfileNestedInput
+  inventoryItems?: Prisma.TenantInventoryItemUpdateManyWithoutTenantProfileNestedInput
+  inventoryMovements?: Prisma.TenantInventoryMovementUpdateManyWithoutTenantProfileNestedInput
+  housekeepingRooms?: Prisma.TenantHousekeepingRoomUpdateManyWithoutTenantProfileNestedInput
+  housekeepingDamageReports?: Prisma.TenantHousekeepingDamageReportUpdateManyWithoutTenantProfileNestedInput
+  laundryJobs?: Prisma.TenantLaundryJobUpdateManyWithoutTenantProfileNestedInput
+  staffProfiles?: Prisma.TenantStaffProfileUpdateManyWithoutTenantProfileNestedInput
+  accessRoles?: Prisma.TenantAccessRoleUpdateManyWithoutTenantProfileNestedInput
+  staffInvitations?: Prisma.TenantStaffInvitationUpdateManyWithoutTenantProfileNestedInput
+  timeLogs?: Prisma.TenantTimeLogUpdateManyWithoutTenantProfileNestedInput
+  scheduleShifts?: Prisma.TenantScheduleShiftUpdateManyWithoutTenantProfileNestedInput
+  leaveRequests?: Prisma.TenantLeaveRequestUpdateManyWithoutTenantProfileNestedInput
+  otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
+  payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
+  payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+}
+
+export type TenantProfileUncheckedUpdateWithoutPolarWebhookEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appUserId?: Prisma.StringFieldUpdateOperationsInput | string
   resortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2357,6 +2716,7 @@ export type TenantProfileCreateWithoutMessengerIntegrationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutMessengerIntegrationsInput = {
@@ -2435,6 +2795,7 @@ export type TenantProfileUncheckedCreateWithoutMessengerIntegrationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutMessengerIntegrationsInput = {
@@ -2529,6 +2890,7 @@ export type TenantProfileUpdateWithoutMessengerIntegrationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutMessengerIntegrationsInput = {
@@ -2607,6 +2969,7 @@ export type TenantProfileUncheckedUpdateWithoutMessengerIntegrationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutLeadsInput = {
@@ -2685,6 +3048,7 @@ export type TenantProfileCreateWithoutLeadsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutLeadsInput = {
@@ -2763,6 +3127,7 @@ export type TenantProfileUncheckedCreateWithoutLeadsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutLeadsInput = {
@@ -2857,6 +3222,7 @@ export type TenantProfileUpdateWithoutLeadsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutLeadsInput = {
@@ -2935,6 +3301,7 @@ export type TenantProfileUncheckedUpdateWithoutLeadsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutStaffProfilesInput = {
@@ -3013,6 +3380,7 @@ export type TenantProfileCreateWithoutStaffProfilesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutStaffProfilesInput = {
@@ -3091,6 +3459,7 @@ export type TenantProfileUncheckedCreateWithoutStaffProfilesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutStaffProfilesInput = {
@@ -3185,6 +3554,7 @@ export type TenantProfileUpdateWithoutStaffProfilesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutStaffProfilesInput = {
@@ -3263,6 +3633,7 @@ export type TenantProfileUncheckedUpdateWithoutStaffProfilesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutAccessRolesInput = {
@@ -3341,6 +3712,7 @@ export type TenantProfileCreateWithoutAccessRolesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutAccessRolesInput = {
@@ -3419,6 +3791,7 @@ export type TenantProfileUncheckedCreateWithoutAccessRolesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutAccessRolesInput = {
@@ -3513,6 +3886,7 @@ export type TenantProfileUpdateWithoutAccessRolesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutAccessRolesInput = {
@@ -3591,6 +3965,7 @@ export type TenantProfileUncheckedUpdateWithoutAccessRolesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutTimeLogsInput = {
@@ -3669,6 +4044,7 @@ export type TenantProfileCreateWithoutTimeLogsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutTimeLogsInput = {
@@ -3747,6 +4123,7 @@ export type TenantProfileUncheckedCreateWithoutTimeLogsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutTimeLogsInput = {
@@ -3841,6 +4218,7 @@ export type TenantProfileUpdateWithoutTimeLogsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutTimeLogsInput = {
@@ -3919,6 +4297,7 @@ export type TenantProfileUncheckedUpdateWithoutTimeLogsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutScheduleShiftsInput = {
@@ -3997,6 +4376,7 @@ export type TenantProfileCreateWithoutScheduleShiftsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutScheduleShiftsInput = {
@@ -4075,6 +4455,7 @@ export type TenantProfileUncheckedCreateWithoutScheduleShiftsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutScheduleShiftsInput = {
@@ -4169,6 +4550,7 @@ export type TenantProfileUpdateWithoutScheduleShiftsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutScheduleShiftsInput = {
@@ -4247,6 +4629,7 @@ export type TenantProfileUncheckedUpdateWithoutScheduleShiftsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutLeaveRequestsInput = {
@@ -4325,6 +4708,7 @@ export type TenantProfileCreateWithoutLeaveRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutLeaveRequestsInput = {
@@ -4403,6 +4787,7 @@ export type TenantProfileUncheckedCreateWithoutLeaveRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutLeaveRequestsInput = {
@@ -4497,6 +4882,7 @@ export type TenantProfileUpdateWithoutLeaveRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutLeaveRequestsInput = {
@@ -4575,6 +4961,7 @@ export type TenantProfileUncheckedUpdateWithoutLeaveRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutOtUndertimeEntriesInput = {
@@ -4653,6 +5040,7 @@ export type TenantProfileCreateWithoutOtUndertimeEntriesInput = {
   leaveRequests?: Prisma.TenantLeaveRequestCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutOtUndertimeEntriesInput = {
@@ -4731,6 +5119,7 @@ export type TenantProfileUncheckedCreateWithoutOtUndertimeEntriesInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutOtUndertimeEntriesInput = {
@@ -4825,6 +5214,7 @@ export type TenantProfileUpdateWithoutOtUndertimeEntriesInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutOtUndertimeEntriesInput = {
@@ -4903,6 +5293,7 @@ export type TenantProfileUncheckedUpdateWithoutOtUndertimeEntriesInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutPayrollRunsInput = {
@@ -4981,6 +5372,7 @@ export type TenantProfileCreateWithoutPayrollRunsInput = {
   leaveRequests?: Prisma.TenantLeaveRequestCreateNestedManyWithoutTenantProfileInput
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutPayrollRunsInput = {
@@ -5059,6 +5451,7 @@ export type TenantProfileUncheckedCreateWithoutPayrollRunsInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUncheckedCreateNestedManyWithoutTenantProfileInput
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutPayrollRunsInput = {
@@ -5153,6 +5546,7 @@ export type TenantProfileUpdateWithoutPayrollRunsInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUpdateManyWithoutTenantProfileNestedInput
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutPayrollRunsInput = {
@@ -5231,6 +5625,7 @@ export type TenantProfileUncheckedUpdateWithoutPayrollRunsInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUncheckedUpdateManyWithoutTenantProfileNestedInput
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutPayrollItemsInput = {
@@ -5309,6 +5704,7 @@ export type TenantProfileCreateWithoutPayrollItemsInput = {
   leaveRequests?: Prisma.TenantLeaveRequestCreateNestedManyWithoutTenantProfileInput
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutPayrollItemsInput = {
@@ -5387,6 +5783,7 @@ export type TenantProfileUncheckedCreateWithoutPayrollItemsInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUncheckedCreateNestedManyWithoutTenantProfileInput
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutPayrollItemsInput = {
@@ -5481,6 +5878,7 @@ export type TenantProfileUpdateWithoutPayrollItemsInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUpdateManyWithoutTenantProfileNestedInput
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutPayrollItemsInput = {
@@ -5559,6 +5957,7 @@ export type TenantProfileUncheckedUpdateWithoutPayrollItemsInput = {
   leaveRequests?: Prisma.TenantLeaveRequestUncheckedUpdateManyWithoutTenantProfileNestedInput
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutDepartmentsInput = {
@@ -5637,6 +6036,7 @@ export type TenantProfileCreateWithoutDepartmentsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutDepartmentsInput = {
@@ -5715,6 +6115,7 @@ export type TenantProfileUncheckedCreateWithoutDepartmentsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutDepartmentsInput = {
@@ -5809,6 +6210,7 @@ export type TenantProfileUpdateWithoutDepartmentsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutDepartmentsInput = {
@@ -5887,6 +6289,7 @@ export type TenantProfileUncheckedUpdateWithoutDepartmentsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutStaffInvitationsInput = {
@@ -5965,6 +6368,7 @@ export type TenantProfileCreateWithoutStaffInvitationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutStaffInvitationsInput = {
@@ -6043,6 +6447,7 @@ export type TenantProfileUncheckedCreateWithoutStaffInvitationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutStaffInvitationsInput = {
@@ -6137,6 +6542,7 @@ export type TenantProfileUpdateWithoutStaffInvitationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutStaffInvitationsInput = {
@@ -6215,6 +6621,7 @@ export type TenantProfileUncheckedUpdateWithoutStaffInvitationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutAmenitiesInput = {
@@ -6293,6 +6700,7 @@ export type TenantProfileCreateWithoutAmenitiesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutAmenitiesInput = {
@@ -6371,6 +6779,7 @@ export type TenantProfileUncheckedCreateWithoutAmenitiesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutAmenitiesInput = {
@@ -6465,6 +6874,7 @@ export type TenantProfileUpdateWithoutAmenitiesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutAmenitiesInput = {
@@ -6543,6 +6953,7 @@ export type TenantProfileUncheckedUpdateWithoutAmenitiesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutRoomsInput = {
@@ -6621,6 +7032,7 @@ export type TenantProfileCreateWithoutRoomsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutRoomsInput = {
@@ -6699,6 +7111,7 @@ export type TenantProfileUncheckedCreateWithoutRoomsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutRoomsInput = {
@@ -6793,6 +7206,7 @@ export type TenantProfileUpdateWithoutRoomsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutRoomsInput = {
@@ -6871,6 +7285,7 @@ export type TenantProfileUncheckedUpdateWithoutRoomsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutHousekeepingRoomsInput = {
@@ -6949,6 +7364,7 @@ export type TenantProfileCreateWithoutHousekeepingRoomsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutHousekeepingRoomsInput = {
@@ -7027,6 +7443,7 @@ export type TenantProfileUncheckedCreateWithoutHousekeepingRoomsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutHousekeepingRoomsInput = {
@@ -7121,6 +7538,7 @@ export type TenantProfileUpdateWithoutHousekeepingRoomsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutHousekeepingRoomsInput = {
@@ -7199,6 +7617,7 @@ export type TenantProfileUncheckedUpdateWithoutHousekeepingRoomsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutHousekeepingDamageReportsInput = {
@@ -7277,6 +7696,7 @@ export type TenantProfileCreateWithoutHousekeepingDamageReportsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutHousekeepingDamageReportsInput = {
@@ -7355,6 +7775,7 @@ export type TenantProfileUncheckedCreateWithoutHousekeepingDamageReportsInput = 
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutHousekeepingDamageReportsInput = {
@@ -7449,6 +7870,7 @@ export type TenantProfileUpdateWithoutHousekeepingDamageReportsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutHousekeepingDamageReportsInput = {
@@ -7527,6 +7949,7 @@ export type TenantProfileUncheckedUpdateWithoutHousekeepingDamageReportsInput = 
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutLaundryJobsInput = {
@@ -7605,6 +8028,7 @@ export type TenantProfileCreateWithoutLaundryJobsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutLaundryJobsInput = {
@@ -7683,6 +8107,7 @@ export type TenantProfileUncheckedCreateWithoutLaundryJobsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutLaundryJobsInput = {
@@ -7777,6 +8202,7 @@ export type TenantProfileUpdateWithoutLaundryJobsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutLaundryJobsInput = {
@@ -7855,6 +8281,7 @@ export type TenantProfileUncheckedUpdateWithoutLaundryJobsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutReservationsInput = {
@@ -7933,6 +8360,7 @@ export type TenantProfileCreateWithoutReservationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutReservationsInput = {
@@ -8011,6 +8439,7 @@ export type TenantProfileUncheckedCreateWithoutReservationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutReservationsInput = {
@@ -8105,6 +8534,7 @@ export type TenantProfileUpdateWithoutReservationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutReservationsInput = {
@@ -8183,6 +8613,7 @@ export type TenantProfileUncheckedUpdateWithoutReservationsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutReceptionRequestsInput = {
@@ -8261,6 +8692,7 @@ export type TenantProfileCreateWithoutReceptionRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutReceptionRequestsInput = {
@@ -8339,6 +8771,7 @@ export type TenantProfileUncheckedCreateWithoutReceptionRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutReceptionRequestsInput = {
@@ -8433,6 +8866,7 @@ export type TenantProfileUpdateWithoutReceptionRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutReceptionRequestsInput = {
@@ -8511,6 +8945,7 @@ export type TenantProfileUncheckedUpdateWithoutReceptionRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutReceptionShiftNotesInput = {
@@ -8589,6 +9024,7 @@ export type TenantProfileCreateWithoutReceptionShiftNotesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutReceptionShiftNotesInput = {
@@ -8667,6 +9103,7 @@ export type TenantProfileUncheckedCreateWithoutReceptionShiftNotesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutReceptionShiftNotesInput = {
@@ -8761,6 +9198,7 @@ export type TenantProfileUpdateWithoutReceptionShiftNotesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutReceptionShiftNotesInput = {
@@ -8839,6 +9277,7 @@ export type TenantProfileUncheckedUpdateWithoutReceptionShiftNotesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutMaintenanceRequestsInput = {
@@ -8917,6 +9356,7 @@ export type TenantProfileCreateWithoutMaintenanceRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutMaintenanceRequestsInput = {
@@ -8995,6 +9435,7 @@ export type TenantProfileUncheckedCreateWithoutMaintenanceRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutMaintenanceRequestsInput = {
@@ -9089,6 +9530,7 @@ export type TenantProfileUpdateWithoutMaintenanceRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutMaintenanceRequestsInput = {
@@ -9167,6 +9609,7 @@ export type TenantProfileUncheckedUpdateWithoutMaintenanceRequestsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutInventoryItemsInput = {
@@ -9245,6 +9688,7 @@ export type TenantProfileCreateWithoutInventoryItemsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutInventoryItemsInput = {
@@ -9323,6 +9767,7 @@ export type TenantProfileUncheckedCreateWithoutInventoryItemsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutInventoryItemsInput = {
@@ -9417,6 +9862,7 @@ export type TenantProfileUpdateWithoutInventoryItemsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutInventoryItemsInput = {
@@ -9495,6 +9941,7 @@ export type TenantProfileUncheckedUpdateWithoutInventoryItemsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutInventoryMovementsInput = {
@@ -9573,6 +10020,7 @@ export type TenantProfileCreateWithoutInventoryMovementsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutInventoryMovementsInput = {
@@ -9651,6 +10099,7 @@ export type TenantProfileUncheckedCreateWithoutInventoryMovementsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutInventoryMovementsInput = {
@@ -9745,6 +10194,7 @@ export type TenantProfileUpdateWithoutInventoryMovementsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutInventoryMovementsInput = {
@@ -9823,6 +10273,7 @@ export type TenantProfileUncheckedUpdateWithoutInventoryMovementsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutServicesInput = {
@@ -9901,6 +10352,7 @@ export type TenantProfileCreateWithoutServicesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutServicesInput = {
@@ -9979,6 +10431,7 @@ export type TenantProfileUncheckedCreateWithoutServicesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutServicesInput = {
@@ -10073,6 +10526,7 @@ export type TenantProfileUpdateWithoutServicesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutServicesInput = {
@@ -10151,6 +10605,7 @@ export type TenantProfileUncheckedUpdateWithoutServicesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutPackagesInput = {
@@ -10229,6 +10684,7 @@ export type TenantProfileCreateWithoutPackagesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutPackagesInput = {
@@ -10307,6 +10763,7 @@ export type TenantProfileUncheckedCreateWithoutPackagesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutPackagesInput = {
@@ -10401,6 +10858,7 @@ export type TenantProfileUpdateWithoutPackagesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutPackagesInput = {
@@ -10479,6 +10937,7 @@ export type TenantProfileUncheckedUpdateWithoutPackagesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutInvoicesInput = {
@@ -10557,6 +11016,7 @@ export type TenantProfileCreateWithoutInvoicesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutInvoicesInput = {
@@ -10635,6 +11095,7 @@ export type TenantProfileUncheckedCreateWithoutInvoicesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutInvoicesInput = {
@@ -10729,6 +11190,7 @@ export type TenantProfileUpdateWithoutInvoicesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutInvoicesInput = {
@@ -10807,6 +11269,7 @@ export type TenantProfileUncheckedUpdateWithoutInvoicesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutFolioChargesInput = {
@@ -10885,6 +11348,7 @@ export type TenantProfileCreateWithoutFolioChargesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutFolioChargesInput = {
@@ -10963,6 +11427,7 @@ export type TenantProfileUncheckedCreateWithoutFolioChargesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutFolioChargesInput = {
@@ -11057,6 +11522,7 @@ export type TenantProfileUpdateWithoutFolioChargesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutFolioChargesInput = {
@@ -11135,6 +11601,7 @@ export type TenantProfileUncheckedUpdateWithoutFolioChargesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutPaymentLogsInput = {
@@ -11213,6 +11680,7 @@ export type TenantProfileCreateWithoutPaymentLogsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutPaymentLogsInput = {
@@ -11291,6 +11759,7 @@ export type TenantProfileUncheckedCreateWithoutPaymentLogsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutPaymentLogsInput = {
@@ -11385,6 +11854,7 @@ export type TenantProfileUpdateWithoutPaymentLogsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutPaymentLogsInput = {
@@ -11463,6 +11933,7 @@ export type TenantProfileUncheckedUpdateWithoutPaymentLogsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutFinanceEntriesInput = {
@@ -11541,6 +12012,7 @@ export type TenantProfileCreateWithoutFinanceEntriesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutFinanceEntriesInput = {
@@ -11619,6 +12091,7 @@ export type TenantProfileUncheckedCreateWithoutFinanceEntriesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutFinanceEntriesInput = {
@@ -11713,6 +12186,7 @@ export type TenantProfileUpdateWithoutFinanceEntriesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutFinanceEntriesInput = {
@@ -11791,6 +12265,7 @@ export type TenantProfileUncheckedUpdateWithoutFinanceEntriesInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileCreateWithoutTransactionExportsInput = {
@@ -11869,6 +12344,7 @@ export type TenantProfileCreateWithoutTransactionExportsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileUncheckedCreateWithoutTransactionExportsInput = {
@@ -11947,6 +12423,7 @@ export type TenantProfileUncheckedCreateWithoutTransactionExportsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedCreateNestedManyWithoutTenantProfileInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedCreateNestedManyWithoutTenantProfileInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedCreateNestedManyWithoutTenantProfileInput
 }
 
 export type TenantProfileCreateOrConnectWithoutTransactionExportsInput = {
@@ -12041,6 +12518,7 @@ export type TenantProfileUpdateWithoutTransactionExportsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUpdateManyWithoutTenantProfileNestedInput
 }
 
 export type TenantProfileUncheckedUpdateWithoutTransactionExportsInput = {
@@ -12119,6 +12597,7 @@ export type TenantProfileUncheckedUpdateWithoutTransactionExportsInput = {
   otUndertimeEntries?: Prisma.TenantOtUndertimeEntryUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollRuns?: Prisma.TenantPayrollRunUncheckedUpdateManyWithoutTenantProfileNestedInput
   payrollItems?: Prisma.TenantPayrollItemUncheckedUpdateManyWithoutTenantProfileNestedInput
+  polarWebhookEvents?: Prisma.PolarWebhookEventUncheckedUpdateManyWithoutTenantProfileNestedInput
 }
 
 
@@ -12157,6 +12636,7 @@ export type TenantProfileCountOutputType = {
   otUndertimeEntries: number
   payrollRuns: number
   payrollItems: number
+  polarWebhookEvents: number
 }
 
 export type TenantProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -12190,6 +12670,7 @@ export type TenantProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   otUndertimeEntries?: boolean | TenantProfileCountOutputTypeCountOtUndertimeEntriesArgs
   payrollRuns?: boolean | TenantProfileCountOutputTypeCountPayrollRunsArgs
   payrollItems?: boolean | TenantProfileCountOutputTypeCountPayrollItemsArgs
+  polarWebhookEvents?: boolean | TenantProfileCountOutputTypeCountPolarWebhookEventsArgs
 }
 
 /**
@@ -12412,6 +12893,13 @@ export type TenantProfileCountOutputTypeCountPayrollItemsArgs<ExtArgs extends ru
   where?: Prisma.TenantPayrollItemWhereInput
 }
 
+/**
+ * TenantProfileCountOutputType without action
+ */
+export type TenantProfileCountOutputTypeCountPolarWebhookEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PolarWebhookEventWhereInput
+}
+
 
 export type TenantProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -12491,6 +12979,7 @@ export type TenantProfileSelect<ExtArgs extends runtime.Types.Extensions.Interna
   otUndertimeEntries?: boolean | Prisma.TenantProfile$otUndertimeEntriesArgs<ExtArgs>
   payrollRuns?: boolean | Prisma.TenantProfile$payrollRunsArgs<ExtArgs>
   payrollItems?: boolean | Prisma.TenantProfile$payrollItemsArgs<ExtArgs>
+  polarWebhookEvents?: boolean | Prisma.TenantProfile$polarWebhookEventsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenantProfile"]>
 
@@ -12676,6 +13165,7 @@ export type TenantProfileInclude<ExtArgs extends runtime.Types.Extensions.Intern
   otUndertimeEntries?: boolean | Prisma.TenantProfile$otUndertimeEntriesArgs<ExtArgs>
   payrollRuns?: boolean | Prisma.TenantProfile$payrollRunsArgs<ExtArgs>
   payrollItems?: boolean | Prisma.TenantProfile$payrollItemsArgs<ExtArgs>
+  polarWebhookEvents?: boolean | Prisma.TenantProfile$polarWebhookEventsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantProfileIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -12719,6 +13209,7 @@ export type $TenantProfilePayload<ExtArgs extends runtime.Types.Extensions.Inter
     otUndertimeEntries: Prisma.$TenantOtUndertimeEntryPayload<ExtArgs>[]
     payrollRuns: Prisma.$TenantPayrollRunPayload<ExtArgs>[]
     payrollItems: Prisma.$TenantPayrollItemPayload<ExtArgs>[]
+    polarWebhookEvents: Prisma.$PolarWebhookEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -13192,6 +13683,7 @@ export interface Prisma__TenantProfileClient<T, Null = never, ExtArgs extends ru
   otUndertimeEntries<T extends Prisma.TenantProfile$otUndertimeEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantProfile$otUndertimeEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantOtUndertimeEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payrollRuns<T extends Prisma.TenantProfile$payrollRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantProfile$payrollRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantPayrollRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payrollItems<T extends Prisma.TenantProfile$payrollItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantProfile$payrollItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantPayrollItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  polarWebhookEvents<T extends Prisma.TenantProfile$polarWebhookEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantProfile$polarWebhookEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PolarWebhookEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14385,6 +14877,30 @@ export type TenantProfile$payrollItemsArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.TenantPayrollItemScalarFieldEnum | Prisma.TenantPayrollItemScalarFieldEnum[]
+}
+
+/**
+ * TenantProfile.polarWebhookEvents
+ */
+export type TenantProfile$polarWebhookEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PolarWebhookEvent
+   */
+  select?: Prisma.PolarWebhookEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PolarWebhookEvent
+   */
+  omit?: Prisma.PolarWebhookEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PolarWebhookEventInclude<ExtArgs> | null
+  where?: Prisma.PolarWebhookEventWhereInput
+  orderBy?: Prisma.PolarWebhookEventOrderByWithRelationInput | Prisma.PolarWebhookEventOrderByWithRelationInput[]
+  cursor?: Prisma.PolarWebhookEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PolarWebhookEventScalarFieldEnum | Prisma.PolarWebhookEventScalarFieldEnum[]
 }
 
 /**

@@ -21,14 +21,19 @@ const menuLinks = [
   { label: "Journal", href: "#journal" },
 ];
 
-export function LandingMenu() {
+export function LandingMenu({ dark = false }: { dark?: boolean }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <button
           type="button"
           aria-label="Open menu"
-          className="grid size-11 place-items-center rounded-full border border-white/25 bg-white/10 text-white"
+          className={[
+            "grid size-11 place-items-center rounded-full border",
+            dark
+              ? "border-zinc-300 bg-white text-zinc-950 hover:bg-zinc-100"
+              : "border-white/25 bg-white/10 text-white hover:bg-white/20",
+          ].join(" ")}
         >
           <Menu className="size-5" />
         </button>

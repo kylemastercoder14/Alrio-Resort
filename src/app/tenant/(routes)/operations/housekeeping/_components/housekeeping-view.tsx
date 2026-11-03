@@ -529,7 +529,7 @@ function ReadyForOccupancyCard({
             Ready for Occupancy
           </h2>
           <p className="mt-1 text-sm text-zinc-500">
-            Requires current room photo note before status can change.
+            Add a current room photo or verification note before status can change.
           </p>
         </div>
       </div>

@@ -24,6 +24,7 @@ import { LeafletResortMap } from "@/app/_components/leaflet-resort-map";
 import { ResortCheckoutSheet } from "@/app/_components/resort-checkout-sheet";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
+import { parseDate } from "@/lib/public-listings";
 
 export const dynamic = "force-dynamic";
 
@@ -48,28 +49,12 @@ type DetailListing = {
   baths: string;
   host: string;
   ownerName: string;
+  roomId: string;
   tenantProfileId?: string;
   lat: number;
   lng: number;
   amenities: string[];
 };
-
-function normalizePrice(value: string) {
-  return value.replace("â‚±", "₱").replace("₱", "₱");
-}
-
-function capacityToGuests(capacity: string) {
-  const match = capacity.match(/(\d+)\s+guests?/i);
-  return match ? Number(match[1]) : 4;
-}
-
-function titleFromSlug(slug: string) {
-  return slug
-    .split("-")
-    .filter(Boolean)
-    .map((word) => word[0]?.toUpperCase() + word.slice(1))
-    .join(" ");
-}
 
 async function getListing(resortId: string): Promise<DetailListing | null> {
   const dbRoom = await prisma.tenantRoom.findUnique({
@@ -105,6 +90,7 @@ async function getListing(resortId: string): Promise<DetailListing | null> {
 
     return {
       title: `${dbRoom.name} at ${resortName}`,
+      roomId: dbRoom.id,
       subtitle: `${dbRoom.type} in ${location || "Philippines"}`,
       location: location || dbRoom.tenantProfile.fullAddress || "Philippines",
       description:
@@ -133,56 +119,44 @@ async function getListing(resortId: string): Promise<DetailListing | null> {
     };
   }
 
-  const staticTitle = titleFromSlug(resortId);
+  return null;
+}
 
-  return {
-    title: `${staticTitle} - Resort stay and guest services`,
-    subtitle: "2 rooms - 2 baths - 8 guests in Batangas, Philippines",
-    location: "Batangas, Philippines",
-    description:
-      "A ResortCloud-published stay from a partner resort. Book overnight rooms, day tours, packages, dining bundles, pool access, and guest services in one flow. The listing is backed by resort operations for reservations, payment tracking, housekeeping, maintenance, and front desk requests.",
-    images: [
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=85",
-      ...fallbackImages,
-    ],
-    price: normalizePrice("₱8,450"),
-    rating: "4.96",
-    reviews: "38",
-    guests: capacityToGuests("8 guests"),
-    bedrooms: "2 rooms",
-    baths: "2 baths",
-    host: staticTitle,
-    ownerName: `${staticTitle} operations`,
-    lat: 14.0731,
-    lng: 120.6319,
-    amenities: [
-      "Wifi",
-      "Pool access",
-      "Free parking",
-      "Air conditioning",
-      "Dining service",
-      "Room service",
-      "Guest support",
-      "Direct booking rate",
-    ],
-  };
+function formatStayDate(date: Date) {
+  return new Intl.DateTimeFormat("en-PH", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
 }
 
 export default async function ResortDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ resortId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { resortId } = await params;
+  const query = await searchParams;
   const listing = await getListing(resortId);
 
   if (!listing) notFound();
 
   const photos = [listing.images[0], ...listing.images.slice(1, 5)];
+  const defaultCheckIn = new Date();
+  defaultCheckIn.setUTCDate(defaultCheckIn.getUTCDate() + 1);
+  const defaultCheckOut = new Date(defaultCheckIn);
+  defaultCheckOut.setUTCDate(defaultCheckOut.getUTCDate() + 1);
+  const checkIn = parseDate(typeof query.checkIn === "string" ? query.checkIn : undefined) ?? defaultCheckIn;
+  const checkOut = parseDate(typeof query.checkOut === "string" ? query.checkOut : undefined) ?? defaultCheckOut;
+  const guests = Math.max(1, Number(typeof query.guests === "string" ? query.guests : listing.guests) || listing.guests);
+  const cancellationDeadline = new Date(checkIn);
+  cancellationDeadline.setUTCDate(cancellationDeadline.getUTCDate() - 1);
 
   return (
     <main className="min-h-screen bg-white text-zinc-950">
-      <div className="h-24 bg-zinc-950" />
+      <div className="h-24" aria-hidden="true" />
 
       <section className="py-8 lg:px-20">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -437,32 +411,35 @@ export default async function ResortDetailPage({
               <div className="grid grid-cols-2 divide-x divide-zinc-400">
                 <div className="p-4">
                   <p className="text-xs font-bold">CHECK-IN</p>
-                  <p>8/31/2026</p>
+                  <p>{formatStayDate(checkIn)}</p>
                 </div>
                 <div className="p-4">
                   <p className="text-xs font-bold">CHECKOUT</p>
-                  <p>9/1/2026</p>
+                  <p>{formatStayDate(checkOut)}</p>
                 </div>
               </div>
               <div className="flex items-center justify-between border-t border-zinc-400 p-4">
                 <div>
                   <p className="text-xs font-bold">GUESTS</p>
-                  <p>{listing.guests} guests</p>
+                  <p>{guests} {guests === 1 ? "guest" : "guests"}</p>
                 </div>
                 <ChevronDown className="size-5" />
               </div>
             </div>
 
             <div className="mt-5 rounded-lg bg-zinc-100 px-4 py-3 text-center text-sm">
-              Free cancellation before August 30
+              Free cancellation before {formatStayDate(cancellationDeadline)}
             </div>
 
             <ResortCheckoutSheet
               title={listing.title}
               location={listing.location}
               price={listing.price}
-              guests={listing.guests}
+              guests={guests}
               image={listing.images[0]}
+              roomId={listing.roomId}
+              checkIn={checkIn.toISOString().slice(0, 10)}
+              checkOut={checkOut.toISOString().slice(0, 10)}
               tenantProfileId={listing.tenantProfileId}
               operatorName={listing.host}
               ownerName={listing.ownerName}

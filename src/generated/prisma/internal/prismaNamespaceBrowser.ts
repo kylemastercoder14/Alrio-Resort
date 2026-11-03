@@ -57,6 +57,7 @@ export const ModelName = {
   Verification: 'Verification',
   AppUser: 'AppUser',
   TenantProfile: 'TenantProfile',
+  PolarWebhookEvent: 'PolarWebhookEvent',
   TenantMessengerIntegration: 'TenantMessengerIntegration',
   TenantLead: 'TenantLead',
   TenantLeadMessage: 'TenantLeadMessage',
@@ -230,6 +231,16 @@ export const TenantProfileScalarFieldEnum = {
 } as const
 
 export type TenantProfileScalarFieldEnum = (typeof TenantProfileScalarFieldEnum)[keyof typeof TenantProfileScalarFieldEnum]
+
+
+export const PolarWebhookEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  tenantProfileId: 'tenantProfileId',
+  receivedAt: 'receivedAt'
+} as const
+
+export type PolarWebhookEventScalarFieldEnum = (typeof PolarWebhookEventScalarFieldEnum)[keyof typeof PolarWebhookEventScalarFieldEnum]
 
 
 export const TenantMessengerIntegrationScalarFieldEnum = {
