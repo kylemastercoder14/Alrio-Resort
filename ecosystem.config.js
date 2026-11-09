@@ -1,14 +1,14 @@
 module.exports = {
   apps: [
     {
-      name: "resortcloud",
+      name: "alrio-private-resort",
       script: "node_modules/.bin/next",
       args: "start",
-      interpreter: "bun",
+      interpreter: "pnpm",
       watch: false,
       env: {
         NODE_ENV: "production",
-        PORT: 1500,
+        PORT: 1505,
       },
     },
   ],
