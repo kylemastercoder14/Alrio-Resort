@@ -411,7 +411,7 @@ export function ResortMarketplaceSection({
         <div
           className={
             isMap
-              ? "mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_550px]"
+              ? "mt-10 grid gap-8 xl:grid-cols-[minmax(0,1fr)_550px]"
               : "mt-10"
           }
         >

@@ -13,11 +13,11 @@ export const passwordRequirements = [
 
 export const getStrengthColor = (score: number) => {
   if (score === 0) return "bg-zinc-200";
-  if (score <= 1) return "bg-red-500";
-  if (score <= 2) return "bg-orange-500";
-  if (score < passwordRequirements.length) return "bg-amber-500";
+  if (score <= 1) return "bg-red-600";
+  if (score <= 2) return "bg-orange-600";
+  if (score < passwordRequirements.length) return "bg-yellow-600";
 
-  return "bg-green-500";
+  return "bg-green-600";
 }
 
 export const getStrengthText = (score: number) => {

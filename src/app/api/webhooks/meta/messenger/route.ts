@@ -174,10 +174,10 @@ async function persistMessengerEvent(
         psid: leadPsid,
       })
     : null;
-  const existingLead = await prisma.tenantLead.findUnique({
+  const existingLead = await prisma.resortLead.findUnique({
     where: {
-      tenantProfileId_psid: {
-        tenantProfileId: integration.tenantProfileId,
+      resortProfileId_psid: {
+        resortProfileId: integration.resortProfileId,
         psid: leadPsid,
       },
     },
@@ -191,10 +191,10 @@ async function persistMessengerEvent(
   const inferredTargetDate = extractMessengerTargetDate(messageSummary, sentAt);
   const shouldAutoStage = !existingLead || existingLead.stage === "INTAKE";
 
-  const lead = await prisma.tenantLead.upsert({
+  const lead = await prisma.resortLead.upsert({
     where: {
-      tenantProfileId_psid: {
-        tenantProfileId: integration.tenantProfileId,
+      resortProfileId_psid: {
+        resortProfileId: integration.resortProfileId,
         psid: leadPsid,
       },
     },
@@ -209,7 +209,7 @@ async function persistMessengerEvent(
       source: "Messenger",
       stage: inferredStage,
       targetDate: inferredTargetDate,
-      tenantProfileId: integration.tenantProfileId,
+      resortProfileId: integration.resortProfileId,
     },
     update: {
       guestName: profile?.name ?? undefined,
@@ -226,7 +226,7 @@ async function persistMessengerEvent(
     },
   });
 
-  await prisma.tenantLeadMessage.upsert({
+  await prisma.resortLeadMessage.upsert({
     where: {
       metaMessageId: event.message?.mid ?? syntheticMessageId(senderId, sentAt),
     },
@@ -259,7 +259,7 @@ async function persistMessengerEvent(
 }
 
 async function getOrCreateMessengerIntegration(pageId: string) {
-  const existing = await prisma.tenantMessengerIntegration.findUnique({
+  const existing = await prisma.resortMessengerIntegration.findUnique({
     where: {
       pageId,
     },
@@ -273,22 +273,22 @@ async function getOrCreateMessengerIntegration(pageId: string) {
     return null;
   }
 
-  const tenantProfile = await prisma.tenantProfile.findFirst({
+  const resortProfile = await prisma.resortProfile.findFirst({
     orderBy: {
       createdAt: "asc",
     },
   });
 
-  if (!tenantProfile) {
+  if (!resortProfile) {
     return null;
   }
 
-  return prisma.tenantMessengerIntegration.create({
+  return prisma.resortMessengerIntegration.create({
     data: {
       pageAccessToken: process.env.META_PAGE_ACCESS_TOKEN,
       pageId,
       subscribedFields: ["messages", "messaging_postbacks", "messaging_referrals"],
-      tenantProfileId: tenantProfile.id,
+      resortProfileId: resortProfile.id,
       verifyToken: process.env.META_VERIFY_TOKEN,
     },
   });

@@ -2,109 +2,122 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { generateRandomString, hashPassword } from "better-auth/crypto";
 import { Prisma } from "@/generated/prisma/client";
-import {
-  getAppRedirectPath,
-  getTenantOnboardingStatusForAccess,
-} from "@/lib/auth-redirect";
+import { guestProfileSchema } from "@/lib/guest-profile";
+import { geographyRouter } from "./geography";
 import {
   sendReservationConfirmationEmail,
   sendStaffInviteEmail,
 } from "@/lib/invite-email";
-import { sendInvoiceReminderNow } from "@/lib/invoice-reminders";
+import {
+  sendInvoiceEmailNow,
+  sendInvoiceReminderNow,
+} from "@/lib/invoice-reminders";
 import {
   generateInviteToken,
   getInviteExpiresAt,
   hashInviteToken,
 } from "@/lib/invite-token";
-import { FULL_PERMISSION, hasTenantPermission } from "@/lib/tenant-permissions";
+import { FULL_PERMISSION, hasResortPermission } from "@/lib/resort-permissions";
 import {
   extractMessengerTargetDate,
   fetchMessengerProfile,
   inferMessengerLeadStage,
 } from "@/lib/messenger-leads";
 import { prisma } from "@/lib/prisma";
+import { getPublicResortLocations } from "@/lib/public-resort-locations";
+import { getSignInRedirect } from "@/lib/sign-in-redirect";
+import {
+  recordStaffActivityForProfile,
+  safelyRecordStaffActivityForAuthUser,
+  STAFF_ACTIVITY_ACTIONS,
+} from "@/lib/staff-activity";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 
-const roleSchema = z.enum(["ADMIN", "ADMIN_STAFF", "TENANT", "TENANT_STAFF", "CUSTOMER"]);
-const planSchema = z.enum(["free_trial", "starter", "growth", "enterprise"]);
-const billingSchema = z.enum(["monthly", "yearly"]);
-const tenantStaffStatusSchema = z.enum(["Active", "Invited", "Suspended"]);
-const tenantTimeLogFlagSchema = z.enum(["On time", "Late", "Absent"]);
-const tenantScheduleShiftStatusSchema = z.enum(["Assigned", "Open", "Changed"]);
-const tenantLeaveRequestStatusSchema = z.enum(["Approved", "Pending", "Rejected"]);
-const tenantOtUndertimeTypeSchema = z.enum(["Overtime", "Undertime"]);
-const tenantOtUndertimeStatusSchema = z.enum(["Approved", "Pending", "Rejected"]);
-const tenantDepartmentStatusSchema = z.enum(["Active", "Paused", "Archived"]);
-const tenantAmenityStatusSchema = z.enum(["Active", "Inactive"]);
-const tenantAmenityScopeSchema = z.enum(["Room-level", "Property-level"]);
-const tenantAmenityFeeUnitSchema = z.enum(["per stay", "per day", "per use"]);
-const tenantRoomStatusSchema = z.enum([
+const resortStaffStatusSchema = z.enum(["Active", "Invited", "Suspended"]);
+const resortTimeLogFlagSchema = z.enum(["On time", "Late", "Absent"]);
+const resortScheduleShiftStatusSchema = z.enum(["Assigned", "Open", "Changed"]);
+const resortLeaveRequestStatusSchema = z.enum([
+  "Approved",
+  "Pending",
+  "Rejected",
+]);
+const resortOtUndertimeTypeSchema = z.enum(["Overtime", "Undertime"]);
+const resortOtUndertimeStatusSchema = z.enum([
+  "Approved",
+  "Pending",
+  "Rejected",
+]);
+const resortDepartmentStatusSchema = z.enum(["Active", "Paused", "Archived"]);
+const resortAmenityStatusSchema = z.enum(["Active", "Inactive"]);
+const resortAmenityScopeSchema = z.enum(["Room-level", "Property-level"]);
+const resortAmenityFeeUnitSchema = z.enum(["per stay", "per day", "per use"]);
+const resortRoomStatusSchema = z.enum([
   "Available",
   "Occupied",
   "Maintenance",
   "Out of Service",
 ]);
-const tenantHousekeepingStatusSchema = z.enum([
+const resortHousekeepingStatusSchema = z.enum([
   "Clean",
   "Dirty",
   "Occupied",
   "Vacant",
 ]);
-const tenantRoomSmokingPolicySchema = z.enum(["Non-smoking", "Smoking"]);
-const tenantReservationStatusSchema = z.enum([
+const resortRoomSmokingPolicySchema = z.enum(["Non-smoking", "Smoking"]);
+const resortReservationStatusSchema = z.enum([
   "Pending",
   "Confirmed",
   "Checked in",
   "Checked out",
   "Canceled",
 ]);
-const tenantReceptionQueueStatusSchema = z.enum([
+const resortReceptionQueueStatusSchema = z.enum([
   "In-house",
   "Checking out",
   "Completed",
 ]);
-const tenantReceptionRequestPrioritySchema = z.enum(["Normal", "Urgent"]);
-const tenantMaintenancePrioritySchema = z.enum(["Normal", "Urgent"]);
-const tenantReceptionRequestSchema = z.object({
+const resortReceptionRequestPrioritySchema = z.enum(["Normal", "Urgent"]);
+const resortMaintenancePrioritySchema = z.enum(["Normal", "Urgent"]);
+const resortReceptionRequestSchema = z.object({
   department: z.string().trim().min(1, "Department is required."),
   note: z.string().trim().min(1, "Request note is required."),
-  priority: tenantReceptionRequestPrioritySchema,
+  priority: resortReceptionRequestPrioritySchema,
   reservationId: z.string().optional(),
   roomOrArea: z.string().trim().min(1, "Room or area is required."),
 });
-const tenantReceptionShiftNoteSchema = z.object({
+const resortReceptionShiftNoteSchema = z.object({
   note: z.string().trim().min(1, "Note is required."),
   title: z.string().trim().min(1, "Title is required."),
 });
-const tenantMaintenanceRequestSchema = z.object({
+const resortMaintenanceRequestSchema = z.object({
   area: z.string().trim().min(1, "Room or area is required."),
   issue: z.string().trim().min(1, "Issue title is required."),
   notes: z.string().optional(),
-  priority: tenantMaintenancePrioritySchema,
+  priority: resortMaintenancePrioritySchema,
   roomId: z.string().optional(),
 });
-const tenantMaintenanceCompleteSchema = z.object({
+const resortMaintenanceCompleteSchema = z.object({
   id: z.string().trim().min(1, "Request is required."),
   resolution: z.string().trim().min(1, "Resolution is required."),
 });
-const tenantLaundryStatusSchema = z.enum([
+const resortLaundryStatusSchema = z.enum([
   "Received",
   "Washing",
   "Drying",
   "Ready",
   "Returned",
 ]);
-const tenantLaundryPrioritySchema = z.enum(["Normal", "Urgent"]);
-const tenantLaundryJobSchema = z.object({
+const resortLaundryPrioritySchema = z.enum(["Normal", "Urgent"]);
+const resortLaundryJobSchema = z.object({
   category: z.string().trim().min(1, "Category is required."),
   dueTime: z.string().trim().optional(),
   guestOrRoom: z.string().trim().min(1, "Room, guest, or source is required."),
   notes: z.string().optional(),
   pieces: z.coerce.number().int().min(1, "Pieces must be at least 1."),
-  priority: tenantLaundryPrioritySchema,
+  priority: resortLaundryPrioritySchema,
 });
-const tenantInventoryMovementTypeSchema = z.enum(["IN", "OUT"]);
-const tenantInventoryItemSchema = z.object({
+const resortInventoryMovementTypeSchema = z.enum(["IN", "OUT"]);
+const resortInventoryItemSchema = z.object({
   category: z.string().trim().min(1, "Category is required."),
   code: z.string().trim().min(1, "Item code is required."),
   dashboardAlert: z.boolean().default(true),
@@ -116,86 +129,86 @@ const tenantInventoryItemSchema = z.object({
   threshold: z.coerce.number().int().min(0),
   unit: z.string().trim().min(1, "Unit is required."),
 });
-const tenantInventoryMovementSchema = z.object({
+const resortInventoryMovementSchema = z.object({
   itemId: z.string().trim().min(1, "Item is required."),
   quantity: z.coerce.number().int().min(1, "Quantity is required."),
   reason: z.string().trim().min(1, "Reason is required."),
-  type: tenantInventoryMovementTypeSchema,
+  type: resortInventoryMovementTypeSchema,
 });
-const tenantHousekeepingPhotoSchema = z.object({
+const resortHousekeepingPhotoSchema = z.object({
   key: z.string().trim().min(1),
   name: z.string().trim().min(1),
   size: z.number().int().optional(),
   url: z.string().trim().url(),
 });
-const tenantHousekeepingReadySchema = z.object({
+const resortHousekeepingReadySchema = z.object({
   attendantStaffProfileId: z.string().optional(),
-  photo: tenantHousekeepingPhotoSchema.optional(),
+  photo: resortHousekeepingPhotoSchema.optional(),
   photoNote: z.string().optional(),
   roomId: z.string().trim().min(1, "Room is required."),
 });
-const tenantHousekeepingDamageSchema = z.object({
+const resortHousekeepingDamageSchema = z.object({
   details: z.string().trim().min(1, "Details are required."),
-  photo: tenantHousekeepingPhotoSchema.optional(),
+  photo: resortHousekeepingPhotoSchema.optional(),
   photoNote: z.string().optional(),
   roomId: z.string().trim().min(1, "Room is required."),
   title: z.string().trim().min(1, "Damage title is required."),
 });
-const tenantServiceStatusSchema = z.enum(["Active", "Inactive"]);
-const tenantPackageStatusSchema = z.enum(["Active", "Inactive", "Archived"]);
-const tenantServiceBillingTypeSchema = z.enum([
+const resortServiceStatusSchema = z.enum(["Active", "Inactive"]);
+const resortPackageStatusSchema = z.enum(["Active", "Inactive", "Archived"]);
+const resortServiceBillingTypeSchema = z.enum([
   "Fixed price",
   "Per hour",
   "Per guest",
   "Custom quote",
 ]);
-const tenantInvoiceStatusSchema = z.enum([
+const resortInvoiceStatusSchema = z.enum([
   "Draft",
   "Sent",
   "Paid",
   "Overdue",
   "Void",
 ]);
-const tenantFolioChargeStatusSchema = z.enum([
+const resortFolioChargeStatusSchema = z.enum([
   "Un-billed",
   "Invoiced",
   "Voided",
   "Adjusted",
 ]);
-const tenantFolioChargeTypeSchema = z.enum([
+const resortFolioChargeTypeSchema = z.enum([
   "Stay",
   "Additional",
   "Fee",
   "Adjustment",
 ]);
-const tenantInvoiceReminderCadenceSchema = z.enum([
+const resortInvoiceReminderCadenceSchema = z.enum([
   "Standard",
   "Light",
   "Strict",
   "Paused",
 ]);
-const tenantFinanceEntryTypeSchema = z.enum(["Revenue", "Expense"]);
-const tenantFinanceEntrySourceSchema = z.enum([
+const resortFinanceEntryTypeSchema = z.enum(["Revenue", "Expense"]);
+const resortFinanceEntrySourceSchema = z.enum([
   "Manual entry",
   "Auto booking",
   "Invoice payment",
 ]);
-const tenantFinanceEntryStatusSchema = z.enum(["Cleared", "Pending"]);
-const tenantTransactionExportFormatSchema = z.enum(["CSV", "PDF", "TXT", "XLSX"]);
-const tenantTransactionExportNameSchema = z.enum([
+const resortFinanceEntryStatusSchema = z.enum(["Cleared", "Pending"]);
+const resortTransactionExportFormatSchema = z.enum([
+  "CSV",
+  "PDF",
+  "TXT",
+  "XLSX",
+]);
+const resortTransactionExportNameSchema = z.enum([
   "Revenue & expenses",
   "Cash flow",
   "Receipts",
   "Money status",
   "Invoices summary",
 ]);
-const tenantPaymentMethodSchema = z.enum([
-  "CREDIT_CARD",
-  "BANK_TRANSFER",
-  "E_WALLET",
-  "CASH_DEPOSIT",
-]);
-const tenantLeadStageSchema = z.enum([
+
+const resortLeadStageSchema = z.enum([
   "INTAKE",
   "QUALIFIED",
   "PAYMENT_DONE",
@@ -206,26 +219,30 @@ const optionalString = z.preprocess(
   z.string().optional(),
 );
 const optionalTrimmedString = z.preprocess(
-  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  (value) =>
+    typeof value === "string" && value.trim() === "" ? undefined : value,
   z.string().trim().optional(),
 );
-const optionalRequiredString = z.preprocess(
-  (value) => (value === "" ? undefined : value),
-  z.string().min(1).optional(),
-);
+
 const optionalEmail = z.preprocess(
-  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  (value) =>
+    typeof value === "string" && value.trim() === "" ? undefined : value,
   z.string().trim().email().optional(),
 );
 const optionalUsername = z.preprocess(
-  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
-  z.string().trim().min(3, "Username must be at least 3 characters.").optional(),
+  (value) =>
+    typeof value === "string" && value.trim() === "" ? undefined : value,
+  z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters.")
+    .optional(),
 );
 const payrollMoneySchema = z.coerce.number().min(0).default(0);
-const tenantPayrollPayTypeSchema = z.enum(["Regular Payroll", "Final Payroll"]);
-const tenantPayrollFrequencySchema = z.enum(["Monthly", "Bi-weekly"]);
-const tenantPayrollRoundingSchema = z.enum(["Nearest Peso", "None"]);
-const tenantPayrollEmployeeOverrideSchema = z.object({
+const resortPayrollPayTypeSchema = z.enum(["Regular Payroll", "Final Payroll"]);
+const resortPayrollFrequencySchema = z.enum(["Monthly", "Bi-weekly"]);
+const resortPayrollRoundingSchema = z.enum(["Nearest Peso", "None"]);
+const resortPayrollEmployeeOverrideSchema = z.object({
   allowance: payrollMoneySchema.optional(),
   basicSalary: payrollMoneySchema.optional(),
   bonus: payrollMoneySchema.optional(),
@@ -235,13 +252,13 @@ const tenantPayrollEmployeeOverrideSchema = z.object({
   otherDeductions: payrollMoneySchema.optional(),
   staffProfileId: z.string(),
 });
-const tenantPayrollInputSchema = z.object({
+const resortPayrollInputSchema = z.object({
   action: z.enum(["create", "update"]).optional(),
   backupPayrollData: z.boolean().default(false),
   createJournalEntry: z.boolean().default(true),
   department: optionalTrimmedString,
-  employeeOverrides: z.array(tenantPayrollEmployeeOverrideSchema).default([]),
-  frequency: tenantPayrollFrequencySchema.default("Monthly"),
+  employeeOverrides: z.array(resortPayrollEmployeeOverrideSchema).default([]),
+  frequency: resortPayrollFrequencySchema.default("Monthly"),
   id: z.string().optional(),
   includeAllowance: z.boolean().default(true),
   includeBasicSalary: z.boolean().default(true),
@@ -256,98 +273,75 @@ const tenantPayrollInputSchema = z.object({
   name: z.string().trim().min(1, "Payroll name is required."),
   notes: optionalString,
   payDate: z.coerce.date(),
-  payType: tenantPayrollPayTypeSchema.default("Regular Payroll"),
+  payType: resortPayrollPayTypeSchema.default("Regular Payroll"),
   periodEnd: z.coerce.date(),
   periodStart: z.coerce.date(),
-  roundingOption: tenantPayrollRoundingSchema.default("Nearest Peso"),
+  roundingOption: resortPayrollRoundingSchema.default("Nearest Peso"),
   sendPayslipNotification: z.boolean().default(false),
 });
-const tenantLeadSaveSchema = z.object({
+const resortLeadSaveSchema = z.object({
   guestName: z.string().trim().min(1, "Guest name is required."),
   id: z.string().optional(),
   inquiry: optionalTrimmedString,
   lastMessage: optionalTrimmedString,
   source: z.string().trim().min(1, "Source is required.").default("Organic"),
-  stage: tenantLeadStageSchema.default("INTAKE"),
+  stage: resortLeadStageSchema.default("INTAKE"),
   targetDate: optionalTrimmedString,
 });
-const tenantLeadReplySchema = z.object({
+const resortLeadReplySchema = z.object({
   id: z.string().trim().min(1, "Lead is required."),
   text: z.string().trim().min(1, "Reply is required."),
 });
-const onboardingSchema = z.object({
-  resortName: optionalRequiredString,
-  propertyType: optionalRequiredString,
-  shortDescription: optionalString,
-  region: optionalRequiredString,
-  province: optionalRequiredString,
-  municipality: optionalRequiredString,
-  barangay: optionalString,
-  fullAddress: optionalRequiredString,
-  phoneNumber: optionalRequiredString,
-  website: optionalString,
-  businessName: optionalString,
-  billingEmail: optionalEmail,
-  billingPhoneNumber: optionalString,
-  billingAddress: optionalString,
-  billingCity: optionalString,
-  billingStateProvince: optionalString,
-  billingPostalCode: optionalString,
-  paymentMethod: tenantPaymentMethodSchema.optional(),
-  paymentProvider: optionalString,
-  paymentAccountName: optionalString,
-  paymentAccountNumber: optionalString,
-  cardholderName: optionalString,
-  cardBrand: optionalString,
-  cardLastFour: optionalString,
-  cardExpiry: optionalString,
-  onboardingCurrentStep: z.number().int().min(0).max(4).optional(),
-  complete: z.boolean().optional(),
-});
-const tenantStaffProfileSchema = z.object({
-  id: z.string().optional(),
-  accessRoleId: optionalTrimmedString,
-  firstName: optionalTrimmedString,
-  lastName: optionalTrimmedString,
-  email: optionalEmail,
-  username: optionalUsername,
-  password: z.string().min(8, "Password must be at least 8 characters.").optional().or(z.literal("")),
-  phoneNumber: optionalString,
-  departmentId: optionalString,
-  roleName: z.string().trim().min(1, "Role is required."),
-  status: tenantStaffStatusSchema,
-  employmentType: optionalString,
-  workLocation: optionalString,
-  basicSalary: payrollMoneySchema,
-  allowance: payrollMoneySchema,
-  incentives: payrollMoneySchema,
-  commission: payrollMoneySchema,
-  bonus: payrollMoneySchema,
-  leaveDeduction: payrollMoneySchema,
-  sssContribution: payrollMoneySchema,
-  philHealthContribution: payrollMoneySchema,
-  pagIbigContribution: payrollMoneySchema,
-  withholdingTax: payrollMoneySchema,
-  otherDeductions: payrollMoneySchema,
-  notes: optionalString,
-  tags: z.array(z.string()).default([]),
-}).refine((value) => value.email || value.username, {
-  message: "Email or username is required.",
-  path: ["username"],
-});
-const tenantStaffInviteSchema = z.object({
+const resortStaffProfileSchema = z
+  .object({
+    id: z.string().optional(),
+    accessRoleId: optionalTrimmedString,
+    firstName: optionalTrimmedString,
+    lastName: optionalTrimmedString,
+    email: optionalEmail,
+    username: optionalUsername,
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters.")
+      .optional()
+      .or(z.literal("")),
+    phoneNumber: optionalString,
+    departmentId: optionalString,
+    roleName: z.string().trim().min(1, "Role is required."),
+    status: resortStaffStatusSchema,
+    employmentType: optionalString,
+    workLocation: optionalString,
+    basicSalary: payrollMoneySchema,
+    allowance: payrollMoneySchema,
+    incentives: payrollMoneySchema,
+    commission: payrollMoneySchema,
+    bonus: payrollMoneySchema,
+    leaveDeduction: payrollMoneySchema,
+    sssContribution: payrollMoneySchema,
+    philHealthContribution: payrollMoneySchema,
+    pagIbigContribution: payrollMoneySchema,
+    withholdingTax: payrollMoneySchema,
+    otherDeductions: payrollMoneySchema,
+    notes: optionalString,
+    tags: z.array(z.string()).default([]),
+  })
+  .refine((value) => value.email || value.username, {
+    message: "Email or username is required.",
+    path: ["username"],
+  });
+const resortStaffInviteSchema = z.object({
   email: z.string().trim().email("Valid email is required."),
   message: optionalString,
   accessRoleId: optionalTrimmedString,
   roleName: z.string().trim().min(1, "Role is required."),
 });
-const tenantAccessRoleSchema = z.object({
+const resortAccessRoleSchema = z.object({
   id: z.string().optional(),
   name: z.string().trim().min(1, "Role name is required."),
   description: optionalString,
   permissions: z.array(z.string()).default([]),
 });
-const tenantDepartmentSchema = z.object({
+const resortDepartmentSchema = z.object({
   id: z.string().optional(),
   name: z.string().trim().min(1, "Department name is required."),
   code: z.string().trim().min(1, "Department code is required."),
@@ -355,34 +349,34 @@ const tenantDepartmentSchema = z.object({
   email: optionalEmail,
   notes: optionalString,
   routing: optionalString,
-  status: tenantDepartmentStatusSchema,
+  status: resortDepartmentStatusSchema,
   staffProfileIds: z.array(z.string()).default([]),
   headStaffProfileId: optionalString,
 });
-const tenantAmenitySchema = z.object({
+const resortAmenitySchema = z.object({
   id: z.string().optional(),
   code: z.string().trim().min(1, "Amenity code is required."),
   name: z.string().trim().min(1, "Amenity name is required."),
   category: z.string().trim().min(1, "Category is required."),
   icon: z.string().trim().min(1, "Icon is required."),
   description: optionalString,
-  appliesTo: tenantAmenityScopeSchema,
+  appliesTo: resortAmenityScopeSchema,
   chargeable: z.boolean(),
   feeAmount: optionalString,
-  feeUnit: tenantAmenityFeeUnitSchema,
-  status: tenantAmenityStatusSchema,
+  feeUnit: resortAmenityFeeUnitSchema,
+  status: resortAmenityStatusSchema,
   showOnBookingPage: z.boolean(),
   featured: z.boolean(),
   sortOrder: z.coerce.number().int().min(0).default(0),
   internalNotes: optionalString,
 });
-const tenantRoomPhotoSchema = z.object({
+const resortRoomPhotoSchema = z.object({
   key: z.string().trim().min(1),
   name: z.string().trim().min(1),
   size: z.number().int().optional(),
   url: z.string().trim().url(),
 });
-const tenantRoomSchema = z.object({
+const resortRoomSchema = z.object({
   id: z.string().optional(),
   code: z.string().trim().min(1, "Room code is required."),
   name: z.string().trim().min(1, "Room name is required."),
@@ -397,18 +391,18 @@ const tenantRoomSchema = z.object({
   bedConfiguration: z.string().trim().min(1, "Bed configuration is required."),
   roomSize: optionalString,
   viewType: z.string().trim().min(1, "View type is required."),
-  smokingPolicy: tenantRoomSmokingPolicySchema,
-  status: tenantRoomStatusSchema,
+  smokingPolicy: resortRoomSmokingPolicySchema,
+  status: resortRoomStatusSchema,
   checkIn: z.string().trim().min(1),
   checkOut: z.string().trim().min(1),
   minNights: z.coerce.number().int().min(1),
   guestNote: optionalString,
   notes: optionalString,
   amenityIds: z.array(z.string()).default([]),
-  photos: z.array(tenantRoomPhotoSchema).default([]),
+  photos: z.array(resortRoomPhotoSchema).default([]),
 });
-const tenantReservationSchema = z.object({
-  roomId: z.string().trim().min(1, "Room is required."),
+const resortReservationSchema = z.object({
+  guestAccountId: optionalTrimmedString,
   guestName: z.string().trim().min(1, "Guest name is required."),
   guestEmail: optionalEmail,
   guestPhone: optionalString,
@@ -417,19 +411,16 @@ const tenantReservationSchema = z.object({
   adults: z.coerce.number().int().min(1),
   children: z.coerce.number().int().min(0),
   rate: z.string().trim().min(1, "Rate is required."),
-  packageName: optionalTrimmedString,
-  packagePrice: optionalTrimmedString,
-  roomsIncluded: z.coerce.number().int().min(1).default(1),
   deposit: optionalString,
   totalAmount: z.string().trim().min(1, "Total amount is required."),
   paymentMethod: optionalString,
-  status: tenantReservationStatusSchema,
+  status: resortReservationStatusSchema,
   notes: optionalString,
 });
-const tenantServiceSchema = z.object({
+const resortServiceSchema = z.object({
   id: z.string().optional(),
   baseCharge: z.string().trim().min(1, "Base charge is required."),
-  billingType: tenantServiceBillingTypeSchema,
+  billingType: resortServiceBillingTypeSchema,
   bookingLeadTime: optionalString,
   category: z.string().trim().min(1, "Category is required."),
   code: z.string().trim().min(1, "Service code is required."),
@@ -439,10 +430,10 @@ const tenantServiceSchema = z.object({
   internalNotes: optionalString,
   provider: optionalString,
   showOnBookingPage: z.boolean(),
-  status: tenantServiceStatusSchema,
+  status: resortServiceStatusSchema,
   title: z.string().trim().min(1, "Service name is required."),
 });
-const tenantPackageSchema = z.object({
+const resortPackageSchema = z.object({
   id: z.string().optional(),
   amenityIds: z.array(z.string()).default([]),
   category: z.string().trim().min(1, "Category is required."),
@@ -459,15 +450,15 @@ const tenantPackageSchema = z.object({
   serviceIds: z.array(z.string()).default([]),
   showOnBookingPage: z.boolean(),
   sortOrder: z.coerce.number().int().min(0).default(0),
-  status: tenantPackageStatusSchema,
+  status: resortPackageStatusSchema,
 });
-const tenantInvoiceLineItemSchema = z.object({
+const resortInvoiceLineItemSchema = z.object({
   amount: z.string().trim().min(1),
   description: z.string().trim().min(1),
   quantity: z.coerce.number().int().min(1),
   rate: z.string().trim().min(1),
 });
-const tenantInvoiceSchema = z.object({
+const resortInvoiceSchema = z.object({
   id: z.string().optional(),
   balanceDue: z.string().trim().min(1),
   code: z.string().trim().min(1, "Invoice number is required."),
@@ -477,27 +468,27 @@ const tenantInvoiceSchema = z.object({
   guestEmail: optionalEmail,
   guestName: z.string().trim().min(1, "Guest name is required."),
   invoiceDate: z.string().trim().min(1, "Invoice date is required."),
-  lineItems: z.array(tenantInvoiceLineItemSchema).min(1),
+  lineItems: z.array(resortInvoiceLineItemSchema).min(1),
   notes: optionalString,
   paymentInstructions: optionalString,
   paymentMethod: optionalString,
-  reminderCadence: tenantInvoiceReminderCadenceSchema,
+  reminderCadence: resortInvoiceReminderCadenceSchema,
   reservationId: optionalString,
-  status: tenantInvoiceStatusSchema,
+  status: resortInvoiceStatusSchema,
   subtotal: z.string().trim().min(1),
   tax: z.string().trim().default("0"),
   totalAmount: z.string().trim().min(1),
 });
-const tenantFolioChargeSchema = z.object({
+const resortFolioChargeSchema = z.object({
   amount: z.string().trim().min(1, "Amount is required."),
   description: z.string().trim().min(1, "Description is required."),
   quantity: z.coerce.number().int().min(1),
   rate: z.string().trim().min(1, "Rate is required."),
   reservationId: z.string().trim().min(1, "Reservation is required."),
-  status: tenantFolioChargeStatusSchema.default("Un-billed"),
-  type: tenantFolioChargeTypeSchema.default("Additional"),
+  status: resortFolioChargeStatusSchema.default("Un-billed"),
+  type: resortFolioChargeTypeSchema.default("Additional"),
 });
-const tenantPaymentLogSchema = z.object({
+const resortPaymentLogSchema = z.object({
   amount: z.string().trim().min(1, "Amount is required."),
   invoiceIds: z.array(z.string()).default([]),
   paymentMethod: z.string().trim().min(1, "Payment method is required."),
@@ -505,7 +496,7 @@ const tenantPaymentLogSchema = z.object({
   proofUrl: optionalTrimmedString,
   reservationId: z.string().trim().min(1, "Reservation is required."),
 });
-const tenantLeadConvertReservationSchema = z.object({
+const resortLeadConvertReservationSchema = z.object({
   adults: z.coerce.number().int().min(1),
   checkIn: z.string().trim().min(1, "Check-in is required."),
   checkOut: z.string().trim().min(1, "Check-out is required."),
@@ -513,16 +504,12 @@ const tenantLeadConvertReservationSchema = z.object({
   deposit: optionalString,
   leadId: z.string().trim().min(1, "Lead is required."),
   notes: optionalString,
-  packageName: optionalTrimmedString,
-  packagePrice: optionalTrimmedString,
   paymentMethod: optionalString,
   rate: z.string().trim().min(1, "Rate is required."),
-  roomId: z.string().trim().min(1, "Room is required."),
-  roomsIncluded: z.coerce.number().int().min(1).default(1),
-  status: tenantReservationStatusSchema.default("Confirmed"),
+  status: resortReservationStatusSchema.default("Confirmed"),
   totalAmount: z.string().trim().min(1, "Total amount is required."),
 });
-const tenantFinanceEntrySchema = z.object({
+const resortFinanceEntrySchema = z.object({
   id: z.string().optional(),
   amount: z.string().trim().min(1, "Amount is required."),
   category: z.string().trim().min(1, "Category is required."),
@@ -536,80 +523,65 @@ const tenantFinanceEntrySchema = z.object({
   receiptSize: z.number().int().nonnegative().optional(),
   receiptType: optionalTrimmedString,
   receiptUrl: optionalTrimmedString,
-  source: tenantFinanceEntrySourceSchema,
-  status: tenantFinanceEntryStatusSchema,
-  type: tenantFinanceEntryTypeSchema,
+  source: resortFinanceEntrySourceSchema,
+  status: resortFinanceEntryStatusSchema,
+  type: resortFinanceEntryTypeSchema,
 });
-const tenantTransactionExportSchema = z.object({
-  format: tenantTransactionExportFormatSchema,
-  name: tenantTransactionExportNameSchema,
+const resortTransactionExportSchema = z.object({
+  format: resortTransactionExportFormatSchema,
+  name: resortTransactionExportNameSchema,
   period: optionalTrimmedString,
 });
 
-function toTenantPlan(plan: z.infer<typeof planSchema>) {
-  if (plan === "starter") return "STARTER";
-  if (plan === "growth") return "GROWTH";
-  if (plan === "enterprise") return "ENTERPRISE";
-  return "FREE_TRIAL";
-}
-
-function toBillingCycle(billing: z.infer<typeof billingSchema>) {
-  return billing === "yearly" ? "YEARLY" : "MONTHLY";
-}
-
-function getTrialEndDate() {
-  const trialEndsAt = new Date();
-  trialEndsAt.setDate(trialEndsAt.getDate() + 7);
-  return trialEndsAt;
-}
-
-function toTenantStaffStatus(status: z.infer<typeof tenantStaffStatusSchema>) {
+function toResortStaffStatus(status: z.infer<typeof resortStaffStatusSchema>) {
   if (status === "Active") return "ACTIVE";
   if (status === "Suspended") return "SUSPENDED";
   return "INVITED";
 }
 
-function fromTenantStaffStatus(status: "ACTIVE" | "INVITED" | "SUSPENDED") {
+function fromResortStaffStatus(status: "ACTIVE" | "INVITED" | "SUSPENDED") {
   if (status === "ACTIVE") return "Active";
   if (status === "SUSPENDED") return "Suspended";
   return "Invited";
 }
 
-function toTenantTimeLogFlag(flag: z.infer<typeof tenantTimeLogFlagSchema>) {
+function toResortTimeLogFlag(flag: z.infer<typeof resortTimeLogFlagSchema>) {
   if (flag === "Late") return "LATE";
   if (flag === "Absent") return "ABSENT";
   return "ON_TIME";
 }
 
-function fromTenantTimeLogFlag(flag: "ON_TIME" | "LATE" | "ABSENT") {
+function fromResortTimeLogFlag(flag: "ON_TIME" | "LATE" | "ABSENT") {
   if (flag === "LATE") return "Late";
   if (flag === "ABSENT") return "Absent";
   return "On time";
 }
 
-function toTenantScheduleShiftStatus(
-  status: z.infer<typeof tenantScheduleShiftStatusSchema>,
+function toResortScheduleShiftStatus(
+  status: z.infer<typeof resortScheduleShiftStatusSchema>,
 ) {
   if (status === "Open") return "OPEN";
   if (status === "Changed") return "CHANGED";
   return "ASSIGNED";
 }
 
-function fromTenantScheduleShiftStatus(status: "ASSIGNED" | "OPEN" | "CHANGED") {
+function fromResortScheduleShiftStatus(
+  status: "ASSIGNED" | "OPEN" | "CHANGED",
+) {
   if (status === "OPEN") return "Open";
   if (status === "CHANGED") return "Changed";
   return "Assigned";
 }
 
-function toTenantLeaveRequestStatus(
-  status: z.infer<typeof tenantLeaveRequestStatusSchema>,
+function toResortLeaveRequestStatus(
+  status: z.infer<typeof resortLeaveRequestStatusSchema>,
 ) {
   if (status === "Approved") return "APPROVED";
   if (status === "Rejected") return "REJECTED";
   return "PENDING";
 }
 
-function fromTenantLeaveRequestStatus(
+function fromResortLeaveRequestStatus(
   status: "APPROVED" | "PENDING" | "REJECTED",
 ) {
   if (status === "APPROVED") return "Approved";
@@ -617,25 +589,25 @@ function fromTenantLeaveRequestStatus(
   return "Pending";
 }
 
-function toTenantOtUndertimeType(
-  type: z.infer<typeof tenantOtUndertimeTypeSchema>,
+function toResortOtUndertimeType(
+  type: z.infer<typeof resortOtUndertimeTypeSchema>,
 ) {
   return type === "Undertime" ? "UNDERTIME" : "OVERTIME";
 }
 
-function fromTenantOtUndertimeType(type: "OVERTIME" | "UNDERTIME") {
+function fromResortOtUndertimeType(type: "OVERTIME" | "UNDERTIME") {
   return type === "UNDERTIME" ? "Undertime" : "Overtime";
 }
 
-function toTenantOtUndertimeStatus(
-  status: z.infer<typeof tenantOtUndertimeStatusSchema>,
+function toResortOtUndertimeStatus(
+  status: z.infer<typeof resortOtUndertimeStatusSchema>,
 ) {
   if (status === "Approved") return "APPROVED";
   if (status === "Rejected") return "REJECTED";
   return "PENDING";
 }
 
-function fromTenantOtUndertimeStatus(
+function fromResortOtUndertimeStatus(
   status: "APPROVED" | "PENDING" | "REJECTED",
 ) {
   if (status === "APPROVED") return "Approved";
@@ -643,54 +615,56 @@ function fromTenantOtUndertimeStatus(
   return "Pending";
 }
 
-function toTenantDepartmentStatus(status: z.infer<typeof tenantDepartmentStatusSchema>) {
+function toResortDepartmentStatus(
+  status: z.infer<typeof resortDepartmentStatusSchema>,
+) {
   if (status === "Paused") return "PAUSED";
   if (status === "Archived") return "ARCHIVED";
   return "ACTIVE";
 }
 
-function fromTenantDepartmentStatus(status: "ACTIVE" | "PAUSED" | "ARCHIVED") {
+function fromResortDepartmentStatus(status: "ACTIVE" | "PAUSED" | "ARCHIVED") {
   if (status === "PAUSED") return "Paused";
   if (status === "ARCHIVED") return "Archived";
   return "Active";
 }
 
-function toTenantAmenityStatus(
-  status: z.infer<typeof tenantAmenityStatusSchema>,
+function toResortAmenityStatus(
+  status: z.infer<typeof resortAmenityStatusSchema>,
 ): "ACTIVE" | "INACTIVE" {
   return status === "Inactive" ? "INACTIVE" : "ACTIVE";
 }
 
-function fromTenantAmenityStatus(status: "ACTIVE" | "INACTIVE") {
+function fromResortAmenityStatus(status: "ACTIVE" | "INACTIVE") {
   return status === "INACTIVE" ? "Inactive" : "Active";
 }
 
-function toTenantAmenityScope(
-  scope: z.infer<typeof tenantAmenityScopeSchema>,
+function toResortAmenityScope(
+  scope: z.infer<typeof resortAmenityScopeSchema>,
 ): "ROOM_LEVEL" | "PROPERTY_LEVEL" {
   return scope === "Property-level" ? "PROPERTY_LEVEL" : "ROOM_LEVEL";
 }
 
-function fromTenantAmenityScope(scope: "ROOM_LEVEL" | "PROPERTY_LEVEL") {
+function fromResortAmenityScope(scope: "ROOM_LEVEL" | "PROPERTY_LEVEL") {
   return scope === "PROPERTY_LEVEL" ? "Property-level" : "Room-level";
 }
 
-function toTenantAmenityFeeUnit(
-  unit: z.infer<typeof tenantAmenityFeeUnitSchema>,
+function toResortAmenityFeeUnit(
+  unit: z.infer<typeof resortAmenityFeeUnitSchema>,
 ): "PER_STAY" | "PER_DAY" | "PER_USE" {
   if (unit === "per day") return "PER_DAY";
   if (unit === "per use") return "PER_USE";
   return "PER_STAY";
 }
 
-function fromTenantAmenityFeeUnit(unit: "PER_STAY" | "PER_DAY" | "PER_USE") {
+function fromResortAmenityFeeUnit(unit: "PER_STAY" | "PER_DAY" | "PER_USE") {
   if (unit === "PER_DAY") return "per day";
   if (unit === "PER_USE") return "per use";
   return "per stay";
 }
 
-function toTenantRoomStatus(
-  status: z.infer<typeof tenantRoomStatusSchema>,
+function toResortRoomStatus(
+  status: z.infer<typeof resortRoomStatusSchema>,
 ): "AVAILABLE" | "OCCUPIED" | "MAINTENANCE" | "OUT_OF_SERVICE" {
   if (status === "Occupied") return "OCCUPIED";
   if (status === "Maintenance") return "MAINTENANCE";
@@ -698,7 +672,7 @@ function toTenantRoomStatus(
   return "AVAILABLE";
 }
 
-function fromTenantRoomStatus(
+function fromResortRoomStatus(
   status: "AVAILABLE" | "OCCUPIED" | "MAINTENANCE" | "OUT_OF_SERVICE",
 ) {
   if (status === "OCCUPIED") return "Occupied";
@@ -707,8 +681,8 @@ function fromTenantRoomStatus(
   return "Available";
 }
 
-function toTenantHousekeepingStatus(
-  status: z.infer<typeof tenantHousekeepingStatusSchema>,
+function toResortHousekeepingStatus(
+  status: z.infer<typeof resortHousekeepingStatusSchema>,
 ): "CLEAN" | "DIRTY" | "OCCUPIED" | "VACANT" {
   if (status === "Clean") return "CLEAN";
   if (status === "Dirty") return "DIRTY";
@@ -716,7 +690,7 @@ function toTenantHousekeepingStatus(
   return "VACANT";
 }
 
-function fromTenantHousekeepingStatus(
+function fromResortHousekeepingStatus(
   status: "CLEAN" | "DIRTY" | "OCCUPIED" | "VACANT",
 ) {
   if (status === "CLEAN") return "Clean";
@@ -734,25 +708,25 @@ function getHousekeepingStatusFromRoomStatus(
 }
 
 function getRoomStatusFromHousekeepingStatus(
-  status: z.infer<typeof tenantHousekeepingStatusSchema>,
+  status: z.infer<typeof resortHousekeepingStatusSchema>,
 ): "AVAILABLE" | "OCCUPIED" | "MAINTENANCE" {
   if (status === "Occupied") return "OCCUPIED";
   if (status === "Dirty") return "MAINTENANCE";
   return "AVAILABLE";
 }
 
-function toTenantRoomSmokingPolicy(
-  policy: z.infer<typeof tenantRoomSmokingPolicySchema>,
+function toResortRoomSmokingPolicy(
+  policy: z.infer<typeof resortRoomSmokingPolicySchema>,
 ): "NON_SMOKING" | "SMOKING" {
   return policy === "Smoking" ? "SMOKING" : "NON_SMOKING";
 }
 
-function fromTenantRoomSmokingPolicy(policy: "NON_SMOKING" | "SMOKING") {
+function fromResortRoomSmokingPolicy(policy: "NON_SMOKING" | "SMOKING") {
   return policy === "SMOKING" ? "Smoking" : "Non-smoking";
 }
 
-function toTenantReservationStatus(
-  status: z.infer<typeof tenantReservationStatusSchema>,
+function toResortReservationStatus(
+  status: z.infer<typeof resortReservationStatusSchema>,
 ): "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELED" {
   if (status === "Pending") return "PENDING";
   if (status === "Checked in") return "CHECKED_IN";
@@ -761,7 +735,7 @@ function toTenantReservationStatus(
   return "CONFIRMED";
 }
 
-function fromTenantReservationStatus(
+function fromResortReservationStatus(
   status: "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELED",
 ) {
   if (status === "PENDING") return "Pending";
@@ -771,30 +745,30 @@ function fromTenantReservationStatus(
   return "Confirmed";
 }
 
-function toTenantServiceStatus(
-  status: z.infer<typeof tenantServiceStatusSchema>,
+function toResortServiceStatus(
+  status: z.infer<typeof resortServiceStatusSchema>,
 ): "ACTIVE" | "INACTIVE" {
   return status === "Inactive" ? "INACTIVE" : "ACTIVE";
 }
 
-function fromTenantServiceStatus(status: "ACTIVE" | "INACTIVE") {
+function fromResortServiceStatus(status: "ACTIVE" | "INACTIVE") {
   return status === "INACTIVE" ? "Inactive" : "Active";
 }
 
-function toTenantPackageStatus(
-  status: z.infer<typeof tenantPackageStatusSchema>,
+function toResortPackageStatus(
+  status: z.infer<typeof resortPackageStatusSchema>,
 ): "ACTIVE" | "INACTIVE" | "ARCHIVED" {
   if (status === "Archived") return "ARCHIVED";
   return status === "Inactive" ? "INACTIVE" : "ACTIVE";
 }
 
-function fromTenantPackageStatus(status: "ACTIVE" | "INACTIVE" | "ARCHIVED") {
+function fromResortPackageStatus(status: "ACTIVE" | "INACTIVE" | "ARCHIVED") {
   if (status === "ARCHIVED") return "Archived";
   return status === "INACTIVE" ? "Inactive" : "Active";
 }
 
-function toTenantServiceBillingType(
-  billingType: z.infer<typeof tenantServiceBillingTypeSchema>,
+function toResortServiceBillingType(
+  billingType: z.infer<typeof resortServiceBillingTypeSchema>,
 ): "FIXED_PRICE" | "PER_HOUR" | "PER_GUEST" | "CUSTOM_QUOTE" {
   if (billingType === "Per hour") return "PER_HOUR";
   if (billingType === "Per guest") return "PER_GUEST";
@@ -802,7 +776,7 @@ function toTenantServiceBillingType(
   return "FIXED_PRICE";
 }
 
-function fromTenantServiceBillingType(
+function fromResortServiceBillingType(
   billingType: "FIXED_PRICE" | "PER_HOUR" | "PER_GUEST" | "CUSTOM_QUOTE",
 ) {
   if (billingType === "PER_HOUR") return "Per hour";
@@ -811,8 +785,8 @@ function fromTenantServiceBillingType(
   return "Fixed price";
 }
 
-function toTenantInvoiceStatus(
-  status: z.infer<typeof tenantInvoiceStatusSchema>,
+function toResortInvoiceStatus(
+  status: z.infer<typeof resortInvoiceStatusSchema>,
 ): "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "VOID" {
   if (status === "Sent") return "SENT";
   if (status === "Paid") return "PAID";
@@ -821,7 +795,7 @@ function toTenantInvoiceStatus(
   return "DRAFT";
 }
 
-function fromTenantInvoiceStatus(
+function fromResortInvoiceStatus(
   status: "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "VOID",
 ) {
   if (status === "SENT") return "Sent";
@@ -831,8 +805,8 @@ function fromTenantInvoiceStatus(
   return "Draft";
 }
 
-function toTenantInvoiceReminderCadence(
-  cadence: z.infer<typeof tenantInvoiceReminderCadenceSchema>,
+function toResortInvoiceReminderCadence(
+  cadence: z.infer<typeof resortInvoiceReminderCadenceSchema>,
 ): "STANDARD" | "LIGHT" | "STRICT" | "PAUSED" {
   if (cadence === "Light") return "LIGHT";
   if (cadence === "Strict") return "STRICT";
@@ -840,7 +814,7 @@ function toTenantInvoiceReminderCadence(
   return "STANDARD";
 }
 
-function fromTenantInvoiceReminderCadence(
+function fromResortInvoiceReminderCadence(
   cadence: "STANDARD" | "LIGHT" | "STRICT" | "PAUSED",
 ) {
   if (cadence === "LIGHT") return "Light";
@@ -849,25 +823,25 @@ function fromTenantInvoiceReminderCadence(
   return "Standard";
 }
 
-function toTenantFinanceEntryType(
-  type: z.infer<typeof tenantFinanceEntryTypeSchema>,
+function toResortFinanceEntryType(
+  type: z.infer<typeof resortFinanceEntryTypeSchema>,
 ): "REVENUE" | "EXPENSE" {
   return type === "Revenue" ? "REVENUE" : "EXPENSE";
 }
 
-function fromTenantFinanceEntryType(type: "REVENUE" | "EXPENSE") {
+function fromResortFinanceEntryType(type: "REVENUE" | "EXPENSE") {
   return type === "REVENUE" ? "Revenue" : "Expense";
 }
 
-function toTenantFinanceEntrySource(
-  source: z.infer<typeof tenantFinanceEntrySourceSchema>,
+function toResortFinanceEntrySource(
+  source: z.infer<typeof resortFinanceEntrySourceSchema>,
 ): "MANUAL" | "AUTO_BOOKING" | "INVOICE_PAYMENT" {
   if (source === "Auto booking") return "AUTO_BOOKING";
   if (source === "Invoice payment") return "INVOICE_PAYMENT";
   return "MANUAL";
 }
 
-function fromTenantFinanceEntrySource(
+function fromResortFinanceEntrySource(
   source: "MANUAL" | "AUTO_BOOKING" | "INVOICE_PAYMENT",
 ) {
   if (source === "AUTO_BOOKING") return "Auto booking";
@@ -875,13 +849,13 @@ function fromTenantFinanceEntrySource(
   return "Manual entry";
 }
 
-function toTenantFinanceEntryStatus(
-  status: z.infer<typeof tenantFinanceEntryStatusSchema>,
+function toResortFinanceEntryStatus(
+  status: z.infer<typeof resortFinanceEntryStatusSchema>,
 ): "CLEARED" | "PENDING" {
   return status === "Cleared" ? "CLEARED" : "PENDING";
 }
 
-function fromTenantFinanceEntryStatus(status: "CLEARED" | "PENDING") {
+function fromResortFinanceEntryStatus(status: "CLEARED" | "PENDING") {
   return status === "CLEARED" ? "Cleared" : "Pending";
 }
 
@@ -920,8 +894,8 @@ function toMoneyString(value: number) {
   return String(Math.max(value, 0));
 }
 
-function getTenantInvoiceSuffix(tenantName?: string | null) {
-  const letters = (tenantName ?? "")
+function getResortInvoiceSuffix(resortName?: string | null) {
+  const letters = (resortName ?? "")
     .replace(/[^a-zA-Z]/g, "")
     .slice(0, 2)
     .toUpperCase();
@@ -929,41 +903,43 @@ function getTenantInvoiceSuffix(tenantName?: string | null) {
   return letters.padEnd(2, "X") || "RC";
 }
 
-function getNextFolioChargeCode(tenantProfileId: string) {
-  return prisma.tenantFolioCharge.count({
-    where: {
-      tenantProfileId,
-      code: {
-        startsWith: "FOL-",
+function getNextFolioChargeCode(resortProfileId: string) {
+  return prisma.resortFolioCharge
+    .count({
+      where: {
+        resortProfileId,
+        code: {
+          startsWith: "FOL-",
+        },
       },
-    },
-  }).then((count) => `FOL-${String(count + 1).padStart(5, "0")}`);
+    })
+    .then((count) => `FOL-${String(count + 1).padStart(5, "0")}`);
 }
 
-function getNextPaymentLogCode(tenantProfileId: string) {
-  return prisma.tenantPaymentLog.count({
-    where: {
-      tenantProfileId,
-      code: {
-        startsWith: "PAY-",
+function getNextPaymentLogCode(resortProfileId: string) {
+  return prisma.resortPaymentLog
+    .count({
+      where: {
+        resortProfileId,
+        code: {
+          startsWith: "PAY-",
+        },
       },
-    },
-  }).then((count) => `PAY-${String(count + 1).padStart(5, "0")}`);
+    })
+    .then((count) => `PAY-${String(count + 1).padStart(5, "0")}`);
 }
 
-async function getNextInvoiceCode(tenantProfile: {
-  businessName?: string | null;
+async function getNextInvoiceCode(resortProfile: {
   id: string;
   resortName?: string | null;
 }) {
   const year = String(new Date().getFullYear()).slice(-2);
-  const tenantName =
-    tenantProfile.resortName ?? tenantProfile.businessName ?? "ResortCloud";
-  const suffix = getTenantInvoiceSuffix(tenantName);
+  const resortName = resortProfile.resortName ?? "Alrio Private Resort";
+  const suffix = getResortInvoiceSuffix(resortName);
   const prefix = `INV-${year}-`;
-  const count = await prisma.tenantInvoice.count({
+  const count = await prisma.resortInvoice.count({
     where: {
-      tenantProfileId: tenantProfile.id,
+      resortProfileId: resortProfile.id,
       code: {
         startsWith: prefix,
       },
@@ -974,13 +950,13 @@ async function getNextInvoiceCode(tenantProfile: {
 }
 
 async function getNextFinanceEntryCode(
-  tenantProfileId: string,
-  type: z.infer<typeof tenantFinanceEntryTypeSchema>,
+  resortProfileId: string,
+  type: z.infer<typeof resortFinanceEntryTypeSchema>,
 ) {
   const prefix = type === "Revenue" ? "REV" : "EXP";
-  const count = await prisma.tenantFinanceEntry.count({
+  const count = await prisma.resortFinanceEntry.count({
     where: {
-      tenantProfileId,
+      resortProfileId,
       code: {
         startsWith: `${prefix}-`,
       },
@@ -990,11 +966,11 @@ async function getNextFinanceEntryCode(
   return `${prefix}-${String(count + 1).padStart(5, "0")}`;
 }
 
-async function getNextTransactionExportCode(tenantProfileId: string) {
+async function getNextTransactionExportCode(resortProfileId: string) {
   const prefix = "EXP-JOB";
-  const count = await prisma.tenantTransactionExport.count({
+  const count = await prisma.resortTransactionExport.count({
     where: {
-      tenantProfileId,
+      resortProfileId,
       code: {
         startsWith: `${prefix}-`,
       },
@@ -1004,7 +980,9 @@ async function getNextTransactionExportCode(tenantProfileId: string) {
   return `${prefix}-${String(count + 1).padStart(5, "0")}`;
 }
 
-function getDefaultExportPeriod(name: z.infer<typeof tenantTransactionExportNameSchema>) {
+function getDefaultExportPeriod(
+  name: z.infer<typeof resortTransactionExportNameSchema>,
+) {
   const now = new Date();
   const month = now.toLocaleString("en-PH", { month: "short" });
   const year = now.getFullYear();
@@ -1078,12 +1056,17 @@ function getAnalyticsPercent(value: number, total: number) {
 }
 
 async function buildTransactionExportPayload(
-  tenantProfileId: string,
-  name: z.infer<typeof tenantTransactionExportNameSchema>,
+  resortProfileId: string,
+  name: z.infer<typeof resortTransactionExportNameSchema>,
+  period: string,
 ) {
+  const range = getTransactionExportDateRange(period);
   if (name === "Invoices summary") {
-    const invoices = await prisma.tenantInvoice.findMany({
-      where: { tenantProfileId },
+    const invoices = await prisma.resortInvoice.findMany({
+      where: {
+        resortProfileId,
+        invoiceDate: range,
+      },
       include: {
         reservation: {
           include: {
@@ -1100,21 +1083,25 @@ async function buildTransactionExportPayload(
       dueDate: invoice.dueDate.toISOString(),
       guestName: invoice.guestName,
       room: invoice.reservation
-        ? `${invoice.reservation.room.code} - ${invoice.reservation.room.name}`
+        ? invoice.reservation.room
+          ? `${invoice.reservation.room.code} - ${invoice.reservation.room.name}`
+          : "Alrio Private Resort - Whole Resort"
         : "",
-      status: fromTenantInvoiceStatus(invoice.status),
+      status: fromResortInvoiceStatus(invoice.status),
       totalAmount: invoice.totalAmount,
     }));
   }
 
-  const entries = await prisma.tenantFinanceEntry.findMany({
+  const entries = await prisma.resortFinanceEntry.findMany({
     where: {
-      tenantProfileId,
-      receiptUrl: name === "Receipts"
-        ? {
-            not: null,
-          }
-        : undefined,
+      resortProfileId,
+      entryDate: range,
+      receiptUrl:
+        name === "Receipts"
+          ? {
+              not: null,
+            }
+          : undefined,
     },
     orderBy: { entryDate: "desc" },
   });
@@ -1126,9 +1113,10 @@ async function buildTransactionExportPayload(
     const expenses = entries
       .filter((entry) => entry.type === "EXPENSE" && entry.status === "CLEARED")
       .reduce((total, entry) => total + parseMoneyAmount(entry.amount), 0);
-    const openInvoices = await prisma.tenantInvoice.findMany({
+    const openInvoices = await prisma.resortInvoice.findMany({
       where: {
-        tenantProfileId,
+        resortProfileId,
+        invoiceDate: range,
         status: {
           notIn: ["PAID", "VOID"],
         },
@@ -1155,14 +1143,39 @@ async function buildTransactionExportPayload(
     department: entry.department ?? "",
     description: entry.description,
     receiptUrl: name === "Receipts" ? entry.receiptUrl : undefined,
-    source: fromTenantFinanceEntrySource(entry.source),
-    status: fromTenantFinanceEntryStatus(entry.status),
-    type: fromTenantFinanceEntryType(entry.type),
+    source: fromResortFinanceEntrySource(entry.source),
+    status: fromResortFinanceEntryStatus(entry.status),
+    type: fromResortFinanceEntryType(entry.type),
   }));
 }
 
+function getTransactionExportDateRange(period: string) {
+  const now = new Date();
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+
+  if (period === "All time") return undefined;
+  if (period === "This year") {
+    start.setMonth(0, 1);
+  } else if (period === "Last 30 days") {
+    start.setDate(start.getDate() - 29);
+  } else if (period === "Next 30 days") {
+    end.setDate(end.getDate() + 30);
+  } else {
+    // "This month" and legacy generated labels remain constrained to the
+    // current month after the export-period feature is introduced.
+    start.setDate(1);
+  }
+
+  return { gte: start, lte: end };
+}
+
 function getReservationNights(checkIn: Date, checkOut: Date) {
-  const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / 86_400_000);
+  const nights = Math.ceil(
+    (checkOut.getTime() - checkIn.getTime()) / 86_400_000,
+  );
 
   if (nights < 1) {
     throw new TRPCError({
@@ -1175,7 +1188,7 @@ function getReservationNights(checkIn: Date, checkOut: Date) {
 }
 
 async function createInvoiceForReservation(input: {
-  tenantProfileId: string;
+  resortProfileId: string;
   reservation: {
     id: string;
     checkIn: Date;
@@ -1186,17 +1199,12 @@ async function createInvoiceForReservation(input: {
     nights: number;
     rate: string;
     totalAmount: string;
-    room: {
-      code: string;
-      name: string;
-      type: string;
-    };
   };
 }) {
-  const existingInvoice = await prisma.tenantInvoice.findFirst({
+  const existingInvoice = await prisma.resortInvoice.findFirst({
     where: {
       reservationId: input.reservation.id,
-      tenantProfileId: input.tenantProfileId,
+      resortProfileId: input.resortProfileId,
       folioCharges: {
         some: {
           type: "STAY",
@@ -1207,25 +1215,25 @@ async function createInvoiceForReservation(input: {
 
   if (existingInvoice) return existingInvoice;
 
-  let stayCharge = await prisma.tenantFolioCharge.findFirst({
+  let stayCharge = await prisma.resortFolioCharge.findFirst({
     where: {
       reservationId: input.reservation.id,
-      tenantProfileId: input.tenantProfileId,
+      resortProfileId: input.resortProfileId,
       type: "STAY",
     },
   });
 
   if (!stayCharge) {
-    stayCharge = await prisma.tenantFolioCharge.create({
+    stayCharge = await prisma.resortFolioCharge.create({
       data: {
         amount: input.reservation.totalAmount,
-        code: await getNextFolioChargeCode(input.tenantProfileId),
-        description: `${input.reservation.room.code} - ${input.reservation.room.name} (${input.reservation.nights} night${input.reservation.nights === 1 ? "" : "s"})`,
+        code: await getNextFolioChargeCode(input.resortProfileId),
+        description: `Exclusive use of Alrio Private Resort (${input.reservation.nights} night${input.reservation.nights === 1 ? "" : "s"})`,
         quantity: input.reservation.nights,
         rate: input.reservation.rate,
         reservationId: input.reservation.id,
         status: "UNBILLED",
-        tenantProfileId: input.tenantProfileId,
+        resortProfileId: input.resortProfileId,
         type: "STAY",
       },
     });
@@ -1235,7 +1243,7 @@ async function createInvoiceForReservation(input: {
     chargeIds: [stayCharge.id],
     depositPaid: input.reservation.deposit ?? "0",
     paymentMethod: "Reservation payment",
-    tenantProfileId: input.tenantProfileId,
+    resortProfileId: input.resortProfileId,
   });
 }
 
@@ -1243,15 +1251,15 @@ async function createInvoiceForFolioCharges(input: {
   chargeIds: string[];
   depositPaid?: string;
   paymentMethod?: string;
-  tenantProfileId: string;
+  resortProfileId: string;
 }) {
-  const charges = await prisma.tenantFolioCharge.findMany({
+  const charges = await prisma.resortFolioCharge.findMany({
     where: {
       id: {
         in: input.chargeIds,
       },
       status: "UNBILLED",
-      tenantProfileId: input.tenantProfileId,
+      resortProfileId: input.resortProfileId,
     },
     include: {
       reservation: true,
@@ -1283,46 +1291,50 @@ async function createInvoiceForFolioCharges(input: {
 
   const depositPaid = input.depositPaid ?? "0";
   const subtotal = toMoneyString(
-    charges.reduce((total, charge) => total + parseMoneyAmount(charge.amount), 0),
+    charges.reduce(
+      (total, charge) => total + parseMoneyAmount(charge.amount),
+      0,
+    ),
   );
   const discount = "0";
   const tax = "0";
   const totalAmount = String(
-    parseMoneyAmount(subtotal) - parseMoneyAmount(discount) + parseMoneyAmount(tax),
+    parseMoneyAmount(subtotal) -
+      parseMoneyAmount(discount) +
+      parseMoneyAmount(tax),
   );
   const balanceDue = toMoneyString(
     parseMoneyAmount(totalAmount) - parseMoneyAmount(depositPaid),
   );
-  const tenantProfile = await prisma.tenantProfile.findUnique({
+  const resortProfile = await prisma.resortProfile.findUnique({
     where: {
-      id: input.tenantProfileId,
+      id: input.resortProfileId,
     },
     select: {
-      businessName: true,
       id: true,
       resortName: true,
     },
   });
 
-  if (!tenantProfile) {
+  if (!resortProfile) {
     throw new TRPCError({
       code: "NOT_FOUND",
-      message: "Tenant profile not found.",
+      message: "Resort profile not found.",
     });
   }
 
-  const code = await getNextInvoiceCode(tenantProfile);
+  const code = await getNextInvoiceCode(resortProfile);
   const depositAmount = parseMoneyAmount(depositPaid);
   const shouldMarkPaid = parseMoneyAmount(balanceDue) <= 0 && depositAmount > 0;
   const depositPaymentCode =
-    depositAmount > 0 ? await getNextPaymentLogCode(input.tenantProfileId) : "";
+    depositAmount > 0 ? await getNextPaymentLogCode(input.resortProfileId) : "";
   const financeCode =
     depositAmount > 0
-      ? await getNextFinanceEntryCode(input.tenantProfileId, "Revenue")
+      ? await getNextFinanceEntryCode(input.resortProfileId, "Revenue")
       : "";
 
   return prisma.$transaction(async (tx) => {
-    const invoice = await tx.tenantInvoice.create({
+    const invoice = await tx.resortInvoice.create({
       data: {
         balanceDue,
         code,
@@ -1339,7 +1351,7 @@ async function createInvoiceForFolioCharges(input: {
         status: shouldMarkPaid ? "PAID" : "SENT",
         subtotal,
         tax,
-        tenantProfileId: input.tenantProfileId,
+        resortProfileId: input.resortProfileId,
         totalAmount,
         lineItems: {
           create: charges.map((charge, index) => ({
@@ -1353,7 +1365,7 @@ async function createInvoiceForFolioCharges(input: {
       },
     });
 
-    await tx.tenantFolioCharge.updateMany({
+    await tx.resortFolioCharge.updateMany({
       where: {
         id: {
           in: charges.map((charge) => charge.id),
@@ -1366,7 +1378,7 @@ async function createInvoiceForFolioCharges(input: {
     });
 
     if (depositAmount > 0) {
-      await tx.tenantPaymentLog.create({
+      await tx.resortPaymentLog.create({
         data: {
           amount: depositPaid,
           code: depositPaymentCode,
@@ -1376,21 +1388,21 @@ async function createInvoiceForFolioCharges(input: {
           proofNote: "Booking deposit",
           reservationId: reservation.id,
           status: "RECORDED",
-          tenantProfileId: input.tenantProfileId,
+          resortProfileId: input.resortProfileId,
         },
       });
 
-      await tx.tenantFinanceEntry.create({
+      await tx.resortFinanceEntry.create({
         data: {
           amount: depositPaid,
           category: "Invoice payment",
           code: financeCode,
           description: `Deposit for booking ${reservation.id}`,
           entryDate: new Date(),
-          notes: "Booking deposit",
+          notes: `${input.paymentMethod ?? "Reservation payment"} · Booking deposit`,
           source: "INVOICE_PAYMENT",
           status: "CLEARED",
-          tenantProfileId: input.tenantProfileId,
+          resortProfileId: input.resortProfileId,
           type: "REVENUE",
         },
       });
@@ -1414,7 +1426,7 @@ async function requireInvoiceCreator(authUserId: string) {
     },
   });
 
-  if (appUser?.role === "TENANT") return;
+  if (appUser?.role === "RESORT") return;
 
   const roleName = [
     appUser?.staffProfile?.roleName,
@@ -1434,8 +1446,8 @@ async function requireInvoiceCreator(authUserId: string) {
 
   if (
     accountingRole ||
-    hasTenantPermission(permissions, "invoices.create") ||
-    hasTenantPermission(permissions, "finance.receipts.manage")
+    hasResortPermission(permissions, "invoices.create") ||
+    hasResortPermission(permissions, "finance.receipts.manage")
   ) {
     return;
   }
@@ -1447,54 +1459,59 @@ async function requireInvoiceCreator(authUserId: string) {
 }
 
 function makeInternalStaffEmail(authUserId: string) {
-  return `${authUserId}@staff.resortcloud.local`;
+  return `${authUserId}@staff.alrio.local`;
 }
 
 function isInternalStaffEmail(email: string) {
-  return email.endsWith("@staff.resortcloud.local");
+  return email.includes("@staff.") && email.endsWith(".local");
 }
 
-async function getTenantProfileForSession(authUserId: string) {
+async function getResortProfileForSession(authUserId: string) {
   const appUser = await prisma.appUser.findUnique({
     where: {
       authUserId,
     },
     include: {
-      tenantProfile: true,
+      resortProfile: true,
       staffProfile: {
         include: {
-          tenantProfile: true,
+          resortProfile: true,
         },
       },
     },
   });
 
-  const tenantProfile =
-    appUser?.tenantProfile ?? appUser?.staffProfile?.tenantProfile ?? null;
+  const resortProfile =
+    appUser?.resortProfile ?? appUser?.staffProfile?.resortProfile ?? null;
 
-  if (appUser?.role === "TENANT_STAFF" && appUser.staffProfile?.status === "SUSPENDED") {
+  if (appUser?.staffProfile?.status === "SUSPENDED") {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Staff account suspended.",
     });
   }
 
-  if (!appUser || !tenantProfile || !["TENANT", "TENANT_STAFF"].includes(appUser.role)) {
+  if (!appUser || !resortProfile) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Tenant workspace access required.",
+      message: "Resort workspace access required.",
     });
   }
 
-  return tenantProfile;
+  return resortProfile;
 }
 
-async function getTenantPermissionsForSession(authUserId: string) {
+async function getResortPermissionsForSession(authUserId: string) {
   const appUser = await prisma.appUser.findUnique({
     where: {
       authUserId,
     },
     include: {
+      resortProfile: {
+        select: {
+          id: true,
+        },
+      },
       staffProfile: {
         include: {
           accessRole: true,
@@ -1506,33 +1523,34 @@ async function getTenantPermissionsForSession(authUserId: string) {
   if (!appUser) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Tenant workspace access required.",
+      message: "Resort workspace access required.",
     });
   }
 
-  if (appUser.role === "TENANT") {
+  if (appUser.resortProfile) {
     return [FULL_PERMISSION];
   }
 
-  if (appUser.role === "TENANT_STAFF") {
-    return appUser.staffProfile?.accessRole?.permissions ??
-      appUser.staffProfile?.permissions ??
-      [];
+  if (appUser.staffProfile) {
+    if (appUser.staffProfile.status === "SUSPENDED") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Staff account suspended.",
+      });
+    }
+    return appUser.staffProfile.accessRole.permissions;
   }
 
   throw new TRPCError({
     code: "FORBIDDEN",
-    message: "Tenant workspace access required.",
+    message: "Resort workspace access required.",
   });
 }
 
-async function requireTenantPermission(
-  authUserId: string,
-  permission: string,
-) {
-  const permissions = await getTenantPermissionsForSession(authUserId);
+async function requireResortPermission(authUserId: string, permission: string) {
+  const permissions = await getResortPermissionsForSession(authUserId);
 
-  if (!hasTenantPermission(permissions, permission)) {
+  if (!hasResortPermission(permissions, permission)) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "You do not have permission to perform this action.",
@@ -1540,13 +1558,17 @@ async function requireTenantPermission(
   }
 }
 
-async function requireAnyTenantPermission(
+async function requireAnyResortPermission(
   authUserId: string,
   permissionIds: string[],
 ) {
-  const permissions = await getTenantPermissionsForSession(authUserId);
+  const permissions = await getResortPermissionsForSession(authUserId);
 
-  if (!permissionIds.some((permission) => hasTenantPermission(permissions, permission))) {
+  if (
+    !permissionIds.some((permission) =>
+      hasResortPermission(permissions, permission),
+    )
+  ) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "You do not have permission to perform this action.",
@@ -1554,9 +1576,9 @@ async function requireAnyTenantPermission(
   }
 }
 
-function toTenantStaffOutput(
+function toResortStaffOutput(
   staffProfile: NonNullable<
-    Awaited<ReturnType<typeof prisma.tenantStaffProfile.findUnique>>
+    Awaited<ReturnType<typeof prisma.resortStaffProfile.findUnique>>
   > & {
     appUser: {
       authUserId: string;
@@ -1564,6 +1586,12 @@ function toTenantStaffOutput(
       firstName: string | null;
       lastName: string | null;
       displayName: string;
+      authUser?: {
+        image: string | null;
+        sessions?: Array<{
+          updatedAt: Date;
+        }>;
+      };
     };
     department?: {
       name: string;
@@ -1608,6 +1636,9 @@ function toTenantStaffOutput(
     firstName: staffProfile.appUser.firstName ?? "",
     lastName: staffProfile.appUser.lastName ?? "",
     displayName: staffProfile.appUser.displayName,
+    image: staffProfile.appUser.authUser?.image ?? "",
+    lastActiveAt:
+      staffProfile.appUser.authUser?.sessions?.[0]?.updatedAt ?? null,
     username: staffProfile.username ?? "",
     phoneNumber: staffProfile.phoneNumber ?? "",
     departmentId: staffProfile.departmentId ?? "",
@@ -1615,8 +1646,9 @@ function toTenantStaffOutput(
     isDepartmentHead: staffProfile.isDepartmentHead,
     accessRoleId: staffProfile.accessRoleId ?? "",
     roleName: staffProfile.accessRole?.name ?? staffProfile.roleName,
-    status: fromTenantStaffStatus(staffProfile.status),
-    permissions: staffProfile.accessRole?.permissions ?? staffProfile.permissions,
+    status: fromResortStaffStatus(staffProfile.status),
+    permissions:
+      staffProfile.accessRole?.permissions ?? staffProfile.permissions,
     employmentType: staffProfile.employmentType,
     workLocation: staffProfile.workLocation,
     basicSalary,
@@ -1641,7 +1673,7 @@ function toTenantStaffOutput(
   };
 }
 
-function toTenantAccessRoleOutput(role: {
+function toResortAccessRoleOutput(role: {
   id: string;
   name: string;
   description: string | null;
@@ -1663,21 +1695,21 @@ function toTenantAccessRoleOutput(role: {
   };
 }
 
-async function resolveTenantAccessRole(input: {
+async function resolveResortAccessRole(input: {
   accessRoleId?: string;
   roleName?: string;
-  tenantProfileId: string;
+  resortProfileId: string;
 }) {
   const role = input.accessRoleId
-    ? await prisma.tenantAccessRole.findFirst({
+    ? await prisma.resortAccessRole.findFirst({
         where: {
           id: input.accessRoleId,
-          tenantProfileId: input.tenantProfileId,
+          resortProfileId: input.resortProfileId,
         },
       })
-    : await prisma.tenantAccessRole.findFirst({
+    : await prisma.resortAccessRole.findFirst({
         where: {
-          tenantProfileId: input.tenantProfileId,
+          resortProfileId: input.resortProfileId,
           name: input.roleName,
         },
       });
@@ -1714,7 +1746,7 @@ function getTimeLogHours(clockIn: Date | null, clockOut: Date | null) {
   return Math.max(0, hours).toFixed(1);
 }
 
-function toTenantTimeLogOutput(timeLog: {
+function toResortTimeLogOutput(timeLog: {
   id: string;
   date: Date;
   clockIn: Date | null;
@@ -1744,14 +1776,14 @@ function toTenantTimeLogOutput(timeLog: {
     clockIn: timeLog.clockIn,
     clockOut: timeLog.clockOut,
     hours: getTimeLogHours(timeLog.clockIn, timeLog.clockOut),
-    flag: fromTenantTimeLogFlag(timeLog.flag),
+    flag: fromResortTimeLogFlag(timeLog.flag),
     notes: timeLog.notes ?? "",
     createdAt: timeLog.createdAt,
     updatedAt: timeLog.updatedAt,
   };
 }
 
-function toTenantScheduleShiftOutput(shift: {
+function toResortScheduleShiftOutput(shift: {
   id: string;
   shift: string;
   role: string;
@@ -1778,14 +1810,14 @@ function toTenantScheduleShiftOutput(shift: {
     shift: shift.shift,
     startAt: shift.startAt,
     endAt: shift.endAt,
-    status: fromTenantScheduleShiftStatus(shift.status),
+    status: fromResortScheduleShiftStatus(shift.status),
     notes: shift.notes ?? "",
     createdAt: shift.createdAt,
     updatedAt: shift.updatedAt,
   };
 }
 
-function toTenantLeaveRequestOutput(request: {
+function toResortLeaveRequestOutput(request: {
   id: string;
   leaveType: string;
   startDate: Date;
@@ -1815,14 +1847,14 @@ function toTenantLeaveRequestOutput(request: {
     reason: request.reason,
     balance: `${request.balanceDays} days`,
     balanceDays: request.balanceDays,
-    status: fromTenantLeaveRequestStatus(request.status),
+    status: fromResortLeaveRequestStatus(request.status),
     reviewedAt: request.reviewedAt,
     createdAt: request.createdAt,
     updatedAt: request.updatedAt,
   };
 }
 
-function toTenantOtUndertimeOutput(entry: {
+function toResortOtUndertimeOutput(entry: {
   id: string;
   type: "OVERTIME" | "UNDERTIME";
   hours: string;
@@ -1845,18 +1877,18 @@ function toTenantOtUndertimeOutput(entry: {
     staffProfileId: entry.staffProfile.id,
     name: entry.staffProfile.appUser.displayName,
     role: entry.staffProfile.roleName,
-    type: fromTenantOtUndertimeType(entry.type),
+    type: fromResortOtUndertimeType(entry.type),
     hours: entry.hours,
     payPeriod: entry.payPeriod,
     reason: entry.reason,
-    status: fromTenantOtUndertimeStatus(entry.status),
+    status: fromResortOtUndertimeStatus(entry.status),
     reviewedAt: entry.reviewedAt,
     createdAt: entry.createdAt,
     updatedAt: entry.updatedAt,
   };
 }
 
-type TenantPayrollInput = z.infer<typeof tenantPayrollInputSchema>;
+type ResortPayrollInput = z.infer<typeof resortPayrollInputSchema>;
 
 function endOfDay(value: Date) {
   const date = new Date(value);
@@ -1924,7 +1956,10 @@ function countLeaveDaysInPeriod(
   return countInclusiveDays(start, end);
 }
 
-function roundPayrollAmount(value: number, roundingOption: TenantPayrollInput["roundingOption"]) {
+function roundPayrollAmount(
+  value: number,
+  roundingOption: ResortPayrollInput["roundingOption"],
+) {
   if (!Number.isFinite(value)) return 0;
 
   return roundingOption === "Nearest Peso"
@@ -1937,42 +1972,45 @@ function decimalNumber(value: unknown) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function toTenantPayrollPayType(value: TenantPayrollInput["payType"]) {
+function toResortPayrollPayType(value: ResortPayrollInput["payType"]) {
   return value === "Final Payroll" ? ("FINAL" as const) : ("REGULAR" as const);
 }
 
-function fromTenantPayrollPayType(value: "REGULAR" | "FINAL") {
+function fromResortPayrollPayType(value: "REGULAR" | "FINAL") {
   return value === "FINAL" ? "Final Payroll" : "Regular Payroll";
 }
 
-function toTenantPayrollFrequency(value: TenantPayrollInput["frequency"]) {
+function toResortPayrollFrequency(value: ResortPayrollInput["frequency"]) {
   return value === "Bi-weekly" ? ("BI_WEEKLY" as const) : ("MONTHLY" as const);
 }
 
-function fromTenantPayrollFrequency(value: "MONTHLY" | "BI_WEEKLY") {
+function fromResortPayrollFrequency(value: "MONTHLY" | "BI_WEEKLY") {
   return value === "BI_WEEKLY" ? "Bi-weekly" : "Monthly";
 }
 
-async function getNextTenantPayrollCode(tenantProfileId: string, periodStart: Date) {
+async function getNextResortPayrollCode(
+  resortProfileId: string,
+  periodStart: Date,
+) {
   const year = periodStart.getFullYear();
   const yearStart = new Date(year, 0, 1);
   const yearEnd = new Date(year, 11, 31, 23, 59, 59, 999);
-  const count = await prisma.tenantPayrollRun.count({
+  const count = await prisma.resortPayrollRun.count({
     where: {
       periodStart: {
         gte: yearStart,
         lte: yearEnd,
       },
-      tenantProfileId,
+      resortProfileId,
     },
   });
 
   return `PR-${year}-${String(count + 1).padStart(5, "0")}`;
 }
 
-async function buildTenantPayrollPreview(
-  tenantProfileId: string,
-  input: TenantPayrollInput,
+async function buildResortPayrollPreview(
+  resortProfileId: string,
+  input: ResortPayrollInput,
 ) {
   const periodStart = getWorkdayStart(input.periodStart);
   const periodEnd = endOfDay(input.periodEnd);
@@ -1985,9 +2023,9 @@ async function buildTenantPayrollPreview(
   }
 
   const payPeriod = formatPayrollPeriod(periodStart, periodEnd);
-  const staffProfiles = await prisma.tenantStaffProfile.findMany({
+  const staffProfiles = await prisma.resortStaffProfile.findMany({
     where: {
-      tenantProfileId,
+      resortProfileId,
       ...(input.department && input.department !== "all"
         ? {
             department: {
@@ -2038,10 +2076,10 @@ async function buildTenantPayrollPreview(
 
   const employees = staffProfiles.map((staffProfile, index) => {
     const override = employeeOverrides.get(staffProfile.id);
-    const included = override?.included ?? (staffProfile.status === "ACTIVE");
+    const included = override?.included ?? staffProfile.status === "ACTIVE";
     const baseHourlyRate = decimalNumber(staffProfile.basicSalary) / 22 / 8;
-    const approvedPeriodEntries = staffProfile.otUndertimeEntries.filter((entry) =>
-      matchesPayrollPeriod(entry.payPeriod, payPeriod),
+    const approvedPeriodEntries = staffProfile.otUndertimeEntries.filter(
+      (entry) => matchesPayrollPeriod(entry.payPeriod, payPeriod),
     );
     const overtimeHours = approvedPeriodEntries
       .filter((entry) => entry.type === "OVERTIME")
@@ -2064,9 +2102,15 @@ async function buildTenantPayrollPreview(
       (total, log) => total + getHoursBetween(log.clockIn, log.clockOut),
       0,
     );
-    const daysWorked = staffProfile.timeLogs.filter((log) => log.clockIn).length;
-    const lateCount = staffProfile.timeLogs.filter((log) => log.flag === "LATE").length;
-    const absentCount = staffProfile.timeLogs.filter((log) => log.flag === "ABSENT").length;
+    const daysWorked = staffProfile.timeLogs.filter(
+      (log) => log.clockIn,
+    ).length;
+    const lateCount = staffProfile.timeLogs.filter(
+      (log) => log.flag === "LATE",
+    ).length;
+    const absentCount = staffProfile.timeLogs.filter(
+      (log) => log.flag === "ABSENT",
+    ).length;
     const basicSalary =
       override?.basicSalary ??
       (input.includeBasicSalary ? decimalNumber(staffProfile.basicSalary) : 0);
@@ -2083,7 +2127,10 @@ async function buildTenantPayrollPreview(
       override?.bonus ??
       (input.includeBonus ? decimalNumber(staffProfile.bonus) : 0);
     const overtimePay = input.includeOtPay
-      ? roundPayrollAmount(overtimeHours * baseHourlyRate * 1.25, input.roundingOption)
+      ? roundPayrollAmount(
+          overtimeHours * baseHourlyRate * 1.25,
+          input.roundingOption,
+        )
       : 0;
     const leaveDeduction = input.includeLeaveDeduction
       ? roundPayrollAmount(
@@ -2092,7 +2139,10 @@ async function buildTenantPayrollPreview(
         )
       : 0;
     const undertimeDeduction = input.includeLeaveDeduction
-      ? roundPayrollAmount(undertimeHours * baseHourlyRate, input.roundingOption)
+      ? roundPayrollAmount(
+          undertimeHours * baseHourlyRate,
+          input.roundingOption,
+        )
       : 0;
     const governmentDeductions = input.includeGovernmentContributions
       ? decimalNumber(staffProfile.sssContribution) +
@@ -2105,7 +2155,10 @@ async function buildTenantPayrollPreview(
     const grossPay =
       basicSalary + allowance + incentives + commission + bonus + overtimePay;
     const totalDeductions =
-      leaveDeduction + undertimeDeduction + governmentDeductions + otherDeductions;
+      leaveDeduction +
+      undertimeDeduction +
+      governmentDeductions +
+      otherDeductions;
     const netPay = grossPay - totalDeductions;
 
     return {
@@ -2138,7 +2191,9 @@ async function buildTenantPayrollPreview(
       overtimeHours,
       overtimePay,
       pagIbigContribution: decimalNumber(staffProfile.pagIbigContribution),
-      philHealthContribution: decimalNumber(staffProfile.philHealthContribution),
+      philHealthContribution: decimalNumber(
+        staffProfile.philHealthContribution,
+      ),
       position: staffProfile.roleName,
       regularHours,
       sssContribution: decimalNumber(staffProfile.sssContribution),
@@ -2158,12 +2213,18 @@ async function buildTenantPayrollPreview(
     ),
     excludedEmployees: employees.length - includedEmployees.length,
     includedEmployees: includedEmployees.length,
-    totalAllowances: sumPayrollItems(includedEmployees, (employee) => employee.allowances),
+    totalAllowances: sumPayrollItems(
+      includedEmployees,
+      (employee) => employee.allowances,
+    ),
     totalBasicSalary: sumPayrollItems(
       includedEmployees,
       (employee) => employee.basicSalary,
     ),
-    totalBonus: sumPayrollItems(includedEmployees, (employee) => employee.bonus),
+    totalBonus: sumPayrollItems(
+      includedEmployees,
+      (employee) => employee.bonus,
+    ),
     totalCommission: sumPayrollItems(
       includedEmployees,
       (employee) => employee.commission,
@@ -2172,7 +2233,10 @@ async function buildTenantPayrollPreview(
       includedEmployees,
       (employee) => employee.totalDeductions,
     ),
-    totalEarnings: sumPayrollItems(includedEmployees, (employee) => employee.totalEarnings),
+    totalEarnings: sumPayrollItems(
+      includedEmployees,
+      (employee) => employee.totalEarnings,
+    ),
     totalEmployees: employees.length,
     totalGovernmentDeductions: sumPayrollItems(
       includedEmployees,
@@ -2186,7 +2250,10 @@ async function buildTenantPayrollPreview(
       includedEmployees,
       (employee) => employee.leaveDeduction,
     ),
-    totalNetPay: sumPayrollItems(includedEmployees, (employee) => employee.netPay),
+    totalNetPay: sumPayrollItems(
+      includedEmployees,
+      (employee) => employee.netPay,
+    ),
     totalOtherDeductions: sumPayrollItems(
       includedEmployees,
       (employee) => employee.otherDeductions,
@@ -2217,7 +2284,7 @@ function sumPayrollItems<T>(items: T[], selector: (item: T) => number) {
   return items.reduce((total, item) => total + selector(item), 0);
 }
 
-function toTenantPayrollOutput(payrollRun: {
+function toResortPayrollOutput(payrollRun: {
   id: string;
   code: string;
   name: string;
@@ -2289,7 +2356,7 @@ function toTenantPayrollOutput(payrollRun: {
     code: payrollRun.code,
     createdAt: payrollRun.createdAt,
     department: payrollRun.department ?? "all",
-    frequency: fromTenantPayrollFrequency(payrollRun.frequency),
+    frequency: fromResortPayrollFrequency(payrollRun.frequency),
     generatedAt: payrollRun.generatedAt,
     generatedBy: payrollRun.generatedBy ?? "",
     id: payrollRun.id,
@@ -2335,7 +2402,7 @@ function toTenantPayrollOutput(payrollRun: {
     options: payrollRun.options,
     payDate: payrollRun.payDate,
     payPeriod: payrollRun.payPeriod,
-    payType: fromTenantPayrollPayType(payrollRun.payType),
+    payType: fromResortPayrollPayType(payrollRun.payType),
     periodEnd: payrollRun.periodEnd,
     periodStart: payrollRun.periodStart,
     status:
@@ -2372,7 +2439,7 @@ function toTenantPayrollOutput(payrollRun: {
   };
 }
 
-function toTenantPayrollHistoryOutput(item: {
+function toResortPayrollHistoryOutput(item: {
   id: string;
   payrollRunId: string;
   staffProfileId: string;
@@ -2429,8 +2496,8 @@ function toTenantPayrollHistoryOutput(item: {
     periodStart: item.payrollRun.periodStart,
     periodEnd: item.payrollRun.periodEnd,
     payDate: item.payrollRun.payDate,
-    payType: fromTenantPayrollPayType(item.payrollRun.payType),
-    frequency: fromTenantPayrollFrequency(item.payrollRun.frequency),
+    payType: fromResortPayrollPayType(item.payrollRun.payType),
+    frequency: fromResortPayrollFrequency(item.payrollRun.frequency),
     status:
       item.payrollRun.status === "COMPLETED"
         ? "Completed"
@@ -2474,7 +2541,7 @@ function toTenantPayrollHistoryOutput(item: {
   };
 }
 
-function toTenantDepartmentOutput(department: {
+function toResortDepartmentOutput(department: {
   id: string;
   name: string;
   code: string;
@@ -2503,7 +2570,7 @@ function toTenantDepartmentOutput(department: {
     email: department.email ?? "",
     notes: department.notes ?? "",
     routing: department.routing ?? "",
-    status: fromTenantDepartmentStatus(department.status),
+    status: fromResortDepartmentStatus(department.status),
     head: department.headStaffProfile?.appUser.displayName ?? "",
     headStaffProfileId: department.headStaffProfileId ?? "",
     staffProfileIds: department.staffProfiles.map((staff) => staff.id),
@@ -2514,7 +2581,7 @@ function toTenantDepartmentOutput(department: {
   };
 }
 
-function toTenantAmenityOutput(amenity: {
+function toResortAmenityOutput(amenity: {
   id: string;
   code: string;
   name: string;
@@ -2540,11 +2607,11 @@ function toTenantAmenityOutput(amenity: {
     category: amenity.category,
     icon: amenity.icon,
     description: amenity.description ?? "",
-    appliesTo: fromTenantAmenityScope(amenity.appliesTo),
+    appliesTo: fromResortAmenityScope(amenity.appliesTo),
     chargeable: amenity.chargeable,
     feeAmount: amenity.feeAmount ?? "",
-    feeUnit: fromTenantAmenityFeeUnit(amenity.feeUnit),
-    status: fromTenantAmenityStatus(amenity.status),
+    feeUnit: fromResortAmenityFeeUnit(amenity.feeUnit),
+    status: fromResortAmenityStatus(amenity.status),
     showOnBookingPage: amenity.showOnBookingPage,
     featured: amenity.featured,
     sortOrder: amenity.sortOrder,
@@ -2554,7 +2621,7 @@ function toTenantAmenityOutput(amenity: {
   };
 }
 
-function toTenantRoomOutput(room: {
+function toResortRoomOutput(room: {
   id: string;
   code: string;
   name: string;
@@ -2606,8 +2673,8 @@ function toTenantRoomOutput(room: {
     bedConfiguration: room.bedConfiguration,
     roomSize: room.roomSize ?? "",
     viewType: room.viewType,
-    smokingPolicy: fromTenantRoomSmokingPolicy(room.smokingPolicy),
-    status: fromTenantRoomStatus(room.status),
+    smokingPolicy: fromResortRoomSmokingPolicy(room.smokingPolicy),
+    status: fromResortRoomStatus(room.status),
     checkIn: room.checkIn,
     checkOut: room.checkOut,
     minNights: room.minNights,
@@ -2629,9 +2696,9 @@ function toTenantRoomOutput(room: {
   };
 }
 
-function toTenantReservationOutput(reservation: {
+function toResortReservationOutput(reservation: {
   id: string;
-  roomId: string;
+  roomId: string | null;
   guestName: string;
   guestEmail: string | null;
   guestPhone: string | null;
@@ -2655,14 +2722,48 @@ function toTenantReservationOutput(reservation: {
     code: string;
     name: string;
     type: string;
-  };
+  } | null;
+  invoices?: Array<{
+    balanceDue: string;
+    depositPaid: string;
+    status: "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "VOID";
+    totalAmount: string;
+  }>;
 }) {
+  const activeInvoices = (reservation.invoices ?? []).filter(
+    (invoice) => invoice.status !== "VOID",
+  );
+  const invoicedTotal = activeInvoices.reduce(
+    (total, invoice) => total + parseMoneyAmount(invoice.totalAmount),
+    0,
+  );
+  const invoiceBalanceAmount = activeInvoices.reduce(
+    (total, invoice) => total + parseMoneyAmount(invoice.balanceDue),
+    0,
+  );
+  const invoiceBalance = activeInvoices.length
+    ? toMoneyString(invoiceBalanceAmount)
+    : "";
+  const amountPaid = activeInvoices.length
+    ? toMoneyString(Math.max(invoicedTotal - invoiceBalanceAmount, 0))
+    : reservation.deposit ?? "0";
+  const invoiceStatus =
+    activeInvoices.length === 0
+      ? ""
+      : invoiceBalanceAmount <= 0.009
+        ? "PAID"
+        : activeInvoices.some((invoice) => invoice.status === "OVERDUE")
+          ? "OVERDUE"
+          : activeInvoices.some((invoice) => invoice.status === "SENT")
+            ? "SENT"
+            : "DRAFT";
+
   return {
     id: reservation.id,
-    roomId: reservation.roomId,
-    roomCode: reservation.room.code,
-    roomName: reservation.room.name,
-    roomType: reservation.room.type,
+    roomId: reservation.roomId ?? "",
+    roomCode: reservation.room?.code ?? "ALRIO",
+    roomName: reservation.room?.name ?? "Whole Resort",
+    roomType: reservation.room?.type ?? "Exclusive Private Resort",
     guestName: reservation.guestName,
     guestEmail: reservation.guestEmail ?? "",
     guestPhone: reservation.guestPhone ?? "",
@@ -2676,42 +2777,45 @@ function toTenantReservationOutput(reservation: {
     packagePrice: reservation.packagePrice ?? "",
     roomsIncluded: reservation.roomsIncluded ?? 1,
     deposit: reservation.deposit ?? "",
+    amountPaid,
+    balanceDue: invoiceBalance,
+    invoiceStatus,
     totalAmount: reservation.totalAmount,
     paymentMethod: reservation.paymentMethod ?? "",
-    status: fromTenantReservationStatus(reservation.status),
+    status: fromResortReservationStatus(reservation.status),
     notes: reservation.notes ?? "",
     createdAt: reservation.createdAt,
     updatedAt: reservation.updatedAt,
   };
 }
 
-function fromTenantReceptionRequestPriority(
+function fromResortReceptionRequestPriority(
   priority: "NORMAL" | "URGENT",
 ): "Normal" | "Urgent" {
   return priority === "URGENT" ? "Urgent" : "Normal";
 }
 
-function toTenantReceptionRequestPriority(
-  priority: z.infer<typeof tenantReceptionRequestPrioritySchema>,
+function toResortReceptionRequestPriority(
+  priority: z.infer<typeof resortReceptionRequestPrioritySchema>,
 ): "NORMAL" | "URGENT" {
   return priority === "Urgent" ? "URGENT" : "NORMAL";
 }
 
-function fromTenantMaintenancePriority(priority: "NORMAL" | "URGENT") {
+function fromResortMaintenancePriority(priority: "NORMAL" | "URGENT") {
   return priority === "URGENT" ? "Urgent" : "Normal";
 }
 
-function toTenantMaintenancePriority(
-  priority: z.infer<typeof tenantMaintenancePrioritySchema>,
+function toResortMaintenancePriority(
+  priority: z.infer<typeof resortMaintenancePrioritySchema>,
 ): "NORMAL" | "URGENT" {
   return priority === "Urgent" ? "URGENT" : "NORMAL";
 }
 
-function fromTenantMaintenanceStatus(status: "PENDING" | "COMPLETED") {
+function fromResortMaintenanceStatus(status: "PENDING" | "COMPLETED") {
   return status === "COMPLETED" ? "Completed" : "Pending";
 }
 
-function fromTenantLaundryStatus(
+function fromResortLaundryStatus(
   status: "RECEIVED" | "WASHING" | "DRYING" | "READY" | "RETURNED",
 ) {
   const labels = {
@@ -2725,8 +2829,8 @@ function fromTenantLaundryStatus(
   return labels[status];
 }
 
-function toTenantLaundryStatus(
-  status: z.infer<typeof tenantLaundryStatusSchema>,
+function toResortLaundryStatus(
+  status: z.infer<typeof resortLaundryStatusSchema>,
 ): "RECEIVED" | "WASHING" | "DRYING" | "READY" | "RETURNED" {
   const values = {
     Drying: "DRYING",
@@ -2739,12 +2843,12 @@ function toTenantLaundryStatus(
   return values[status];
 }
 
-function fromTenantLaundryPriority(priority: "NORMAL" | "URGENT") {
+function fromResortLaundryPriority(priority: "NORMAL" | "URGENT") {
   return priority === "URGENT" ? "Urgent" : "Normal";
 }
 
-function toTenantLaundryPriority(
-  priority: z.infer<typeof tenantLaundryPrioritySchema>,
+function toResortLaundryPriority(
+  priority: z.infer<typeof resortLaundryPrioritySchema>,
 ): "NORMAL" | "URGENT" {
   return priority === "Urgent" ? "URGENT" : "NORMAL";
 }
@@ -2766,8 +2870,10 @@ function formatReceptionTime(time: string) {
 
 function getReceptionQueueStatus(input: {
   checkOut: Date;
-  frontDeskStatus: "ARRIVING" | "IN_HOUSE" | "CHECKING_OUT" | "COMPLETED" | null;
-  reservationStatus: "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELED";
+  frontDeskStatus:
+    "ARRIVING" | "IN_HOUSE" | "CHECKING_OUT" | "COMPLETED" | null;
+  reservationStatus:
+    "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELED";
   todayEnd: Date;
 }): "Arriving" | "In-house" | "Checking out" | "Completed" {
   if (input.frontDeskStatus === "ARRIVING") return "Arriving";
@@ -2788,44 +2894,48 @@ function getReceptionQueueStatus(input: {
   return "Arriving";
 }
 
-function toTenantReceptionGuestOutput(reservation: {
-  adults: number;
-  checkIn: Date;
-  checkOut: Date;
-  children: number;
-  createdAt: Date;
-  frontDeskStatus: "ARRIVING" | "IN_HOUSE" | "CHECKING_OUT" | "COMPLETED" | null;
-  guestName: string;
-  guestPhone: string | null;
-  id: string;
-  notes: string | null;
-  paymentMethod: string | null;
-  status: "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELED";
-  totalAmount: string;
-  updatedAt: Date;
-  invoices: Array<{
-    balanceDue: string;
-    code?: string;
-    id?: string;
-    status: "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "VOID";
-    totalAmount?: string;
-  }>;
-  folioCharges?: Array<{
-    amount: string;
-    status: "UNBILLED" | "INVOICED" | "VOIDED" | "ADJUSTED";
-  }>;
-  paymentLogs?: Array<{
-    amount: string;
-    status: "RECORDED" | "VOIDED";
-  }>;
-  room: {
-    checkIn: string;
-    checkOut: string;
-    code: string;
-    name: string;
-    type: string;
-  };
-}, todayEnd: Date) {
+function toResortReceptionGuestOutput(
+  reservation: {
+    adults: number;
+    checkIn: Date;
+    checkOut: Date;
+    children: number;
+    createdAt: Date;
+    frontDeskStatus:
+      "ARRIVING" | "IN_HOUSE" | "CHECKING_OUT" | "COMPLETED" | null;
+    guestName: string;
+    guestPhone: string | null;
+    id: string;
+    notes: string | null;
+    paymentMethod: string | null;
+    status: "PENDING" | "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELED";
+    totalAmount: string;
+    updatedAt: Date;
+    invoices: Array<{
+      balanceDue: string;
+      code?: string;
+      id?: string;
+      status: "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "VOID";
+      totalAmount?: string;
+    }>;
+    folioCharges?: Array<{
+      amount: string;
+      status: "UNBILLED" | "INVOICED" | "VOIDED" | "ADJUSTED";
+    }>;
+    paymentLogs?: Array<{
+      amount: string;
+      status: "RECORDED" | "VOIDED";
+    }>;
+    room: {
+      checkIn: string;
+      checkOut: string;
+      code: string;
+      name: string;
+      type: string;
+    } | null;
+  },
+  todayEnd: Date,
+) {
   const billableCharges = reservation.folioCharges ?? [];
   const subFolioTotal = billableCharges
     .filter((charge) => !["VOIDED", "ADJUSTED"].includes(charge.status))
@@ -2835,7 +2945,10 @@ function toTenantReceptionGuestOutput(reservation: {
     .reduce((total, payment) => total + parseMoneyAmount(payment.amount), 0);
   const openInvoiceBalance = reservation.invoices
     .filter((invoice) => !["PAID", "VOID"].includes(invoice.status))
-    .reduce((total, invoice) => total + parseMoneyAmount(invoice.balanceDue), 0);
+    .reduce(
+      (total, invoice) => total + parseMoneyAmount(invoice.balanceDue),
+      0,
+    );
   const balance = Math.max(subFolioTotal - paymentTotal, openInvoiceBalance, 0);
   const unbilledTotal = billableCharges
     .filter((charge) => charge.status === "UNBILLED")
@@ -2849,9 +2962,9 @@ function toTenantReceptionGuestOutput(reservation: {
   const priority = balance > 0 || reservation.notes ? "Attention" : "Normal";
   const time =
     status === "Arriving"
-      ? formatReceptionTime(reservation.room.checkIn)
+      ? formatReceptionTime(reservation.room?.checkIn ?? "14:00")
       : status === "Checking out"
-        ? formatReceptionTime(reservation.room.checkOut)
+        ? formatReceptionTime(reservation.room?.checkOut ?? "12:00")
         : status === "In-house"
           ? "Checked in"
           : "Completed";
@@ -2881,10 +2994,12 @@ function toTenantReceptionGuestOutput(reservation: {
         : ""
     }`,
     priority,
-    room: `${reservation.room.code} - ${reservation.room.name}`,
-    roomCode: reservation.room.code,
-    roomName: reservation.room.name,
-    roomType: reservation.room.type,
+    room: reservation.room
+      ? `${reservation.room.code} - ${reservation.room.name}`
+      : "Alrio Private Resort - Whole Resort",
+    roomCode: reservation.room?.code ?? "ALRIO",
+    roomName: reservation.room?.name ?? "Whole Resort",
+    roomType: reservation.room?.type ?? "Exclusive Private Resort",
     source: reservation.paymentMethod || "Reservation",
     status,
     subFolioTotal,
@@ -2895,7 +3010,7 @@ function toTenantReceptionGuestOutput(reservation: {
   };
 }
 
-function toTenantReceptionRequestOutput(request: {
+function toResortReceptionRequestOutput(request: {
   createdAt: Date;
   department: string;
   id: string;
@@ -2910,7 +3025,7 @@ function toTenantReceptionRequestOutput(request: {
     department: request.department,
     id: request.id,
     note: request.note,
-    priority: fromTenantReceptionRequestPriority(request.priority),
+    priority: fromResortReceptionRequestPriority(request.priority),
     roomOrArea: request.roomOrArea,
     status:
       request.status === "RESOLVED"
@@ -2922,7 +3037,7 @@ function toTenantReceptionRequestOutput(request: {
   };
 }
 
-function toTenantReceptionShiftNoteOutput(note: {
+function toResortReceptionShiftNoteOutput(note: {
   createdAt: Date;
   id: string;
   note: string;
@@ -2938,7 +3053,7 @@ function toTenantReceptionShiftNoteOutput(note: {
   };
 }
 
-function toTenantMaintenanceRequestOutput(request: {
+function toResortMaintenanceRequestOutput(request: {
   area: string;
   code: string;
   completedAt: Date | null;
@@ -2962,7 +3077,7 @@ function toTenantMaintenanceRequestOutput(request: {
     id: request.id,
     issue: request.issue,
     notes: request.notes ?? "",
-    priority: fromTenantMaintenancePriority(request.priority),
+    priority: fromResortMaintenancePriority(request.priority),
     requestedAt: request.createdAt.toLocaleDateString("en-US", {
       day: "numeric",
       hour: "numeric",
@@ -2971,12 +3086,12 @@ function toTenantMaintenanceRequestOutput(request: {
     }),
     resolution: request.resolution ?? "",
     roomId: request.roomId ?? "",
-    status: fromTenantMaintenanceStatus(request.status),
+    status: fromResortMaintenanceStatus(request.status),
     updatedAt: request.updatedAt,
   };
 }
 
-function toTenantLaundryJobOutput(job: {
+function toResortLaundryJobOutput(job: {
   category: string;
   code: string;
   createdAt: Date;
@@ -2999,14 +3114,14 @@ function toTenantLaundryJobOutput(job: {
     id: job.id,
     notes: job.notes ?? "",
     pieces: job.pieces,
-    priority: fromTenantLaundryPriority(job.priority),
+    priority: fromResortLaundryPriority(job.priority),
     receivedAt: job.receivedAt,
-    status: fromTenantLaundryStatus(job.status),
+    status: fromResortLaundryStatus(job.status),
     updatedAt: job.updatedAt,
   };
 }
 
-function toTenantInventoryItemOutput(item: {
+function toResortInventoryItemOutput(item: {
   category: string;
   code: string;
   createdAt: Date;
@@ -3046,7 +3161,7 @@ function toTenantInventoryItemOutput(item: {
   };
 }
 
-function toTenantInventoryMovementOutput(movement: {
+function toResortInventoryMovementOutput(movement: {
   code: string;
   createdAt: Date;
   id: string;
@@ -3068,7 +3183,7 @@ function toTenantInventoryMovementOutput(movement: {
   };
 }
 
-function toTenantHousekeepingRoomOutput(room: {
+function toResortHousekeepingRoomOutput(room: {
   id: string;
   code: string;
   name: string;
@@ -3096,20 +3211,25 @@ function toTenantHousekeepingRoomOutput(room: {
   }>;
 }) {
   const activeReservation =
-    room.reservations.find((reservation) => reservation.status === "CHECKED_IN") ??
+    room.reservations.find(
+      (reservation) => reservation.status === "CHECKED_IN",
+    ) ??
     room.reservations[0] ??
     null;
   const nextGuest =
     activeReservation?.status === "CHECKED_IN"
       ? "Checkout today"
       : activeReservation
-        ? `${activeReservation.guestName}, ${activeReservation.checkIn.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          })}`
+        ? `${activeReservation.guestName}, ${activeReservation.checkIn.toLocaleDateString(
+            "en-US",
+            {
+              month: "short",
+              day: "numeric",
+            },
+          )}`
         : "No arrival";
   const housekeepingStatus = room.housekeepingState
-    ? fromTenantHousekeepingStatus(room.housekeepingState.status)
+    ? fromResortHousekeepingStatus(room.housekeepingState.status)
     : getHousekeepingStatusFromRoomStatus(room.status);
 
   return {
@@ -3143,7 +3263,7 @@ function toTenantHousekeepingRoomOutput(room: {
   };
 }
 
-function toTenantHousekeepingDamageOutput(report: {
+function toResortHousekeepingDamageOutput(report: {
   createdAt: Date;
   details: string;
   id: string;
@@ -3180,7 +3300,7 @@ function toTenantHousekeepingDamageOutput(report: {
   };
 }
 
-function toTenantServiceOutput(service: {
+function toResortServiceOutput(service: {
   id: string;
   baseCharge: string;
   billingType: "FIXED_PRICE" | "PER_HOUR" | "PER_GUEST" | "CUSTOM_QUOTE";
@@ -3201,7 +3321,7 @@ function toTenantServiceOutput(service: {
   return {
     id: service.id,
     baseCharge: service.baseCharge,
-    billingType: fromTenantServiceBillingType(service.billingType),
+    billingType: fromResortServiceBillingType(service.billingType),
     bookingLeadTime: service.bookingLeadTime ?? "",
     category: service.category,
     code: service.code,
@@ -3212,13 +3332,13 @@ function toTenantServiceOutput(service: {
     internalNotes: service.internalNotes ?? "",
     provider: service.provider ?? "",
     showOnBookingPage: service.showOnBookingPage,
-    status: fromTenantServiceStatus(service.status),
+    status: fromResortServiceStatus(service.status),
     title: service.title,
     updatedAt: service.updatedAt,
   };
 }
 
-function toTenantPackageOutput(pack: {
+function toResortPackageOutput(pack: {
   id: string;
   amenityIds?: string[];
   amenities: Array<{
@@ -3277,12 +3397,12 @@ function toTenantPackageOutput(pack: {
     services: pack.services,
     showOnBookingPage: pack.showOnBookingPage,
     sortOrder: pack.sortOrder,
-    status: fromTenantPackageStatus(pack.status),
+    status: fromResortPackageStatus(pack.status),
     updatedAt: pack.updatedAt,
   };
 }
 
-function toTenantFinanceEntryOutput(entry: {
+function toResortFinanceEntryOutput(entry: {
   id: string;
   amount: string;
   category: string;
@@ -3317,14 +3437,14 @@ function toTenantFinanceEntryOutput(entry: {
     receiptSize: entry.receiptSize ?? 0,
     receiptType: entry.receiptType ?? "",
     receiptUrl: entry.receiptUrl ?? "",
-    source: fromTenantFinanceEntrySource(entry.source),
-    status: fromTenantFinanceEntryStatus(entry.status),
-    type: fromTenantFinanceEntryType(entry.type),
+    source: fromResortFinanceEntrySource(entry.source),
+    status: fromResortFinanceEntryStatus(entry.status),
+    type: fromResortFinanceEntryType(entry.type),
     updatedAt: entry.updatedAt,
   };
 }
 
-function toTenantTransactionExportOutput(exportJob: {
+function toResortTransactionExportOutput(exportJob: {
   code: string;
   createdAt: Date;
   format: "CSV" | "PDF" | "TXT" | "XLSX";
@@ -3344,18 +3464,20 @@ function toTenantTransactionExportOutput(exportJob: {
     period: exportJob.period,
     rowCount: exportJob.rowCount,
     size: exportJob.size,
-    status: exportJob.status === "READY"
-      ? "Ready"
-      : exportJob.status === "SCHEDULED"
-        ? "Scheduled"
-        : "Failed",
+    status:
+      exportJob.status === "READY"
+        ? "Ready"
+        : exportJob.status === "SCHEDULED"
+          ? "Scheduled"
+          : "Failed",
     updatedAt: exportJob.updatedAt,
     code: exportJob.code,
   };
 }
 
-function toTenantInvoiceOutput(invoice: {
+function toResortInvoiceOutput(invoice: {
   id: string;
+  publicToken: string;
   balanceDue: string;
   code: string;
   createdAt: Date;
@@ -3390,11 +3512,12 @@ function toTenantInvoiceOutput(invoice: {
     room: {
       code: string;
       name: string;
-    };
+    } | null;
   } | null;
 }) {
   return {
     id: invoice.id,
+    publicToken: invoice.publicToken,
     balanceDue: invoice.balanceDue,
     bookingReference: invoice.reservation?.id ?? "",
     code: invoice.code,
@@ -3419,12 +3542,14 @@ function toTenantInvoiceOutput(invoice: {
     nextReminderAt: invoice.nextReminderAt,
     paymentInstructions: invoice.paymentInstructions ?? "",
     paymentMethod: invoice.paymentMethod ?? "",
-    reminderCadence: fromTenantInvoiceReminderCadence(invoice.reminderCadence),
+    reminderCadence: fromResortInvoiceReminderCadence(invoice.reminderCadence),
     reservationId: invoice.reservationId ?? "",
     roomLabel: invoice.reservation
-      ? `${invoice.reservation.room.code} - ${invoice.reservation.room.name}`
+      ? invoice.reservation.room
+        ? `${invoice.reservation.room.code} - ${invoice.reservation.room.name}`
+        : "Alrio Private Resort - Whole Resort"
       : "",
-    status: fromTenantInvoiceStatus(invoice.status),
+    status: fromResortInvoiceStatus(invoice.status),
     subtotal: invoice.subtotal,
     tax: invoice.tax,
     totalAmount: invoice.totalAmount,
@@ -3432,7 +3557,7 @@ function toTenantInvoiceOutput(invoice: {
   };
 }
 
-function fromTenantFolioChargeStatus(
+function fromResortFolioChargeStatus(
   status: "UNBILLED" | "INVOICED" | "VOIDED" | "ADJUSTED",
 ) {
   const labels = {
@@ -3445,8 +3570,8 @@ function fromTenantFolioChargeStatus(
   return labels[status];
 }
 
-function toTenantFolioChargeStatus(
-  status: z.infer<typeof tenantFolioChargeStatusSchema>,
+function toResortFolioChargeStatus(
+  status: z.infer<typeof resortFolioChargeStatusSchema>,
 ): "UNBILLED" | "INVOICED" | "VOIDED" | "ADJUSTED" {
   const values = {
     Adjusted: "ADJUSTED",
@@ -3458,7 +3583,7 @@ function toTenantFolioChargeStatus(
   return values[status];
 }
 
-function fromTenantFolioChargeType(
+function fromResortFolioChargeType(
   type: "STAY" | "ADDITIONAL" | "FEE" | "ADJUSTMENT",
 ) {
   const labels = {
@@ -3471,8 +3596,8 @@ function fromTenantFolioChargeType(
   return labels[type];
 }
 
-function toTenantFolioChargeType(
-  type: z.infer<typeof tenantFolioChargeTypeSchema>,
+function toResortFolioChargeType(
+  type: z.infer<typeof resortFolioChargeTypeSchema>,
 ): "STAY" | "ADDITIONAL" | "FEE" | "ADJUSTMENT" {
   const values = {
     Additional: "ADDITIONAL",
@@ -3484,7 +3609,7 @@ function toTenantFolioChargeType(
   return values[type];
 }
 
-function toTenantFolioChargeOutput(charge: {
+function toResortFolioChargeOutput(charge: {
   amount: string;
   code: string;
   createdAt: Date;
@@ -3512,13 +3637,13 @@ function toTenantFolioChargeOutput(charge: {
     quantity: charge.quantity,
     rate: charge.rate,
     reservationId: charge.reservationId,
-    status: fromTenantFolioChargeStatus(charge.status),
-    type: fromTenantFolioChargeType(charge.type),
+    status: fromResortFolioChargeStatus(charge.status),
+    type: fromResortFolioChargeType(charge.type),
     updatedAt: charge.updatedAt,
   };
 }
 
-function toTenantPaymentLogOutput(payment: {
+function toResortPaymentLogOutput(payment: {
   amount: string;
   code: string;
   createdAt: Date;
@@ -3550,7 +3675,7 @@ function toTenantPaymentLogOutput(payment: {
   };
 }
 
-function toTenantStaffInvitationOutput(invitation: {
+function toResortStaffInvitationOutput(invitation: {
   id: string;
   email: string;
   roleName: string;
@@ -3568,6 +3693,8 @@ function toTenantStaffInvitationOutput(invitation: {
     firstName: "",
     lastName: "",
     displayName,
+    image: "",
+    lastActiveAt: null,
     username: "",
     phoneNumber: "",
     roleName: invitation.roleName,
@@ -3581,6 +3708,79 @@ function toTenantStaffInvitationOutput(invitation: {
 }
 
 export const appRouter = createTRPCRouter({
+  geography: geographyRouter,
+  public: createTRPCRouter({
+    sendContactInquiry: baseProcedure
+      .input(
+        z.object({
+          name: z.string().trim().min(2).max(100),
+          email: z
+            .string()
+            .trim()
+            .email()
+            .max(254)
+            .transform((value) => value.toLowerCase()),
+          phone: z.string().trim().max(30).default(""),
+          subject: z.string().trim().min(2).max(120),
+          message: z.string().trim().min(10).max(3000),
+          consent: z.literal(true),
+          website: z.string().max(0).default(""),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const resort = await prisma.resortProfile.findFirst({
+          where: {
+            resortName: { equals: "Alrio Private Resort", mode: "insensitive" },
+          },
+          orderBy: { createdAt: "asc" },
+          select: { id: true },
+        });
+        if (!resort)
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message:
+              "Online enquiries are not available yet. Please try again later.",
+          });
+        const recent = await prisma.resortContactInquiry.findFirst({
+          where: {
+            resortProfileId: resort.id,
+            email: input.email,
+            createdAt: { gte: new Date(Date.now() - 60_000) },
+          },
+          select: { id: true },
+        });
+        if (recent)
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Please wait a minute before sending another enquiry.",
+          });
+        await prisma.resortContactInquiry.create({
+          data: {
+            resortProfileId: resort.id,
+            name: input.name,
+            email: input.email,
+            phone: input.phone || null,
+            subject: input.subject,
+            message: input.message,
+          },
+        });
+        return { success: true };
+      }),
+    contact: baseProcedure.query(async () => {
+      return prisma.resortProfile.findFirst({
+        where: {
+          resortName: { equals: "Alrio Private Resort", mode: "insensitive" },
+        },
+        orderBy: { createdAt: "asc" },
+        select: { phoneNumber: true, fullAddress: true },
+      });
+    }),
+    landing: baseProcedure.query(async () => {
+      const locations = await getPublicResortLocations();
+
+      return { locations };
+    }),
+  }),
   hello: baseProcedure
     .input(
       z.object({
@@ -3593,6 +3793,143 @@ export const appRouter = createTRPCRouter({
       };
     }),
   auth: createTRPCRouter({
+    account: baseProcedure.query(async ({ ctx }) => {
+      const user = ctx.session?.user;
+      if (!user?.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Sign in required.",
+        });
+      }
+      const profile = await prisma.appUser.findUnique({
+        where: { authUserId: user.id },
+        select: { firstName: true, lastName: true, guestProfile: true },
+      });
+      const identity = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { image: true },
+      });
+      return {
+        firstName: profile?.firstName ?? user.name?.split(" ")[0] ?? "",
+        lastName:
+          profile?.lastName ?? user.name?.split(" ").slice(1).join(" ") ?? "",
+        email: user.email,
+        image: identity?.image ?? null,
+        guestProfile: guestProfileSchema.parse(profile?.guestProfile ?? {}),
+      };
+    }),
+    updateAccount: baseProcedure
+      .input(
+        z.object({
+          firstName: z
+            .string()
+            .trim()
+            .min(1, "First name is required.")
+            .max(100),
+          lastName: z.string().trim().min(1, "Last name is required.").max(100),
+          guestProfile: guestProfileSchema.optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const user = ctx.session?.user;
+        if (!user?.id || !user.email) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Sign in required.",
+          });
+        }
+        const displayName = `${input.firstName} ${input.lastName}`;
+        const profileData = {
+          firstName: input.firstName,
+          lastName: input.lastName,
+          displayName,
+          ...(input.guestProfile ? { guestProfile: input.guestProfile } : {}),
+        };
+        await prisma.$transaction([
+          prisma.user.update({
+            where: { id: user.id },
+            data: { name: displayName },
+          }),
+          prisma.appUser.upsert({
+            where: { authUserId: user.id },
+            create: { authUserId: user.id, email: user.email, ...profileData },
+            update: profileData,
+          }),
+        ]);
+        await safelyRecordStaffActivityForAuthUser(user.id, {
+          action: STAFF_ACTIVITY_ACTIONS.profileUpdated,
+          title: "Profile updated",
+          detail: "Updated their staff account profile information.",
+          actorAuthUserId: user.id,
+        });
+        return { saved: true };
+      }),
+    registerGuest: baseProcedure
+      .input(
+        z.object({
+          firstName: z.string().trim().min(1).max(100).optional(),
+          lastName: z.string().trim().min(1).max(100).optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const user = ctx.session?.user;
+        if (!user?.id || !user.email) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Sign in to finish creating your account.",
+          });
+        }
+        const [fallbackFirst = "Guest", ...fallbackLast] = (
+          user.name || user.email.split("@")[0]
+        )
+          .trim()
+          .split(/\s+/);
+        const firstName = input.firstName ?? fallbackFirst;
+        const lastName = input.lastName ?? fallbackLast.join(" ");
+        // Public registration creates a guest profile only. Staff access requires an invitation.
+        await prisma.appUser.upsert({
+          where: { authUserId: user.id },
+          create: {
+            authUserId: user.id,
+            email: user.email,
+            firstName,
+            lastName,
+            displayName: `${firstName} ${lastName}`.trim(),
+          },
+          update: {},
+        });
+        return { redirectTo: "/account" };
+      }),
+    signInRedirect: baseProcedure.query(async ({ ctx }) => ({
+      redirectTo: await getSignInRedirect(ctx.session?.user?.id),
+    })),
+    removeAvatar: baseProcedure.mutation(async ({ ctx }) => {
+      const userId = ctx.session?.user?.id;
+      if (!userId)
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Sign in required.",
+        });
+      await prisma.user.update({
+        where: { id: userId },
+        data: { image: null },
+      });
+      await safelyRecordStaffActivityForAuthUser(userId, {
+        action: STAFF_ACTIVITY_ACTIONS.avatarUpdated,
+        title: "Profile photo removed",
+        detail: "Removed their staff profile photo.",
+        actorAuthUserId: userId,
+      });
+      return { image: null };
+    }),
+    session: baseProcedure.query(async ({ ctx }) => {
+      if (!ctx.session?.user) return { user: null };
+      const identity = await prisma.user.findUnique({
+        where: { id: ctx.session.user.id },
+        select: { name: true, image: true },
+      });
+      return { user: identity ? { ...ctx.session.user, ...identity } : null };
+    }),
     profile: baseProcedure.query(async ({ ctx }) => {
       const authUser = ctx.session?.user;
 
@@ -3608,6 +3945,7 @@ export const appRouter = createTRPCRouter({
           authUserId: authUser.id,
         },
         include: {
+          resortProfile: { select: { id: true } },
           staffProfile: {
             include: {
               accessRole: true,
@@ -3617,22 +3955,14 @@ export const appRouter = createTRPCRouter({
       });
 
       return {
-        permissions:
-          appUser?.role === "TENANT_STAFF"
-            ? appUser.staffProfile?.accessRole?.permissions ??
-              appUser.staffProfile?.permissions ??
-              []
-            : [FULL_PERMISSION],
-        role:
-          appUser?.role === "TENANT_STAFF"
-            ? appUser.staffProfile?.accessRole?.name ??
-              appUser.staffProfile?.roleName ??
-              "Staff"
-            : appUser?.role === "TENANT"
-              ? "Administrator"
-              : appUser?.role
-                ? appUser.role.replace(/_/g, " ")
-                : "Administrator",
+        permissions: appUser?.resortProfile
+          ? [FULL_PERMISSION]
+          : appUser?.staffProfile?.status === "ACTIVE"
+            ? appUser.staffProfile.accessRole.permissions
+            : [],
+        role: appUser?.resortProfile
+          ? "Administrator"
+          : (appUser?.staffProfile?.accessRole.name ?? "Guest"),
       };
     }),
     validateInvitation: baseProcedure
@@ -3642,12 +3972,12 @@ export const appRouter = createTRPCRouter({
         }),
       )
       .query(async ({ input }) => {
-        const invitation = await prisma.tenantStaffInvitation.findUnique({
+        const invitation = await prisma.resortStaffInvitation.findUnique({
           where: {
             tokenHash: hashInviteToken(input.token),
           },
           include: {
-            tenantProfile: true,
+            resortProfile: true,
           },
         });
 
@@ -3666,7 +3996,7 @@ export const appRouter = createTRPCRouter({
         }
 
         if (invitation.expiresAt <= new Date()) {
-          await prisma.tenantStaffInvitation.update({
+          await prisma.resortStaffInvitation.update({
             where: {
               id: invitation.id,
             },
@@ -3688,9 +4018,7 @@ export const appRouter = createTRPCRouter({
           message: invitation.message,
           roleName: invitation.roleName,
           workspaceName:
-            invitation.tenantProfile.resortName ??
-            invitation.tenantProfile.businessName ??
-            "ResortCloud workspace",
+            invitation.resortProfile.resortName || "Alrio Private Resort",
         };
       }),
     resolveSignInIdentifier: baseProcedure
@@ -3703,12 +4031,35 @@ export const appRouter = createTRPCRouter({
         const identifier = input.identifier.toLowerCase();
 
         if (identifier.includes("@")) {
+          const account = await prisma.user.findUnique({
+            where: { email: identifier },
+            select: {
+              id: true,
+              appUser: {
+                select: { guestDisabledAt: true },
+              },
+            },
+          });
+          if (!account) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message:
+                "No account exists with this email address. Please create an account first.",
+            });
+          }
+          if (account.appUser?.guestDisabledAt) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message:
+                "This guest account is disabled. Please contact Alrio Private Resort for assistance.",
+            });
+          }
           return {
             email: identifier,
           };
         }
 
-        const staffProfile = await prisma.tenantStaffProfile.findFirst({
+        const staffProfile = await prisma.resortStaffProfile.findFirst({
           where: {
             username: identifier,
           },
@@ -3731,172 +4082,17 @@ export const appRouter = createTRPCRouter({
         };
       }),
     resolveRedirect: baseProcedure.mutation(async ({ ctx }) => {
-      const authUser = ctx.session?.user;
-
-      if (!authUser?.id) {
+      const authUserId = ctx.session?.user?.id;
+      if (!authUserId) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Sign in required.",
         });
       }
-
-      const appUser = await prisma.appUser.findUnique({
-        where: {
-          authUserId: authUser.id,
-        },
-        include: {
-          staffProfile: {
-            include: {
-              tenantProfile: true,
-            },
-          },
-          tenantProfile: true,
-        },
-      });
-
-      if (!appUser) {
-        return {
-          redirectTo: "/auth/sign-up",
-        };
-      }
-
-      if (appUser.role === "TENANT_STAFF" && appUser.staffProfile?.status === "SUSPENDED") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Staff account suspended.",
-        });
-      }
-
       return {
-        redirectTo: getAppRedirectPath({
-          role: appUser.role,
-          tenantOnboardingStatus: getTenantOnboardingStatusForAccess(appUser),
-        }),
+        redirectTo: (await getSignInRedirect(authUserId)) ?? "/auth/sign-up",
       };
     }),
-    finalizeSignUp: baseProcedure
-      .input(
-        z.object({
-          firstName: z.string().optional(),
-          lastName: z.string().optional(),
-          role: roleSchema,
-          plan: planSchema.default("free_trial"),
-          billing: billingSchema.default("monthly"),
-          checkout: z.string().optional(),
-        }),
-      )
-      .mutation(async ({ ctx, input }) => {
-        const authUser = ctx.session?.user;
-
-        if (!authUser?.id || !authUser.email) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Sign-up session missing.",
-          });
-        }
-
-        const [fallbackFirstName = "User", ...fallbackLastNameParts] = (
-          authUser.name ||
-          authUser.email.split("@")[0] ||
-          "User"
-        )
-          .trim()
-          .split(/\s+/);
-        const firstName = input.firstName?.trim() || fallbackFirstName;
-        const lastName =
-          input.lastName?.trim() || fallbackLastNameParts.join(" ") || "";
-        const displayName =
-          `${firstName} ${lastName}`.trim() || authUser.name || authUser.email;
-        const isTenant = input.role === "TENANT";
-        const isPolarCheckout =
-          isTenant && input.checkout === "polar" && input.plan !== "free_trial";
-        const now = new Date();
-        const trialEndsAt = getTrialEndDate();
-
-        const appUser = await prisma.appUser.upsert({
-          where: {
-            authUserId: authUser.id,
-          },
-          create: {
-            authUserId: authUser.id,
-            email: authUser.email,
-            firstName,
-            lastName,
-            displayName,
-            role: input.role,
-            tenantProfile: isTenant
-              ? {
-                  create: {
-                    subscriptionPlan: toTenantPlan(input.plan),
-                    subscriptionStatus: isPolarCheckout ? "PENDING" : "TRIALING",
-                    billingCycle: toBillingCycle(input.billing),
-                    trialStartedAt: isPolarCheckout ? null : now,
-                    trialEndsAt: isPolarCheckout ? null : trialEndsAt,
-                    billingEmail: authUser.email,
-                    onboardingStatus: "PENDING",
-                  },
-                }
-              : undefined,
-          },
-          update: {
-            email: authUser.email,
-            firstName,
-            lastName,
-            displayName,
-            role: input.role,
-            tenantProfile: isTenant
-              ? {
-                  upsert: {
-                    create: {
-                      subscriptionPlan: toTenantPlan(input.plan),
-                      subscriptionStatus: isPolarCheckout
-                        ? "PENDING"
-                        : "TRIALING",
-                      billingCycle: toBillingCycle(input.billing),
-                      trialStartedAt: isPolarCheckout ? null : now,
-                      trialEndsAt: isPolarCheckout ? null : trialEndsAt,
-                      billingEmail: authUser.email,
-                      onboardingStatus: "PENDING",
-                    },
-                    update: {
-                      subscriptionPlan: toTenantPlan(input.plan),
-                      subscriptionStatus: isPolarCheckout
-                        ? "PENDING"
-                        : "TRIALING",
-                      billingCycle: toBillingCycle(input.billing),
-                      trialStartedAt: isPolarCheckout ? null : now,
-                      trialEndsAt: isPolarCheckout ? null : trialEndsAt,
-                      billingEmail: authUser.email,
-                    },
-                  },
-                }
-              : undefined,
-          },
-          include: {
-            tenantProfile: true,
-          },
-        });
-
-        if (isPolarCheckout) {
-          const checkoutUrl = new URL(
-            "/api/polar/checkout-plan",
-            process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-          );
-          checkoutUrl.searchParams.set("plan", input.plan);
-          checkoutUrl.searchParams.set("billing", input.billing);
-
-          return {
-            redirectTo: checkoutUrl.pathname + checkoutUrl.search,
-          };
-        }
-
-        return {
-          redirectTo: getAppRedirectPath({
-            role: appUser.role,
-            tenantOnboardingStatus: getTenantOnboardingStatusForAccess(appUser),
-          }),
-        };
-      }),
     acceptInvitation: baseProcedure
       .input(
         z.object({
@@ -3916,12 +4112,12 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const invitation = await prisma.tenantStaffInvitation.findUnique({
+        const invitation = await prisma.resortStaffInvitation.findUnique({
           where: {
             tokenHash: hashInviteToken(input.token),
           },
           include: {
-            tenantProfile: true,
+            resortProfile: true,
           },
         });
 
@@ -3940,7 +4136,7 @@ export const appRouter = createTRPCRouter({
         }
 
         if (invitation.expiresAt <= new Date()) {
-          await prisma.tenantStaffInvitation.update({
+          await prisma.resortStaffInvitation.update({
             where: {
               id: invitation.id,
             },
@@ -3965,15 +4161,15 @@ export const appRouter = createTRPCRouter({
         const username = input.username?.toLowerCase() ?? null;
         const [duplicateUsername, accessRole] = await Promise.all([
           username
-            ? prisma.tenantStaffProfile.findFirst({
+            ? prisma.resortStaffProfile.findFirst({
                 where: {
                   username,
                 },
               })
             : null,
-          prisma.tenantAccessRole.findFirst({
+          prisma.resortAccessRole.findFirst({
             where: {
-              tenantProfileId: invitation.tenantProfileId,
+              resortProfileId: invitation.resortProfileId,
               name: invitation.roleName,
             },
           }),
@@ -3999,7 +4195,29 @@ export const appRouter = createTRPCRouter({
         const displayName =
           `${firstName} ${lastName}`.trim() || authUser.name || authUser.email;
 
-        const appUser = await prisma.$transaction(async (tx) => {
+        if (!accessRole) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message:
+              "This invitation's access role is no longer available. Contact the resort team.",
+          });
+        }
+
+        await prisma.$transaction(async (tx) => {
+          const claimed = await tx.resortStaffInvitation.updateMany({
+            where: {
+              id: invitation.id,
+              status: "PENDING",
+              expiresAt: { gt: new Date() },
+            },
+            data: { status: "ACCEPTED", acceptedAt: new Date() },
+          });
+          if (claimed.count !== 1) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Invitation expired or already used.",
+            });
+          }
           await tx.user.update({
             where: {
               id: authUser.id,
@@ -4010,7 +4228,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          const savedAppUser = await tx.appUser.upsert({
+          await tx.appUser.upsert({
             where: {
               authUserId: authUser.id,
             },
@@ -4020,40 +4238,35 @@ export const appRouter = createTRPCRouter({
               firstName,
               lastName,
               displayName,
-              role: "TENANT_STAFF",
             },
             update: {
               email: authUser.email,
               firstName,
               lastName,
               displayName,
-              role: "TENANT_STAFF",
             },
           });
 
-          await tx.tenantStaffProfile.upsert({
+          await tx.resortStaffProfile.upsert({
             where: {
               appUserId: authUser.id,
             },
             create: {
-              tenantProfileId: invitation.tenantProfileId,
+              resortProfileId: invitation.resortProfileId,
               appUserId: authUser.id,
-              accessRoleId: accessRole?.id,
+              accessRoleId: accessRole.id,
               username,
-              roleName: invitation.roleName,
               status: "ACTIVE",
-              permissions: [],
             },
             update: {
-              tenantProfileId: invitation.tenantProfileId,
-              accessRoleId: accessRole?.id,
+              resortProfileId: invitation.resortProfileId,
+              accessRoleId: accessRole.id,
               username,
-              roleName: invitation.roleName,
               status: "ACTIVE",
             },
           });
 
-          await tx.tenantStaffInvitation.update({
+          await tx.resortStaffInvitation.update({
             where: {
               id: invitation.id,
             },
@@ -4062,19 +4275,19 @@ export const appRouter = createTRPCRouter({
               status: "ACCEPTED",
             },
           });
-
-          return savedAppUser;
         });
 
-        return {
-          redirectTo: getAppRedirectPath({
-            role: appUser.role,
-            tenantOnboardingStatus: invitation.tenantProfile.onboardingStatus,
-          }),
-        };
+        await safelyRecordStaffActivityForAuthUser(authUser.id, {
+          action: STAFF_ACTIVITY_ACTIONS.accountCreated,
+          title: "Staff invitation accepted",
+          detail: `Joined the Alrio staff workspace as ${accessRole.name}.`,
+          actorAuthUserId: authUser.id,
+        });
+
+        return { redirectTo: (await getSignInRedirect(authUser.id)) ?? "/" };
       }),
   }),
-  tenant: createTRPCRouter({
+  resort: createTRPCRouter({
     notifications: createTRPCRouter({
       list: baseProcedure.query(async ({ ctx }) => {
         const authUser = ctx.session?.user;
@@ -4086,7 +4299,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const now = new Date();
         const todayStart = new Date(now);
         todayStart.setHours(0, 0, 0, 0);
@@ -4103,9 +4316,9 @@ export const appRouter = createTRPCRouter({
           leaveRequests,
           inventoryItems,
         ] = await Promise.all([
-          prisma.tenantReservation.findMany({
+          prisma.resortReservation.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               OR: [
                 { status: "PENDING" },
                 {
@@ -4132,9 +4345,9 @@ export const appRouter = createTRPCRouter({
             },
             take: 4,
           }),
-          prisma.tenantInvoice.findMany({
+          prisma.resortInvoice.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               status: {
                 in: ["SENT", "OVERDUE"],
               },
@@ -4144,9 +4357,9 @@ export const appRouter = createTRPCRouter({
             },
             take: 4,
           }),
-          prisma.tenantHousekeepingRoom.findMany({
+          prisma.resortHousekeepingRoom.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               status: "DIRTY",
             },
             include: {
@@ -4162,9 +4375,9 @@ export const appRouter = createTRPCRouter({
             },
             take: 3,
           }),
-          prisma.tenantHousekeepingDamageReport.findMany({
+          prisma.resortHousekeepingDamageReport.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               status: "OPEN",
             },
             include: {
@@ -4180,9 +4393,9 @@ export const appRouter = createTRPCRouter({
             },
             take: 3,
           }),
-          prisma.tenantMaintenanceRequest.findMany({
+          prisma.resortMaintenanceRequest.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               status: "PENDING",
             },
             orderBy: {
@@ -4190,9 +4403,9 @@ export const appRouter = createTRPCRouter({
             },
             take: 4,
           }),
-          prisma.tenantLead.findMany({
+          prisma.resortLead.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               stage: {
                 in: ["INTAKE", "QUALIFIED"],
               },
@@ -4202,9 +4415,9 @@ export const appRouter = createTRPCRouter({
             },
             take: 3,
           }),
-          prisma.tenantLeaveRequest.findMany({
+          prisma.resortLeaveRequest.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               status: "PENDING",
             },
             include: {
@@ -4223,9 +4436,9 @@ export const appRouter = createTRPCRouter({
             },
             take: 3,
           }),
-          prisma.tenantInventoryItem.findMany({
+          prisma.resortInventoryItem.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               dashboardAlert: true,
             },
             orderBy: {
@@ -4250,7 +4463,7 @@ export const appRouter = createTRPCRouter({
             description: `${reservation.guestName} - ${
               reservation.room?.code ?? reservation.room?.name ?? "room"
             }`,
-            href: "/tenant/reservations/calendar",
+            href: "/resort/reservations/calendar",
             createdAt: reservation.updatedAt,
             unread: reservation.status === "PENDING",
           })),
@@ -4262,7 +4475,7 @@ export const appRouter = createTRPCRouter({
                 ? "Invoice overdue"
                 : "Payment pending",
             description: `${invoice.code} - ${invoice.guestName} has balance ${invoice.balanceDue}.`,
-            href: "/tenant/finance/money-status",
+            href: "/resort/finance/money-status",
             createdAt: invoice.updatedAt,
             unread: true,
           })),
@@ -4273,7 +4486,7 @@ export const appRouter = createTRPCRouter({
             description: `${
               roomState.room.code || roomState.room.name
             } is marked dirty.`,
-            href: "/tenant/operations/housekeeping",
+            href: "/resort/operations/housekeeping",
             createdAt: roomState.updatedAt,
             unread: true,
           })),
@@ -4284,7 +4497,7 @@ export const appRouter = createTRPCRouter({
             description: `${report.title} - ${
               report.room.code || report.room.name
             }`,
-            href: "/tenant/operations/housekeeping",
+            href: "/resort/operations/housekeeping",
             createdAt: report.updatedAt,
             unread: true,
           })),
@@ -4293,7 +4506,7 @@ export const appRouter = createTRPCRouter({
             kind: "maintenance" as const,
             title: "Maintenance request open",
             description: `${request.code} - ${request.area}: ${request.issue}`,
-            href: "/tenant/operations/maintenance",
+            href: "/resort/operations/maintenance",
             createdAt: request.updatedAt,
             unread: true,
           })),
@@ -4304,7 +4517,7 @@ export const appRouter = createTRPCRouter({
             description: `${lead.guestName}: ${
               lead.lastMessage ?? lead.inquiry ?? "New lead inquiry"
             }`,
-            href: "/tenant/leads",
+            href: "/resort/leads",
             createdAt: lead.lastMessageAt ?? lead.updatedAt,
             unread: true,
           })),
@@ -4313,7 +4526,7 @@ export const appRouter = createTRPCRouter({
             kind: "hr" as const,
             title: "Leave request pending",
             description: `${leaveRequest.staffProfile.appUser.displayName} requested ${leaveRequest.leaveType}.`,
-            href: "/tenant/hr/leave-requests",
+            href: "/resort/hr/leave-requests",
             createdAt: leaveRequest.updatedAt,
             unread: true,
           })),
@@ -4322,12 +4535,15 @@ export const appRouter = createTRPCRouter({
             kind: "inventory" as const,
             title: "Inventory below threshold",
             description: `${item.name} has ${item.quantity} ${item.unit} left.`,
-            href: "/tenant/operations/inventory",
+            href: "/resort/operations/inventory",
             createdAt: item.updatedAt,
             unread: true,
           })),
         ]
-          .sort((first, second) => second.createdAt.getTime() - first.createdAt.getTime())
+          .sort(
+            (first, second) =>
+              second.createdAt.getTime() - first.createdAt.getTime(),
+          )
           .slice(0, 8);
 
         return {
@@ -4355,7 +4571,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const period = input?.period ?? "month";
           const { end, start } = getAnalyticsRange(period);
           const days = getAnalyticsDays(start, end);
@@ -4365,7 +4581,6 @@ export const appRouter = createTRPCRouter({
           trendEnd.setHours(23, 59, 59, 999);
 
           const [
-            rooms,
             reservations,
             financeEntries,
             invoices,
@@ -4375,28 +4590,23 @@ export const appRouter = createTRPCRouter({
             laundryJobs,
             inventoryItems,
           ] = await Promise.all([
-            prisma.tenantRoom.findMany({
-              where: { tenantProfileId: tenantProfile.id },
-              select: { id: true },
-            }),
-            prisma.tenantReservation.findMany({
+            prisma.resortReservation.findMany({
               where: {
                 checkIn: { lte: end },
                 checkOut: { gte: start },
                 status: { not: "CANCELED" },
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
               select: {
                 checkIn: true,
                 checkOut: true,
-                roomId: true,
               },
             }),
-            prisma.tenantFinanceEntry.findMany({
+            prisma.resortFinanceEntry.findMany({
               where: {
                 entryDate: { gte: trendStart, lte: trendEnd },
                 status: "CLEARED",
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
               select: {
                 amount: true,
@@ -4404,42 +4614,42 @@ export const appRouter = createTRPCRouter({
                 type: true,
               },
             }),
-            prisma.tenantInvoice.findMany({
+            prisma.resortInvoice.findMany({
               where: {
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
               select: {
                 balanceDue: true,
                 status: true,
               },
             }),
-            prisma.tenantHousekeepingRoom.findMany({
-              where: { tenantProfileId: tenantProfile.id },
+            prisma.resortHousekeepingRoom.findMany({
+              where: { resortProfileId: resortProfile.id },
               select: { status: true },
             }),
-            prisma.tenantMaintenanceRequest.findMany({
+            prisma.resortMaintenanceRequest.findMany({
               where: {
                 createdAt: { gte: start, lte: end },
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
               select: { status: true },
             }),
-            prisma.tenantReceptionRequest.findMany({
+            prisma.resortReceptionRequest.findMany({
               where: {
                 createdAt: { gte: start, lte: end },
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
               select: { status: true },
             }),
-            prisma.tenantLaundryJob.findMany({
+            prisma.resortLaundryJob.findMany({
               where: {
                 receivedAt: { gte: start, lte: end },
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
               select: { status: true },
             }),
-            prisma.tenantInventoryItem.findMany({
-              where: { tenantProfileId: tenantProfile.id },
+            prisma.resortInventoryItem.findMany({
+              where: { resortProfileId: resortProfile.id },
               select: {
                 quantity: true,
                 threshold: true,
@@ -4447,22 +4657,18 @@ export const appRouter = createTRPCRouter({
             }),
           ]);
 
-          const roomCount = Math.max(rooms.length, 1);
           const occupancyData = days.map((day) => {
             const dayStart = new Date(day);
             dayStart.setHours(0, 0, 0, 0);
             const dayEnd = new Date(day);
             dayEnd.setHours(23, 59, 59, 999);
-            const occupiedRooms = new Set(
-              reservations
-                .filter(
-                  (reservation) =>
-                    reservation.checkIn.getTime() <= dayEnd.getTime() &&
-                    reservation.checkOut.getTime() >= dayStart.getTime(),
-                )
-                .map((reservation) => reservation.roomId),
-            ).size;
-            const occupied = getAnalyticsPercent(occupiedRooms, roomCount);
+            const occupied = reservations.some(
+              (reservation) =>
+                reservation.checkIn.getTime() <= dayEnd.getTime() &&
+                reservation.checkOut.getTime() >= dayStart.getTime(),
+            )
+              ? 100
+              : 0;
 
             return {
               available: Math.max(0, 100 - occupied),
@@ -4476,13 +4682,20 @@ export const appRouter = createTRPCRouter({
           );
           const revenueTotal = periodEntries
             .filter((entry) => entry.type === "REVENUE")
-            .reduce((total, entry) => total + parseMoneyAmount(entry.amount), 0);
+            .reduce(
+              (total, entry) => total + parseMoneyAmount(entry.amount),
+              0,
+            );
           const expenseTotal = periodEntries
             .filter((entry) => entry.type === "EXPENSE")
-            .reduce((total, entry) => total + parseMoneyAmount(entry.amount), 0);
+            .reduce(
+              (total, entry) => total + parseMoneyAmount(entry.amount),
+              0,
+            );
           const receivables = invoices
             .filter(
-              (invoice) => invoice.status !== "PAID" && invoice.status !== "VOID",
+              (invoice) =>
+                invoice.status !== "PAID" && invoice.status !== "VOID",
             )
             .reduce(
               (total, invoice) => total + parseMoneyAmount(invoice.balanceDue),
@@ -4561,7 +4774,10 @@ export const appRouter = createTRPCRouter({
               department: "Reception",
             },
             {
-              completed: getAnalyticsPercent(laundryCompleted, laundryJobs.length),
+              completed: getAnalyticsPercent(
+                laundryCompleted,
+                laundryJobs.length,
+              ),
               department: "Laundry",
             },
             {
@@ -4587,12 +4803,17 @@ export const appRouter = createTRPCRouter({
           const taskCompletion = getAnalyticsPercent(taskCompleted, taskTotal);
           const openTasks = Math.max(taskTotal - taskCompleted, 0);
           const blockedTasks =
-            maintenanceRequests.filter((request) => request.status === "PENDING")
-              .length +
-            inventoryItems.filter((item) => item.quantity <= item.threshold).length;
+            maintenanceRequests.filter(
+              (request) => request.status === "PENDING",
+            ).length +
+            inventoryItems.filter((item) => item.quantity <= item.threshold)
+              .length;
           const blockedPercent = getAnalyticsPercent(blockedTasks, taskTotal);
           const completedPercent = taskCompletion;
-          const openPercent = Math.max(0, 100 - completedPercent - blockedPercent);
+          const openPercent = Math.max(
+            0,
+            100 - completedPercent - blockedPercent,
+          );
           const averageOccupancy = Math.round(
             occupancyData.reduce((total, item) => total + item.occupied, 0) /
               Math.max(occupancyData.length, 1),
@@ -4601,9 +4822,9 @@ export const appRouter = createTRPCRouter({
             (peak, item) => (item.occupied > peak.occupied ? item : peak),
             occupancyData[0] ?? { day: "--", occupied: 0 },
           );
-          const availableRoomNights = days.length * rooms.length;
-          const soldRoomNights = Math.round(
-            (availableRoomNights * averageOccupancy) / 100,
+          const availableResortNights = days.length;
+          const soldResortNights = Math.round(
+            (availableResortNights * averageOccupancy) / 100,
           );
           const updated = new Date().toLocaleString("en-US", {
             day: "numeric",
@@ -4641,8 +4862,8 @@ export const appRouter = createTRPCRouter({
               occupancy: [
                 ["Average occupancy", `${averageOccupancy}%`],
                 ["Peak day", `${peakDay.day} · ${peakDay.occupied}%`],
-                ["Available room nights", String(availableRoomNights)],
-                ["Sold room nights", String(soldRoomNights)],
+                ["Available resort nights", String(availableResortNights)],
+                ["Booked resort nights", String(soldResortNights)],
               ],
               revenue: [
                 ["Period revenue", formatAnalyticsMoney(revenueTotal)],
@@ -4658,19 +4879,21 @@ export const appRouter = createTRPCRouter({
             reports: [
               {
                 format: "XLSX",
-                scope: "Daily occupancy, arrivals, departures, room utilization",
+                scope:
+                  "Daily whole-resort occupancy, arrivals, and departures",
                 title: "Occupancy report",
                 updated: `${updated}`,
               },
               {
                 format: "PDF",
-                scope: "Room revenue, invoice payments, expenses, net result",
+                scope: "Resort revenue, invoice payments, expenses, net result",
                 title: "Revenue report",
                 updated: `${updated}`,
               },
               {
                 format: "CSV",
-                scope: "Housekeeping, maintenance, reception, laundry completion rate",
+                scope:
+                  "Housekeeping, maintenance, reception, laundry completion rate",
                 title: "Department task completion",
                 updated: `${updated}`,
               },
@@ -4702,11 +4925,11 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
 
-        const staffProfiles = await prisma.tenantStaffProfile.findMany({
+        const staffProfiles = await prisma.resortStaffProfile.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
             appUser: true,
@@ -4718,7 +4941,7 @@ export const appRouter = createTRPCRouter({
         });
 
         return staffProfiles.map((staffProfile) => ({
-          ...toTenantStaffOutput(staffProfile),
+          ...toResortStaffOutput(staffProfile),
           startDate: staffProfile.createdAt,
         }));
       }),
@@ -4734,7 +4957,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const appUser = await prisma.appUser.findUnique({
           where: {
             authUserId: authUser.id,
@@ -4748,36 +4971,38 @@ export const appRouter = createTRPCRouter({
             },
           },
         });
-        const isStaff = ["TENANT_STAFF", "TENANT"].includes(appUser?.role ?? "");
+        const isStaff = ["RESORT_STAFF", "RESORT"].includes(
+          appUser?.role ?? "",
+        );
         const today = getWorkdayStart();
         const activeLog = isStaff
           ? appUser?.staffProfile
-            ? await prisma.tenantTimeLog.findUnique({
-              where: {
-                staffProfileId_date: {
-                  staffProfileId: appUser.staffProfile.id,
-                  date: today,
-                },
-              },
-              include: {
-                staffProfile: {
-                  include: {
-                    appUser: true,
-                    department: true,
+            ? await prisma.resortTimeLog.findUnique({
+                where: {
+                  staffProfileId_date: {
+                    staffProfileId: appUser.staffProfile.id,
+                    date: today,
                   },
                 },
-              },
+                include: {
+                  staffProfile: {
+                    include: {
+                      appUser: true,
+                      department: true,
+                    },
+                  },
+                },
               })
             : null
           : null;
 
         return {
           isStaff,
-          tenantProfileId: tenantProfile.id,
+          resortProfileId: resortProfile.id,
           staffProfile: appUser?.staffProfile
-            ? toTenantStaffOutput(appUser.staffProfile)
+            ? toResortStaffOutput(appUser.staffProfile)
             : null,
-          todayLog: activeLog ? toTenantTimeLogOutput(activeLog) : null,
+          todayLog: activeLog ? toResortTimeLogOutput(activeLog) : null,
         };
       }),
       list: baseProcedure.query(async ({ ctx }) => {
@@ -4790,7 +5015,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const appUser = await prisma.appUser.findUnique({
           where: {
             authUserId: authUser.id,
@@ -4800,10 +5025,10 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        const logs = await prisma.tenantTimeLog.findMany({
+        const logs = await prisma.resortTimeLog.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
-            ...(appUser?.role === "TENANT_STAFF" && appUser.staffProfile
+            resortProfileId: resortProfile.id,
+            ...(appUser?.role === "RESORT_STAFF" && appUser.staffProfile
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -4825,7 +5050,7 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return logs.map(toTenantTimeLogOutput);
+        return logs.map(toResortTimeLogOutput);
       }),
       clockIn: baseProcedure.mutation(async ({ ctx }) => {
         const authUser = ctx.session?.user;
@@ -4837,7 +5062,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const appUser = await prisma.appUser.findUnique({
           where: {
             authUserId: authUser.id,
@@ -4847,25 +5072,27 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        if (!appUser || !["TENANT_STAFF", "TENANT"].includes(appUser.role)) {
+        if (!appUser || !["RESORT_STAFF", "RESORT"].includes(appUser.role)) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "Only staff can clock in.",
           });
         }
 
-        const staffProfile = appUser.staffProfile ?? await prisma.tenantStaffProfile.create({
-          data: {
-            appUserId: appUser.authUserId,
-            roleName: "Tenant owner",
-            status: "ACTIVE",
-            tenantProfileId: tenantProfile.id,
-          },
-        });
+        const staffProfile =
+          appUser.staffProfile ??
+          (await prisma.resortStaffProfile.create({
+            data: {
+              appUserId: appUser.authUserId,
+              roleName: "Resort owner",
+              status: "ACTIVE",
+              resortProfileId: resortProfile.id,
+            },
+          }));
 
         const now = new Date();
         const today = getWorkdayStart(now);
-        const existingLog = await prisma.tenantTimeLog.findUnique({
+        const existingLog = await prisma.resortTimeLog.findUnique({
           where: {
             staffProfileId_date: {
               staffProfileId: staffProfile.id,
@@ -4881,7 +5108,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const timeLog = await prisma.tenantTimeLog.upsert({
+        const timeLog = await prisma.resortTimeLog.upsert({
           where: {
             staffProfileId_date: {
               staffProfileId: staffProfile.id,
@@ -4889,7 +5116,7 @@ export const appRouter = createTRPCRouter({
             },
           },
           create: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             staffProfileId: staffProfile.id,
             date: today,
             clockIn: now,
@@ -4909,7 +5136,7 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        return toTenantTimeLogOutput(timeLog);
+        return toResortTimeLogOutput(timeLog);
       }),
       clockOut: baseProcedure.mutation(async ({ ctx }) => {
         const authUser = ctx.session?.user;
@@ -4921,7 +5148,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        await getTenantProfileForSession(authUser.id);
+        await getResortProfileForSession(authUser.id);
         const appUser = await prisma.appUser.findUnique({
           where: {
             authUserId: authUser.id,
@@ -4931,7 +5158,11 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        if (!appUser || !["TENANT_STAFF", "TENANT"].includes(appUser.role) || !appUser.staffProfile) {
+        if (
+          !appUser ||
+          !["RESORT_STAFF", "RESORT"].includes(appUser.role) ||
+          !appUser.staffProfile
+        ) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "Only staff can clock out.",
@@ -4939,7 +5170,7 @@ export const appRouter = createTRPCRouter({
         }
 
         const today = getWorkdayStart();
-        const existingLog = await prisma.tenantTimeLog.findUnique({
+        const existingLog = await prisma.resortTimeLog.findUnique({
           where: {
             staffProfileId_date: {
               staffProfileId: appUser.staffProfile.id,
@@ -4962,7 +5193,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const timeLog = await prisma.tenantTimeLog.update({
+        const timeLog = await prisma.resortTimeLog.update({
           where: {
             id: existingLog.id,
           },
@@ -4979,13 +5210,13 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        return toTenantTimeLogOutput(timeLog);
+        return toResortTimeLogOutput(timeLog);
       }),
       updateFlag: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            flag: tenantTimeLogFlagSchema,
+            flag: resortTimeLogFlagSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -4998,24 +5229,24 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
             },
           });
 
-          if (appUser?.role === "TENANT_STAFF") {
+          if (appUser?.role === "RESORT_STAFF") {
             throw new TRPCError({
               code: "FORBIDDEN",
-              message: "Only tenant admin can edit time log flags.",
+              message: "Only resort admin can edit time log flags.",
             });
           }
 
-          const existingLog = await prisma.tenantTimeLog.findFirst({
+          const existingLog = await prisma.resortTimeLog.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -5026,12 +5257,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const timeLog = await prisma.tenantTimeLog.update({
+          const timeLog = await prisma.resortTimeLog.update({
             where: {
               id: existingLog.id,
             },
             data: {
-              flag: toTenantTimeLogFlag(input.flag),
+              flag: toResortTimeLogFlag(input.flag),
             },
             include: {
               staffProfile: {
@@ -5043,7 +5274,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantTimeLogOutput(timeLog);
+          return toResortTimeLogOutput(timeLog);
         }),
     }),
     scheduling: createTRPCRouter({
@@ -5057,7 +5288,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const appUser = await prisma.appUser.findUnique({
           where: {
             authUserId: authUser.id,
@@ -5067,10 +5298,10 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        const shifts = await prisma.tenantScheduleShift.findMany({
+        const shifts = await prisma.resortScheduleShift.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
-            ...(appUser?.role === "TENANT_STAFF" && appUser.staffProfile
+            resortProfileId: resortProfile.id,
+            ...(appUser?.role === "RESORT_STAFF" && appUser.staffProfile
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5091,7 +5322,7 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return shifts.map(toTenantScheduleShiftOutput);
+        return shifts.map(toResortScheduleShiftOutput);
       }),
       save: baseProcedure
         .input(
@@ -5103,7 +5334,7 @@ export const appRouter = createTRPCRouter({
             department: optionalTrimmedString,
             startAt: z.coerce.date(),
             endAt: z.coerce.date(),
-            status: tenantScheduleShiftStatusSchema.default("Assigned"),
+            status: resortScheduleShiftStatusSchema.default("Assigned"),
             notes: optionalTrimmedString,
           }),
         )
@@ -5117,17 +5348,17 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
             },
           });
 
-          if (appUser?.role === "TENANT_STAFF") {
+          if (appUser?.role === "RESORT_STAFF") {
             throw new TRPCError({
               code: "FORBIDDEN",
-              message: "Only tenant admin can manage schedules.",
+              message: "Only resort admin can manage schedules.",
             });
           }
 
@@ -5139,10 +5370,10 @@ export const appRouter = createTRPCRouter({
           }
 
           const staffProfile = input.staffProfileId
-            ? await prisma.tenantStaffProfile.findFirst({
+            ? await prisma.resortStaffProfile.findFirst({
                 where: {
                   id: input.staffProfileId,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                 },
                 include: {
                   department: true,
@@ -5158,10 +5389,10 @@ export const appRouter = createTRPCRouter({
           }
 
           if (input.id) {
-            const existingShift = await prisma.tenantScheduleShift.findFirst({
+            const existingShift = await prisma.resortScheduleShift.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -5176,13 +5407,13 @@ export const appRouter = createTRPCRouter({
           const status =
             input.status === "Assigned" && !input.staffProfileId
               ? "OPEN"
-              : toTenantScheduleShiftStatus(input.status);
-          const shift = await prisma.tenantScheduleShift.upsert({
+              : toResortScheduleShiftStatus(input.status);
+          const shift = await prisma.resortScheduleShift.upsert({
             where: {
               id: input.id ?? "",
             },
             create: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               staffProfileId: staffProfile?.id,
               shift: input.shift,
               role: input.role,
@@ -5211,7 +5442,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantScheduleShiftOutput(shift);
+          return toResortScheduleShiftOutput(shift);
         }),
       delete: baseProcedure
         .input(
@@ -5229,24 +5460,24 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
             },
           });
 
-          if (appUser?.role === "TENANT_STAFF") {
+          if (appUser?.role === "RESORT_STAFF") {
             throw new TRPCError({
               code: "FORBIDDEN",
-              message: "Only tenant admin can delete schedules.",
+              message: "Only resort admin can delete schedules.",
             });
           }
 
-          const existingShift = await prisma.tenantScheduleShift.findFirst({
+          const existingShift = await prisma.resortScheduleShift.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -5257,7 +5488,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantScheduleShift.delete({
+          await prisma.resortScheduleShift.delete({
             where: {
               id: existingShift.id,
             },
@@ -5279,7 +5510,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const appUser = await prisma.appUser.findUnique({
           where: {
             authUserId: authUser.id,
@@ -5289,10 +5520,10 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        const requests = await prisma.tenantLeaveRequest.findMany({
+        const requests = await prisma.resortLeaveRequest.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
-            ...(appUser?.role === "TENANT_STAFF" && appUser.staffProfile
+            resortProfileId: resortProfile.id,
+            ...(appUser?.role === "RESORT_STAFF" && appUser.staffProfile
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5310,7 +5541,7 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return requests.map(toTenantLeaveRequestOutput);
+        return requests.map(toResortLeaveRequestOutput);
       }),
       save: baseProcedure
         .input(
@@ -5334,7 +5565,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
@@ -5352,7 +5583,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const staffProfileId =
-            appUser?.role === "TENANT_STAFF"
+            appUser?.role === "RESORT_STAFF"
               ? appUser.staffProfile?.id
               : input.staffProfileId;
 
@@ -5363,10 +5594,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const staffProfile = await prisma.tenantStaffProfile.findFirst({
+          const staffProfile = await prisma.resortStaffProfile.findFirst({
             where: {
               id: staffProfileId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -5378,10 +5609,10 @@ export const appRouter = createTRPCRouter({
           }
 
           if (input.id) {
-            const existingRequest = await prisma.tenantLeaveRequest.findFirst({
+            const existingRequest = await prisma.resortLeaveRequest.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -5393,12 +5624,12 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const request = await prisma.tenantLeaveRequest.upsert({
+          const request = await prisma.resortLeaveRequest.upsert({
             where: {
               id: input.id ?? "",
             },
             create: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               staffProfileId: staffProfile.id,
               leaveType: input.type,
               startDate: input.startDate,
@@ -5423,13 +5654,13 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantLeaveRequestOutput(request);
+          return toResortLeaveRequestOutput(request);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantLeaveRequestStatusSchema,
+            status: resortLeaveRequestStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -5442,24 +5673,24 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
             },
           });
 
-          if (appUser?.role === "TENANT_STAFF") {
+          if (appUser?.role === "RESORT_STAFF") {
             throw new TRPCError({
               code: "FORBIDDEN",
-              message: "Only tenant admin can approve or reject leave.",
+              message: "Only resort admin can approve or reject leave.",
             });
           }
 
-          const existingRequest = await prisma.tenantLeaveRequest.findFirst({
+          const existingRequest = await prisma.resortLeaveRequest.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -5470,13 +5701,13 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const request = await prisma.tenantLeaveRequest.update({
+          const request = await prisma.resortLeaveRequest.update({
             where: {
               id: existingRequest.id,
             },
             data: {
               reviewedAt: new Date(),
-              status: toTenantLeaveRequestStatus(input.status),
+              status: toResortLeaveRequestStatus(input.status),
             },
             include: {
               staffProfile: {
@@ -5487,7 +5718,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantLeaveRequestOutput(request);
+          return toResortLeaveRequestOutput(request);
         }),
       delete: baseProcedure
         .input(
@@ -5505,11 +5736,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const existingRequest = await prisma.tenantLeaveRequest.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const existingRequest = await prisma.resortLeaveRequest.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -5520,7 +5751,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantLeaveRequest.delete({
+          await prisma.resortLeaveRequest.delete({
             where: {
               id: existingRequest.id,
             },
@@ -5542,7 +5773,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const appUser = await prisma.appUser.findUnique({
           where: {
             authUserId: authUser.id,
@@ -5552,10 +5783,10 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        const entries = await prisma.tenantOtUndertimeEntry.findMany({
+        const entries = await prisma.resortOtUndertimeEntry.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
-            ...(appUser?.role === "TENANT_STAFF" && appUser.staffProfile
+            resortProfileId: resortProfile.id,
+            ...(appUser?.role === "RESORT_STAFF" && appUser.staffProfile
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5573,14 +5804,14 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return entries.map(toTenantOtUndertimeOutput);
+        return entries.map(toResortOtUndertimeOutput);
       }),
       save: baseProcedure
         .input(
           z.object({
             id: z.string().optional(),
             staffProfileId: optionalTrimmedString,
-            type: tenantOtUndertimeTypeSchema,
+            type: resortOtUndertimeTypeSchema,
             hours: z.string().trim().min(1, "Hours are required."),
             payPeriod: z.string().trim().min(1, "Pay period is required."),
             reason: z.string().trim().min(1, "Reason is required."),
@@ -5596,7 +5827,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
@@ -5615,7 +5846,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const staffProfileId =
-            appUser?.role === "TENANT_STAFF"
+            appUser?.role === "RESORT_STAFF"
               ? appUser.staffProfile?.id
               : input.staffProfileId;
 
@@ -5626,10 +5857,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const staffProfile = await prisma.tenantStaffProfile.findFirst({
+          const staffProfile = await prisma.resortStaffProfile.findFirst({
             where: {
               id: staffProfileId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -5641,12 +5872,14 @@ export const appRouter = createTRPCRouter({
           }
 
           if (input.id) {
-            const existingEntry = await prisma.tenantOtUndertimeEntry.findFirst({
-              where: {
-                id: input.id,
-                tenantProfileId: tenantProfile.id,
+            const existingEntry = await prisma.resortOtUndertimeEntry.findFirst(
+              {
+                where: {
+                  id: input.id,
+                  resortProfileId: resortProfile.id,
+                },
               },
-            });
+            );
 
             if (!existingEntry) {
               throw new TRPCError({
@@ -5656,21 +5889,21 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const entry = await prisma.tenantOtUndertimeEntry.upsert({
+          const entry = await prisma.resortOtUndertimeEntry.upsert({
             where: {
               id: input.id ?? "",
             },
             create: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               staffProfileId: staffProfile.id,
-              type: toTenantOtUndertimeType(input.type),
+              type: toResortOtUndertimeType(input.type),
               hours: input.hours,
               payPeriod: input.payPeriod,
               reason: input.reason,
             },
             update: {
               staffProfileId: staffProfile.id,
-              type: toTenantOtUndertimeType(input.type),
+              type: toResortOtUndertimeType(input.type),
               hours: input.hours,
               payPeriod: input.payPeriod,
               reason: input.reason,
@@ -5684,13 +5917,13 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantOtUndertimeOutput(entry);
+          return toResortOtUndertimeOutput(entry);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantOtUndertimeStatusSchema,
+            status: resortOtUndertimeStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -5703,24 +5936,24 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
             },
           });
 
-          if (appUser?.role === "TENANT_STAFF") {
+          if (appUser?.role === "RESORT_STAFF") {
             throw new TRPCError({
               code: "FORBIDDEN",
-              message: "Only tenant admin can approve or reject OT/undertime.",
+              message: "Only resort admin can approve or reject OT/undertime.",
             });
           }
 
-          const existingEntry = await prisma.tenantOtUndertimeEntry.findFirst({
+          const existingEntry = await prisma.resortOtUndertimeEntry.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -5731,13 +5964,13 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const entry = await prisma.tenantOtUndertimeEntry.update({
+          const entry = await prisma.resortOtUndertimeEntry.update({
             where: {
               id: existingEntry.id,
             },
             data: {
               reviewedAt: new Date(),
-              status: toTenantOtUndertimeStatus(input.status),
+              status: toResortOtUndertimeStatus(input.status),
             },
             include: {
               staffProfile: {
@@ -5748,7 +5981,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantOtUndertimeOutput(entry);
+          return toResortOtUndertimeOutput(entry);
         }),
       delete: baseProcedure
         .input(
@@ -5766,11 +5999,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const existingEntry = await prisma.tenantOtUndertimeEntry.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const existingEntry = await prisma.resortOtUndertimeEntry.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -5781,7 +6014,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantOtUndertimeEntry.delete({
+          await prisma.resortOtUndertimeEntry.delete({
             where: {
               id: existingEntry.id,
             },
@@ -5803,7 +6036,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const appUser = await prisma.appUser.findUnique({
           where: {
             authUserId: authUser.id,
@@ -5818,11 +6051,11 @@ export const appRouter = createTRPCRouter({
           return [];
         }
 
-        const payrollItems = await prisma.tenantPayrollItem.findMany({
+        const payrollItems = await prisma.resortPayrollItem.findMany({
           where: {
             included: true,
             staffProfileId,
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             payrollRun: {
               status: "COMPLETED",
             },
@@ -5842,10 +6075,10 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return payrollItems.map(toTenantPayrollHistoryOutput);
+        return payrollItems.map(toResortPayrollHistoryOutput);
       }),
       preview: baseProcedure
-        .input(tenantPayrollInputSchema)
+        .input(resortPayrollInputSchema)
         .query(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -5856,10 +6089,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "payroll.manage");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          await requireResortPermission(authUser.id, "payroll.manage");
+          const resortProfile = await getResortProfileForSession(authUser.id);
 
-          return buildTenantPayrollPreview(tenantProfile.id, input);
+          return buildResortPayrollPreview(resortProfile.id, input);
         }),
       get: baseProcedure
         .input(
@@ -5877,14 +6110,14 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "payroll.view");
+          await requireResortPermission(authUser.id, "payroll.view");
           if (input.id === "create") return null;
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const payrollRun = await prisma.tenantPayrollRun.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const payrollRun = await prisma.resortPayrollRun.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               items: {
@@ -5902,7 +6135,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantPayrollOutput(payrollRun);
+          return toResortPayrollOutput(payrollRun);
         }),
       list: baseProcedure.query(async ({ ctx }) => {
         const authUser = ctx.session?.user;
@@ -5914,11 +6147,11 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        await requireTenantPermission(authUser.id, "payroll.view");
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const payrollRuns = await prisma.tenantPayrollRun.findMany({
+        await requireResortPermission(authUser.id, "payroll.view");
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const payrollRuns = await prisma.resortPayrollRun.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
             items: {
@@ -5937,10 +6170,10 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return payrollRuns.map(toTenantPayrollOutput);
+        return payrollRuns.map(toResortPayrollOutput);
       }),
       save: baseProcedure
-        .input(tenantPayrollInputSchema)
+        .input(resortPayrollInputSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -5951,18 +6184,18 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "payroll.manage");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          await requireResortPermission(authUser.id, "payroll.manage");
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
             },
           });
 
-          if (appUser?.role === "TENANT_STAFF") {
+          if (appUser?.role === "RESORT_STAFF") {
             throw new TRPCError({
               code: "FORBIDDEN",
-              message: "Only tenant admin can generate payroll.",
+              message: "Only resort admin can generate payroll.",
             });
           }
 
@@ -5974,10 +6207,10 @@ export const appRouter = createTRPCRouter({
           }
 
           const existingPayrollRun = input.id
-            ? await prisma.tenantPayrollRun.findFirst({
+            ? await prisma.resortPayrollRun.findFirst({
                 where: {
                   id: input.id,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                 },
               })
             : null;
@@ -5989,16 +6222,21 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const preview = await buildTenantPayrollPreview(tenantProfile.id, input);
+          const preview = await buildResortPayrollPreview(
+            resortProfile.id,
+            input,
+          );
           if (!existingPayrollRun) {
-            const duplicatePayrollRun = await prisma.tenantPayrollRun.findFirst({
-              where: {
-                name: input.name,
-                periodEnd: preview.periodEnd,
-                periodStart: preview.periodStart,
-                tenantProfileId: tenantProfile.id,
+            const duplicatePayrollRun = await prisma.resortPayrollRun.findFirst(
+              {
+                where: {
+                  name: input.name,
+                  periodEnd: preview.periodEnd,
+                  periodStart: preview.periodStart,
+                  resortProfileId: resortProfile.id,
+                },
               },
-            });
+            );
 
             if (duplicatePayrollRun) {
               throw new TRPCError({
@@ -6011,8 +6249,8 @@ export const appRouter = createTRPCRouter({
 
           const code =
             existingPayrollRun?.code ??
-            (await getNextTenantPayrollCode(
-              tenantProfile.id,
+            (await getNextResortPayrollCode(
+              resortProfile.id,
               preview.periodStart,
             ));
           const generatedBy =
@@ -6024,7 +6262,8 @@ export const appRouter = createTRPCRouter({
             includeBasicSalary: input.includeBasicSalary,
             includeBonus: input.includeBonus,
             includeCommission: input.includeCommission,
-            includeGovernmentContributions: input.includeGovernmentContributions,
+            includeGovernmentContributions:
+              input.includeGovernmentContributions,
             includeIncentives: input.includeIncentives,
             includeLeaveDeduction: input.includeLeaveDeduction,
             includeLeaveEncashment: input.includeLeaveEncashment,
@@ -6036,7 +6275,7 @@ export const appRouter = createTRPCRouter({
 
           const payrollRun = await prisma.$transaction(async (tx) => {
             const savedRun = existingPayrollRun
-              ? await tx.tenantPayrollRun.update({
+              ? await tx.resortPayrollRun.update({
                   where: {
                     id: existingPayrollRun.id,
                   },
@@ -6048,7 +6287,7 @@ export const appRouter = createTRPCRouter({
                     employerContributions: preview.totals.employerContributions,
                     employerCost: preview.totals.employerCost,
                     excludedEmployees: preview.totals.excludedEmployees,
-                    frequency: toTenantPayrollFrequency(input.frequency),
+                    frequency: toResortPayrollFrequency(input.frequency),
                     generatedAt: new Date(),
                     generatedBy,
                     includedEmployees: preview.totals.includedEmployees,
@@ -6057,7 +6296,7 @@ export const appRouter = createTRPCRouter({
                     options,
                     payDate: input.payDate,
                     payPeriod: preview.payPeriod,
-                    payType: toTenantPayrollPayType(input.payType),
+                    payType: toResortPayrollPayType(input.payType),
                     periodEnd: preview.periodEnd,
                     periodStart: preview.periodStart,
                     status: "COMPLETED",
@@ -6079,7 +6318,7 @@ export const appRouter = createTRPCRouter({
                       preview.totals.totalUndertimeDeductions,
                   },
                 })
-              : await tx.tenantPayrollRun.create({
+              : await tx.resortPayrollRun.create({
                   data: {
                     code,
                     department:
@@ -6089,7 +6328,7 @@ export const appRouter = createTRPCRouter({
                     employerContributions: preview.totals.employerContributions,
                     employerCost: preview.totals.employerCost,
                     excludedEmployees: preview.totals.excludedEmployees,
-                    frequency: toTenantPayrollFrequency(input.frequency),
+                    frequency: toResortPayrollFrequency(input.frequency),
                     generatedAt: new Date(),
                     generatedBy,
                     includedEmployees: preview.totals.includedEmployees,
@@ -6098,11 +6337,11 @@ export const appRouter = createTRPCRouter({
                     options,
                     payDate: input.payDate,
                     payPeriod: preview.payPeriod,
-                    payType: toTenantPayrollPayType(input.payType),
+                    payType: toResortPayrollPayType(input.payType),
                     periodEnd: preview.periodEnd,
                     periodStart: preview.periodStart,
                     status: "COMPLETED",
-                    tenantProfileId: tenantProfile.id,
+                    resortProfileId: resortProfile.id,
                     totalAllowances: preview.totals.totalAllowances,
                     totalBasicSalary: preview.totals.totalBasicSalary,
                     totalBonus: preview.totals.totalBonus,
@@ -6122,14 +6361,14 @@ export const appRouter = createTRPCRouter({
                   },
                 });
 
-            await tx.tenantPayrollItem.deleteMany({
+            await tx.resortPayrollItem.deleteMany({
               where: {
                 payrollRunId: savedRun.id,
               },
             });
 
             if (preview.employees.length > 0) {
-              await tx.tenantPayrollItem.createMany({
+              await tx.resortPayrollItem.createMany({
                 data: preview.employees.map((employee) => ({
                   absentCount: employee.absentCount,
                   allowance: employee.allowances,
@@ -6156,7 +6395,7 @@ export const appRouter = createTRPCRouter({
                   regularHours: employee.regularHours,
                   roleName: employee.position,
                   staffProfileId: employee.staffProfileId,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                   totalDeductions: employee.totalDeductions,
                   undertimeDeduction: employee.undertimeDeduction,
                   undertimeHours: employee.undertimeHours,
@@ -6165,7 +6404,7 @@ export const appRouter = createTRPCRouter({
               });
             }
 
-            return tx.tenantPayrollRun.findUniqueOrThrow({
+            return tx.resortPayrollRun.findUniqueOrThrow({
               where: {
                 id: savedRun.id,
               },
@@ -6179,7 +6418,7 @@ export const appRouter = createTRPCRouter({
             });
           });
 
-          return toTenantPayrollOutput(payrollRun);
+          return toResortPayrollOutput(payrollRun);
         }),
       delete: baseProcedure
         .input(
@@ -6197,12 +6436,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "payroll.manage");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const payrollRun = await prisma.tenantPayrollRun.findFirst({
+          await requireResortPermission(authUser.id, "payroll.manage");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const payrollRun = await prisma.resortPayrollRun.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -6213,7 +6452,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantPayrollRun.delete({
+          await prisma.resortPayrollRun.delete({
             where: {
               id: payrollRun.id,
             },
@@ -6235,14 +6474,14 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        await requireAnyTenantPermission(authUser.id, [
+        await requireAnyResortPermission(authUser.id, [
           "usersRoles.view",
           "usersRoles.permissions.manage",
         ]);
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const roles = await prisma.tenantAccessRole.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const roles = await prisma.resortAccessRole.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
             _count: {
@@ -6256,7 +6495,7 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        return roles.map(toTenantAccessRoleOutput);
+        return roles.map(toResortAccessRoleOutput);
       }),
       get: baseProcedure
         .input(
@@ -6274,15 +6513,15 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireAnyTenantPermission(authUser.id, [
+          await requireAnyResortPermission(authUser.id, [
             "usersRoles.view",
             "usersRoles.permissions.manage",
           ]);
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const role = await prisma.tenantAccessRole.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const role = await prisma.resortAccessRole.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               _count: {
@@ -6300,10 +6539,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantAccessRoleOutput(role);
+          return toResortAccessRoleOutput(role);
         }),
       save: baseProcedure
-        .input(tenantAccessRoleSchema)
+        .input(resortAccessRoleSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -6314,13 +6553,16 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "usersRoles.permissions.manage");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          await requireResortPermission(
+            authUser.id,
+            "usersRoles.permissions.manage",
+          );
+          const resortProfile = await getResortProfileForSession(authUser.id);
           if (input.id) {
-            const existingRole = await prisma.tenantAccessRole.findFirst({
+            const existingRole = await prisma.resortAccessRole.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -6332,9 +6574,9 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const duplicate = await prisma.tenantAccessRole.findFirst({
+          const duplicate = await prisma.resortAccessRole.findFirst({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               name: input.name,
               ...(input.id
                 ? {
@@ -6354,7 +6596,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const role = input.id
-            ? await prisma.tenantAccessRole.update({
+            ? await prisma.resortAccessRole.update({
                 where: {
                   id: input.id,
                 },
@@ -6362,16 +6604,6 @@ export const appRouter = createTRPCRouter({
                   name: input.name,
                   description: input.description,
                   permissions: input.permissions,
-                  staffProfiles: {
-                    updateMany: {
-                      where: {
-                        tenantProfileId: tenantProfile.id,
-                      },
-                      data: {
-                        roleName: input.name,
-                      },
-                    },
-                  },
                 },
                 include: {
                   _count: {
@@ -6381,9 +6613,9 @@ export const appRouter = createTRPCRouter({
                   },
                 },
               })
-            : await prisma.tenantAccessRole.create({
+            : await prisma.resortAccessRole.create({
                 data: {
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                   name: input.name,
                   description: input.description,
                   permissions: input.permissions,
@@ -6397,7 +6629,7 @@ export const appRouter = createTRPCRouter({
                 },
               });
 
-          return toTenantAccessRoleOutput(role);
+          return toResortAccessRoleOutput(role);
         }),
       delete: baseProcedure
         .input(
@@ -6415,12 +6647,15 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "usersRoles.permissions.manage");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const role = await prisma.tenantAccessRole.findFirst({
+          await requireResortPermission(
+            authUser.id,
+            "usersRoles.permissions.manage",
+          );
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const role = await prisma.resortAccessRole.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               _count: {
@@ -6441,11 +6676,12 @@ export const appRouter = createTRPCRouter({
           if (role._count.staffProfiles > 0) {
             throw new TRPCError({
               code: "CONFLICT",
-              message: "Role is assigned to users. Move users before deleting it.",
+              message:
+                "Role is assigned to users. Move users before deleting it.",
             });
           }
 
-          await prisma.tenantAccessRole.delete({
+          await prisma.resortAccessRole.delete({
             where: {
               id: input.id,
             },
@@ -6467,12 +6703,12 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const now = new Date();
 
-        await prisma.tenantStaffInvitation.updateMany({
+        await prisma.resortStaffInvitation.updateMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             status: "PENDING",
             expiresAt: {
               lte: now,
@@ -6483,12 +6719,29 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        const staffProfiles = await prisma.tenantStaffProfile.findMany({
+        const staffProfiles = await prisma.resortStaffProfile.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
-            appUser: true,
+            appUser: {
+              include: {
+                authUser: {
+                  select: {
+                    image: true,
+                    sessions: {
+                      orderBy: {
+                        updatedAt: "desc",
+                      },
+                      take: 1,
+                      select: {
+                        updatedAt: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
             accessRole: true,
             department: true,
           },
@@ -6496,9 +6749,9 @@ export const appRouter = createTRPCRouter({
             createdAt: "desc",
           },
         });
-        const invitations = await prisma.tenantStaffInvitation.findMany({
+        const invitations = await prisma.resortStaffInvitation.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             status: "PENDING",
             expiresAt: {
               gt: now,
@@ -6510,10 +6763,61 @@ export const appRouter = createTRPCRouter({
         });
 
         return [
-          ...staffProfiles.map(toTenantStaffOutput),
-          ...invitations.map(toTenantStaffInvitationOutput),
+          ...staffProfiles.map(toResortStaffOutput),
+          ...invitations.map(toResortStaffInvitationOutput),
         ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       }),
+      activity: baseProcedure
+        .input(
+          z.object({
+            staffProfileId: z.string(),
+          }),
+        )
+        .query(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+
+          if (!authUser?.id) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Sign in required.",
+            });
+          }
+
+          await requireResortPermission(authUser.id, "usersRoles.view");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const staffProfile = await prisma.resortStaffProfile.findFirst({
+            where: {
+              id: input.staffProfileId,
+              resortProfileId: resortProfile.id,
+            },
+            select: { id: true },
+          });
+
+          if (!staffProfile) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Staff user not found.",
+            });
+          }
+
+          return prisma.resortStaffActivityLog.findMany({
+            where: {
+              staffProfileId: staffProfile.id,
+              resortProfileId: resortProfile.id,
+            },
+            orderBy: { createdAt: "desc" },
+            take: 100,
+            select: {
+              id: true,
+              action: true,
+              title: true,
+              detail: true,
+              ipAddress: true,
+              userAgent: true,
+              createdAt: true,
+            },
+          });
+        }),
       get: baseProcedure
         .input(
           z.object({
@@ -6530,12 +6834,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "usersRoles.view");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const staffProfile = await prisma.tenantStaffProfile.findFirst({
+          await requireResortPermission(authUser.id, "usersRoles.view");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const staffProfile = await prisma.resortStaffProfile.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               appUser: true,
@@ -6550,10 +6854,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantStaffOutput(staffProfile);
+          return toResortStaffOutput(staffProfile);
         }),
       save: baseProcedure
-        .input(tenantStaffProfileSchema)
+        .input(resortStaffProfileSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -6564,20 +6868,20 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireAnyTenantPermission(authUser.id, [
+          await requireAnyResortPermission(authUser.id, [
             input.id ? "usersRoles.update" : "usersRoles.create",
             "usersRoles.permissions.manage",
           ]);
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const firstName = input.firstName ?? "";
           const lastName = input.lastName ?? "";
           const username = input.username?.toLowerCase() ?? null;
           const departmentId = input.departmentId || null;
-          const status = toTenantStaffStatus(input.status);
-          const accessRole = await resolveTenantAccessRole({
+          const status = toResortStaffStatus(input.status);
+          const accessRole = await resolveResortAccessRole({
             accessRoleId: input.accessRoleId,
             roleName: input.roleName,
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           });
           const payrollData = {
             employmentType: input.employmentType || "Regular",
@@ -6596,10 +6900,10 @@ export const appRouter = createTRPCRouter({
           };
 
           if (departmentId) {
-            const department = await prisma.tenantDepartment.findFirst({
+            const department = await prisma.resortDepartment.findFirst({
               where: {
                 id: departmentId,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -6612,10 +6916,10 @@ export const appRouter = createTRPCRouter({
           }
 
           if (input.id) {
-            const existingStaff = await prisma.tenantStaffProfile.findFirst({
+            const existingStaff = await prisma.resortStaffProfile.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -6626,14 +6930,16 @@ export const appRouter = createTRPCRouter({
               });
             }
 
-            const duplicateUsername = await prisma.tenantStaffProfile.findFirst({
-              where: {
-                username: username ?? undefined,
-                id: {
-                  not: input.id,
+            const duplicateUsername = await prisma.resortStaffProfile.findFirst(
+              {
+                where: {
+                  username: username ?? undefined,
+                  id: {
+                    not: input.id,
+                  },
                 },
               },
-            });
+            );
 
             if (username && duplicateUsername) {
               throw new TRPCError({
@@ -6660,7 +6966,9 @@ export const appRouter = createTRPCRouter({
               });
             }
 
-            const email = input.email?.toLowerCase() ?? makeInternalStaffEmail(existingStaff.appUserId);
+            const email =
+              input.email?.toLowerCase() ??
+              makeInternalStaffEmail(existingStaff.appUserId);
             const displayName =
               `${firstName} ${lastName}`.trim() ||
               username ||
@@ -6686,7 +6994,7 @@ export const appRouter = createTRPCRouter({
                   firstName,
                   lastName,
                   displayName,
-                  role: "TENANT_STAFF",
+                  role: "RESORT_STAFF",
                 },
               });
 
@@ -6710,7 +7018,7 @@ export const appRouter = createTRPCRouter({
                 });
               }
 
-              return tx.tenantStaffProfile.update({
+              return tx.resortStaffProfile.update({
                 where: {
                   id: input.id,
                 },
@@ -6734,11 +7042,36 @@ export const appRouter = createTRPCRouter({
               });
             });
 
-            return toTenantStaffOutput(staffProfile);
+            await recordStaffActivityForProfile({
+              resortProfileId: resortProfile.id,
+              staffProfileId: staffProfile.id,
+              actorAuthUserId: authUser.id,
+              action:
+                existingStaff.accessRoleId !== accessRole.id
+                  ? STAFF_ACTIVITY_ACTIONS.roleUpdated
+                  : input.password
+                    ? STAFF_ACTIVITY_ACTIONS.passwordChanged
+                    : STAFF_ACTIVITY_ACTIONS.profileUpdated,
+              title:
+                existingStaff.accessRoleId !== accessRole.id
+                  ? "Role updated"
+                  : input.password
+                    ? "Password changed"
+                    : "Staff profile updated",
+              detail:
+                existingStaff.accessRoleId !== accessRole.id
+                  ? `Assigned the ${accessRole.name} role.`
+                  : input.password
+                    ? "An administrator changed this staff account password."
+                    : "An administrator updated this staff account.",
+            });
+
+            return toResortStaffOutput(staffProfile);
           }
 
           const authUserId = generateRandomString(32);
-          const email = input.email?.toLowerCase() ?? makeInternalStaffEmail(authUserId);
+          const email =
+            input.email?.toLowerCase() ?? makeInternalStaffEmail(authUserId);
           const displayName =
             `${firstName} ${lastName}`.trim() ||
             username ||
@@ -6753,7 +7086,7 @@ export const appRouter = createTRPCRouter({
                 })
               : null,
             username
-              ? prisma.tenantStaffProfile.findFirst({
+              ? prisma.resortStaffProfile.findFirst({
                   where: {
                     username,
                   },
@@ -6808,13 +7141,13 @@ export const appRouter = createTRPCRouter({
                 firstName,
                 lastName,
                 displayName,
-                role: "TENANT_STAFF",
+                role: "RESORT_STAFF",
               },
             });
 
-            return tx.tenantStaffProfile.create({
+            return tx.resortStaffProfile.create({
               data: {
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 appUserId: authUserId,
                 username,
                 phoneNumber: input.phoneNumber,
@@ -6835,7 +7168,16 @@ export const appRouter = createTRPCRouter({
             });
           });
 
-          return toTenantStaffOutput(staffProfile);
+          await recordStaffActivityForProfile({
+            resortProfileId: resortProfile.id,
+            staffProfileId: staffProfile.id,
+            actorAuthUserId: authUser.id,
+            action: STAFF_ACTIVITY_ACTIONS.accountCreated,
+            title: "Staff account created",
+            detail: `Created with the ${accessRole.name} role.`,
+          });
+
+          return toResortStaffOutput(staffProfile);
         }),
       suspend: baseProcedure
         .input(
@@ -6853,12 +7195,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "usersRoles.update");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const staffProfile = await prisma.tenantStaffProfile.findFirst({
+          await requireResortPermission(authUser.id, "usersRoles.update");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const staffProfile = await prisma.resortStaffProfile.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               appUser: true,
@@ -6868,16 +7210,16 @@ export const appRouter = createTRPCRouter({
           });
 
           if (!staffProfile) {
-            const invitation = await prisma.tenantStaffInvitation.findFirst({
+            const invitation = await prisma.resortStaffInvitation.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 status: "PENDING",
               },
             });
 
             if (invitation) {
-              await prisma.tenantStaffInvitation.update({
+              await prisma.resortStaffInvitation.update({
                 where: {
                   id: invitation.id,
                 },
@@ -6897,7 +7239,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const suspendedStaff = await prisma.tenantStaffProfile.update({
+          const suspendedStaff = await prisma.resortStaffProfile.update({
             where: {
               id: input.id,
             },
@@ -6911,7 +7253,75 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantStaffOutput(suspendedStaff);
+          await recordStaffActivityForProfile({
+            resortProfileId: resortProfile.id,
+            staffProfileId: suspendedStaff.id,
+            actorAuthUserId: authUser.id,
+            action: STAFF_ACTIVITY_ACTIONS.statusUpdated,
+            title: "Staff access suspended",
+            detail: "An administrator suspended access to the staff workspace.",
+          });
+
+          return toResortStaffOutput(suspendedStaff);
+        }),
+      activate: baseProcedure
+        .input(
+          z.object({
+            id: z.string(),
+          }),
+        )
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+
+          if (!authUser?.id) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Sign in required.",
+            });
+          }
+
+          await requireResortPermission(authUser.id, "usersRoles.update");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const staffProfile = await prisma.resortStaffProfile.findFirst({
+            where: {
+              id: input.id,
+              resortProfileId: resortProfile.id,
+              status: "SUSPENDED",
+            },
+          });
+
+          if (!staffProfile) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Suspended staff account not found.",
+            });
+          }
+
+          const activeStaff = await prisma.resortStaffProfile.update({
+            where: {
+              id: staffProfile.id,
+            },
+            data: {
+              status: "ACTIVE",
+            },
+            include: {
+              appUser: true,
+              accessRole: true,
+              department: true,
+            },
+          });
+
+          await recordStaffActivityForProfile({
+            resortProfileId: resortProfile.id,
+            staffProfileId: activeStaff.id,
+            actorAuthUserId: authUser.id,
+            action: STAFF_ACTIVITY_ACTIONS.statusUpdated,
+            title: "Staff access restored",
+            detail:
+              "An administrator reactivated access to the staff workspace.",
+          });
+
+          return toResortStaffOutput(activeStaff);
         }),
       delete: baseProcedure
         .input(
@@ -6929,26 +7339,26 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "usersRoles.delete");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const staffProfile = await prisma.tenantStaffProfile.findFirst({
+          await requireResortPermission(authUser.id, "usersRoles.delete");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const staffProfile = await prisma.resortStaffProfile.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
           if (!staffProfile) {
-            const invitation = await prisma.tenantStaffInvitation.findFirst({
+            const invitation = await prisma.resortStaffInvitation.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 status: "PENDING",
               },
             });
 
             if (invitation) {
-              await prisma.tenantStaffInvitation.update({
+              await prisma.resortStaffInvitation.update({
                 where: {
                   id: invitation.id,
                 },
@@ -6979,7 +7389,7 @@ export const appRouter = createTRPCRouter({
           };
         }),
       invite: baseProcedure
-        .input(tenantStaffInviteSchema)
+        .input(resortStaffInviteSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -6990,14 +7400,14 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "usersRoles.create");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          await requireResortPermission(authUser.id, "usersRoles.create");
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const normalizedEmail = input.email.toLowerCase();
           const now = new Date();
           const [pendingInvitation, existingStaff] = await Promise.all([
-            prisma.tenantStaffInvitation.findFirst({
+            prisma.resortStaffInvitation.findFirst({
               where: {
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 status: "PENDING",
                 expiresAt: { gt: now },
                 email: {
@@ -7007,9 +7417,9 @@ export const appRouter = createTRPCRouter({
               },
               select: { id: true },
             }),
-            prisma.tenantStaffProfile.findFirst({
+            prisma.resortStaffProfile.findFirst({
               where: {
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 appUser: {
                   email: {
                     equals: normalizedEmail,
@@ -7024,7 +7434,8 @@ export const appRouter = createTRPCRouter({
           if (pendingInvitation || existingStaff) {
             throw new TRPCError({
               code: "CONFLICT",
-              message: "A pending invitation or staff account already exists for this email.",
+              message:
+                "A pending invitation or staff account already exists for this email.",
             });
           }
 
@@ -7033,22 +7444,21 @@ export const appRouter = createTRPCRouter({
             process.env.BETTER_AUTH_URL ??
             "http://localhost:3000";
           const workspaceName =
-            tenantProfile.resortName ??
-            tenantProfile.businessName ??
-            "ResortCloud workspace";
-          const accessRole = await resolveTenantAccessRole({
+            resortProfile.resortName ??
+            "Alrio Private Resort";
+          const accessRole = await resolveResortAccessRole({
             accessRoleId: input.accessRoleId,
             roleName: input.roleName,
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           });
           const token = generateInviteToken();
-          const invitation = await prisma.tenantStaffInvitation.create({
+          const invitation = await prisma.resortStaffInvitation.create({
             data: {
               email: normalizedEmail,
               expiresAt: getInviteExpiresAt(),
               message: input.message,
               roleName: accessRole.name,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               tokenHash: hashInviteToken(token),
             },
           });
@@ -7063,7 +7473,7 @@ export const appRouter = createTRPCRouter({
               workspaceName,
             });
           } catch (error) {
-            await prisma.tenantStaffInvitation.delete({
+            await prisma.resortStaffInvitation.delete({
               where: {
                 id: invitation.id,
               },
@@ -7083,6 +7493,298 @@ export const appRouter = createTRPCRouter({
             sent: true,
           };
         }),
+      resendInvitation: baseProcedure
+        .input(
+          z.object({
+            id: z.string(),
+          }),
+        )
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+
+          if (!authUser?.id) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Sign in required.",
+            });
+          }
+
+          await requireResortPermission(authUser.id, "usersRoles.create");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const invitation = await prisma.resortStaffInvitation.findFirst({
+            where: {
+              id: input.id,
+              resortProfileId: resortProfile.id,
+              status: "PENDING",
+            },
+          });
+
+          if (!invitation) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Pending invitation not found.",
+            });
+          }
+
+          const appUrl =
+            process.env.NEXT_PUBLIC_APP_URL ??
+            process.env.BETTER_AUTH_URL ??
+            "http://localhost:3000";
+          const workspaceName =
+            resortProfile.resortName ?? "Alrio Private Resort";
+          const token = generateInviteToken();
+          const expiresAt = getInviteExpiresAt();
+
+          await prisma.resortStaffInvitation.update({
+            where: { id: invitation.id },
+            data: {
+              expiresAt,
+              tokenHash: hashInviteToken(token),
+            },
+          });
+
+          try {
+            await sendStaffInviteEmail({
+              appUrl,
+              email: invitation.email,
+              message: invitation.message ?? undefined,
+              role: invitation.roleName,
+              token,
+              workspaceName,
+            });
+          } catch (error) {
+            await prisma.resortStaffInvitation.update({
+              where: { id: invitation.id },
+              data: {
+                expiresAt: invitation.expiresAt,
+                tokenHash: invitation.tokenHash,
+              },
+            });
+
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message:
+                error instanceof Error
+                  ? error.message
+                  : "Unable to resend invitation email.",
+            });
+          }
+
+          return {
+            invitationId: invitation.id,
+            sent: true,
+          };
+        }),
+    }),
+    guests: createTRPCRouter({
+      list: baseProcedure.query(async ({ ctx }) => {
+        const authUser = ctx.session?.user;
+
+        if (!authUser?.id) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Sign in required.",
+          });
+        }
+
+        await requireResortPermission(
+          authUser.id,
+          "guestExperience.profiles.manage",
+        );
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const registeredGuests = await prisma.appUser.findMany({
+          where: {
+            resortProfile: { is: null },
+            staffProfile: { is: null },
+          },
+          include: {
+            authUser: {
+              select: {
+                image: true,
+                sessions: {
+                  orderBy: { updatedAt: "desc" },
+                  select: { updatedAt: true },
+                  take: 1,
+                },
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        });
+        const emails = registeredGuests.map((guest) => guest.email);
+        const reservations = emails.length
+          ? await prisma.resortReservation.findMany({
+              where: {
+                resortProfileId: resortProfile.id,
+                guestEmail: {
+                  in: emails,
+                  mode: "insensitive",
+                },
+              },
+              select: {
+                checkIn: true,
+                checkOut: true,
+                guestEmail: true,
+                guestPhone: true,
+                status: true,
+              },
+              orderBy: { checkIn: "desc" },
+            })
+          : [];
+        const reservationsByEmail = new Map<string, typeof reservations>();
+
+        reservations.forEach((reservation) => {
+          const email = reservation.guestEmail?.trim().toLowerCase();
+          if (!email) return;
+          const current = reservationsByEmail.get(email) ?? [];
+          current.push(reservation);
+          reservationsByEmail.set(email, current);
+        });
+
+        const now = new Date();
+
+        return registeredGuests.map((guest) => {
+          const parsedProfile = guestProfileSchema.safeParse(
+            guest.guestProfile,
+          );
+          const profile = parsedProfile.success
+            ? parsedProfile.data
+            : guestProfileSchema.parse({});
+          const guestReservations =
+            reservationsByEmail.get(guest.email.trim().toLowerCase()) ?? [];
+          const completedReservations = guestReservations
+            .filter(
+              (reservation) =>
+                reservation.checkOut < now && reservation.status !== "CANCELED",
+            )
+            .sort((a, b) => b.checkOut.getTime() - a.checkOut.getTime());
+          const upcomingReservations = guestReservations
+            .filter(
+              (reservation) =>
+                reservation.checkIn >= now && reservation.status !== "CANCELED",
+            )
+            .sort((a, b) => a.checkIn.getTime() - b.checkIn.getTime());
+          const profileValues = [
+            profile.stayStyle,
+            profile.visitOccasion,
+            profile.groupType,
+            profile.favoriteActivity,
+            profile.preferredSchedule,
+            profile.diningPreference,
+            profile.celebrationStyle,
+            profile.relaxationStyle,
+            profile.musicPreference,
+            profile.languages,
+            profile.specialRequests,
+            profile.location,
+            profile.about,
+            ...profile.interests,
+          ];
+          const completedProfileFields =
+            profileValues.filter((value) => value.trim()).length +
+            (profile.homeLocation ? 1 : 0);
+          const profileStatus =
+            completedProfileFields >= 5
+              ? "Complete"
+              : completedProfileFields > 0
+                ? "Started"
+                : "Basic";
+          const homeLocation = profile.homeLocation
+            ? [profile.homeLocation.cityName, profile.homeLocation.provinceName]
+                .filter(Boolean)
+                .join(", ")
+            : profile.location;
+
+          return {
+            id: guest.authUserId,
+            displayName: guest.displayName,
+            firstName: guest.firstName,
+            lastName: guest.lastName,
+            email: guest.email,
+            image: guest.authUser.image,
+            phone:
+              guestReservations.find((reservation) => reservation.guestPhone)
+                ?.guestPhone ?? null,
+            location: homeLocation || "Not provided",
+            bookingCount: guestReservations.length,
+            lastVisit: completedReservations[0]?.checkOut ?? null,
+            nextVisit: upcomingReservations[0]?.checkIn ?? null,
+            createdAt: guest.createdAt,
+            lastActive: guest.authUser.sessions[0]?.updatedAt ?? null,
+            accountStatus: guest.guestDisabledAt
+              ? ("Disabled" as const)
+              : ("Active" as const),
+            profileStatus,
+            about: profile.about,
+            interests: profile.interests,
+            preferences: {
+              stayStyle: profile.stayStyle,
+              visitOccasion: profile.visitOccasion,
+              groupType: profile.groupType,
+              favoriteActivity: profile.favoriteActivity,
+              preferredSchedule: profile.preferredSchedule,
+              diningPreference: profile.diningPreference,
+              specialRequests: profile.specialRequests,
+            },
+          };
+        });
+      }),
+      setAccountStatus: baseProcedure
+        .input(
+          z.object({
+            guestId: z.string().trim().min(1),
+            status: z.enum(["Active", "Disabled"]),
+          }),
+        )
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+
+          if (!authUser?.id) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Sign in required.",
+            });
+          }
+
+          await requireResortPermission(
+            authUser.id,
+            "guestExperience.profiles.manage",
+          );
+
+          const guest = await prisma.appUser.findFirst({
+            where: {
+              authUserId: input.guestId,
+              resortProfile: { is: null },
+              staffProfile: { is: null },
+            },
+            select: { authUserId: true },
+          });
+
+          if (!guest) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Guest account not found.",
+            });
+          }
+
+          await prisma.$transaction(async (transaction) => {
+            await transaction.appUser.update({
+              where: { authUserId: guest.authUserId },
+              data: {
+                guestDisabledAt:
+                  input.status === "Disabled" ? new Date() : null,
+              },
+            });
+
+            if (input.status === "Disabled") {
+              await transaction.session.deleteMany({
+                where: { userId: guest.authUserId },
+              });
+            }
+          });
+
+          return { id: guest.authUserId, status: input.status };
+        }),
     }),
     departments: createTRPCRouter({
       list: baseProcedure.query(async ({ ctx }) => {
@@ -7095,11 +7797,11 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        await requireTenantPermission(authUser.id, "departments.view");
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const departments = await prisma.tenantDepartment.findMany({
+        await requireResortPermission(authUser.id, "departments.view");
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const departments = await prisma.resortDepartment.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
             headStaffProfile: {
@@ -7118,7 +7820,7 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        return departments.map(toTenantDepartmentOutput);
+        return departments.map(toResortDepartmentOutput);
       }),
       get: baseProcedure
         .input(
@@ -7136,12 +7838,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "departments.view");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const department = await prisma.tenantDepartment.findFirst({
+          await requireResortPermission(authUser.id, "departments.view");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const department = await prisma.resortDepartment.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               headStaffProfile: {
@@ -7164,10 +7866,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantDepartmentOutput(department);
+          return toResortDepartmentOutput(department);
         }),
       save: baseProcedure
-        .input(tenantDepartmentSchema)
+        .input(resortDepartmentSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -7178,7 +7880,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const code = input.code.toUpperCase();
           const selectedStaffIds = Array.from(new Set(input.staffProfileIds));
           const headStaffProfileId =
@@ -7188,12 +7890,12 @@ export const appRouter = createTRPCRouter({
               : null;
 
           if (selectedStaffIds.length) {
-            const staffCount = await prisma.tenantStaffProfile.count({
+            const staffCount = await prisma.resortStaffProfile.count({
               where: {
                 id: {
                   in: selectedStaffIds,
                 },
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -7206,10 +7908,10 @@ export const appRouter = createTRPCRouter({
           }
 
           if (input.id) {
-            const existingDepartment = await prisma.tenantDepartment.findFirst({
+            const existingDepartment = await prisma.resortDepartment.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -7221,9 +7923,9 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const duplicateCode = await prisma.tenantDepartment.findFirst({
+          const duplicateCode = await prisma.resortDepartment.findFirst({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               code,
               id: input.id
                 ? {
@@ -7242,7 +7944,7 @@ export const appRouter = createTRPCRouter({
 
           const department = await prisma.$transaction(async (tx) => {
             const savedDepartment = input.id
-              ? await tx.tenantDepartment.update({
+              ? await tx.resortDepartment.update({
                   where: {
                     id: input.id,
                   },
@@ -7253,28 +7955,28 @@ export const appRouter = createTRPCRouter({
                     email: input.email,
                     notes: input.notes,
                     routing: input.routing,
-                    status: toTenantDepartmentStatus(input.status),
+                    status: toResortDepartmentStatus(input.status),
                     headStaffProfileId: null,
                   },
                 })
-              : await tx.tenantDepartment.create({
+              : await tx.resortDepartment.create({
                   data: {
-                    tenantProfileId: tenantProfile.id,
+                    resortProfileId: resortProfile.id,
                     name: input.name,
                     code,
                     description: input.description,
                     email: input.email,
                     notes: input.notes,
                     routing: input.routing,
-                    status: toTenantDepartmentStatus(input.status),
+                    status: toResortDepartmentStatus(input.status),
                     headStaffProfileId: null,
                   },
                 });
 
             if (selectedStaffIds.length) {
-              await tx.tenantDepartment.updateMany({
+              await tx.resortDepartment.updateMany({
                 where: {
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                   headStaffProfileId: {
                     in: selectedStaffIds,
                   },
@@ -7289,9 +7991,9 @@ export const appRouter = createTRPCRouter({
             }
 
             if (headStaffProfileId) {
-              await tx.tenantDepartment.updateMany({
+              await tx.resortDepartment.updateMany({
                 where: {
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                   headStaffProfileId,
                   id: {
                     not: savedDepartment.id,
@@ -7302,7 +8004,7 @@ export const appRouter = createTRPCRouter({
                 },
               });
 
-              await tx.tenantDepartment.update({
+              await tx.resortDepartment.update({
                 where: {
                   id: savedDepartment.id,
                 },
@@ -7312,9 +8014,9 @@ export const appRouter = createTRPCRouter({
               });
             }
 
-            await tx.tenantStaffProfile.updateMany({
+            await tx.resortStaffProfile.updateMany({
               where: {
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 departmentId: savedDepartment.id,
                 id: {
                   notIn: selectedStaffIds,
@@ -7327,9 +8029,9 @@ export const appRouter = createTRPCRouter({
             });
 
             if (selectedStaffIds.length) {
-              await tx.tenantStaffProfile.updateMany({
+              await tx.resortStaffProfile.updateMany({
                 where: {
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                   id: {
                     in: selectedStaffIds,
                   },
@@ -7342,7 +8044,7 @@ export const appRouter = createTRPCRouter({
             }
 
             if (headStaffProfileId) {
-              await tx.tenantStaffProfile.update({
+              await tx.resortStaffProfile.update({
                 where: {
                   id: headStaffProfileId,
                 },
@@ -7352,7 +8054,7 @@ export const appRouter = createTRPCRouter({
               });
             }
 
-            return tx.tenantDepartment.findUniqueOrThrow({
+            return tx.resortDepartment.findUniqueOrThrow({
               where: {
                 id: savedDepartment.id,
               },
@@ -7371,13 +8073,13 @@ export const appRouter = createTRPCRouter({
             });
           });
 
-          return toTenantDepartmentOutput(department);
+          return toResortDepartmentOutput(department);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantDepartmentStatusSchema,
+            status: resortDepartmentStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -7390,11 +8092,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const department = await prisma.tenantDepartment.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const department = await prisma.resortDepartment.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -7405,12 +8107,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantDepartment.update({
+          await prisma.resortDepartment.update({
             where: {
               id: input.id,
             },
             data: {
-              status: toTenantDepartmentStatus(input.status),
+              status: toResortDepartmentStatus(input.status),
             },
           });
 
@@ -7434,12 +8136,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await requireTenantPermission(authUser.id, "departments.manage");
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const department = await prisma.tenantDepartment.findFirst({
+          await requireResortPermission(authUser.id, "departments.manage");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const department = await prisma.resortDepartment.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -7450,7 +8152,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantDepartment.delete({
+          await prisma.resortDepartment.delete({
             where: {
               id: input.id,
             },
@@ -7472,10 +8174,10 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const rooms = await prisma.tenantRoom.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const rooms = await prisma.resortRoom.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
             amenities: {
@@ -7498,7 +8200,7 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        return rooms.map(toTenantRoomOutput);
+        return rooms.map(toResortRoomOutput);
       }),
       get: baseProcedure
         .input(
@@ -7516,11 +8218,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const room = await prisma.tenantRoom.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const room = await prisma.resortRoom.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               amenities: {
@@ -7547,10 +8249,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantRoomOutput(room);
+          return toResortRoomOutput(room);
         }),
       save: baseProcedure
-        .input(tenantRoomSchema)
+        .input(resortRoomSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -7561,17 +8263,17 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const code = input.code.toUpperCase();
           const amenityIds = Array.from(new Set(input.amenityIds));
 
           if (amenityIds.length) {
-            const amenityCount = await prisma.tenantAmenity.count({
+            const amenityCount = await prisma.resortAmenity.count({
               where: {
                 id: {
                   in: amenityIds,
                 },
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 status: "ACTIVE",
               },
             });
@@ -7585,10 +8287,10 @@ export const appRouter = createTRPCRouter({
           }
 
           if (input.id) {
-            const existingRoom = await prisma.tenantRoom.findFirst({
+            const existingRoom = await prisma.resortRoom.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -7600,9 +8302,9 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const duplicateCode = await prisma.tenantRoom.findFirst({
+          const duplicateCode = await prisma.resortRoom.findFirst({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               code,
               id: input.id
                 ? {
@@ -7633,8 +8335,8 @@ export const appRouter = createTRPCRouter({
             bedConfiguration: input.bedConfiguration,
             roomSize: input.roomSize ?? null,
             viewType: input.viewType,
-            smokingPolicy: toTenantRoomSmokingPolicy(input.smokingPolicy),
-            status: toTenantRoomStatus(input.status),
+            smokingPolicy: toResortRoomSmokingPolicy(input.smokingPolicy),
+            status: toResortRoomStatus(input.status),
             checkIn: input.checkIn,
             checkOut: input.checkOut,
             minNights: input.minNights,
@@ -7644,7 +8346,7 @@ export const appRouter = createTRPCRouter({
 
           const room = await prisma.$transaction(async (tx) => {
             const savedRoom = input.id
-              ? await tx.tenantRoom.update({
+              ? await tx.resortRoom.update({
                   where: {
                     id: input.id,
                   },
@@ -7655,17 +8357,17 @@ export const appRouter = createTRPCRouter({
                     },
                   },
                 })
-              : await tx.tenantRoom.create({
+              : await tx.resortRoom.create({
                   data: {
                     ...data,
-                    tenantProfileId: tenantProfile.id,
+                    resortProfileId: resortProfile.id,
                     amenities: {
                       connect: amenityIds.map((id) => ({ id })),
                     },
                   },
                 });
 
-            await tx.tenantRoomPhoto.deleteMany({
+            await tx.resortRoomPhoto.deleteMany({
               where: {
                 roomId: savedRoom.id,
                 key: {
@@ -7676,7 +8378,7 @@ export const appRouter = createTRPCRouter({
 
             await Promise.all(
               input.photos.map((photo, index) =>
-                tx.tenantRoomPhoto.upsert({
+                tx.resortRoomPhoto.upsert({
                   where: {
                     key: photo.key,
                   },
@@ -7699,7 +8401,7 @@ export const appRouter = createTRPCRouter({
               ),
             );
 
-            return tx.tenantRoom.findUniqueOrThrow({
+            return tx.resortRoom.findUniqueOrThrow({
               where: {
                 id: savedRoom.id,
               },
@@ -7722,13 +8424,13 @@ export const appRouter = createTRPCRouter({
             });
           });
 
-          return toTenantRoomOutput(room);
+          return toResortRoomOutput(room);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantRoomStatusSchema,
+            status: resortRoomStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -7741,11 +8443,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const room = await prisma.tenantRoom.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const room = await prisma.resortRoom.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -7756,12 +8458,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantRoom.update({
+          await prisma.resortRoom.update({
             where: {
               id: input.id,
             },
             data: {
-              status: toTenantRoomStatus(input.status),
+              status: toResortRoomStatus(input.status),
             },
           });
 
@@ -7785,11 +8487,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const room = await prisma.tenantRoom.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const room = await prisma.resortRoom.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -7800,7 +8502,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantRoom.delete({
+          await prisma.resortRoom.delete({
             where: {
               id: input.id,
             },
@@ -7822,10 +8524,10 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const invoices = await prisma.tenantInvoice.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const invoices = await prisma.resortInvoice.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
             lineItems: {
@@ -7850,7 +8552,7 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        return invoices.map(toTenantInvoiceOutput);
+        return invoices.map(toResortInvoiceOutput);
       }),
       nextCode: baseProcedure.query(async ({ ctx }) => {
         const authUser = ctx.session?.user;
@@ -7862,8 +8564,8 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        return getNextInvoiceCode(tenantProfile);
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        return getNextInvoiceCode(resortProfile);
       }),
       get: baseProcedure
         .input(
@@ -7881,11 +8583,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const invoice = await prisma.tenantInvoice.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const invoice = await prisma.resortInvoice.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               lineItems: {
@@ -7914,10 +8616,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantInvoiceOutput(invoice);
+          return toResortInvoiceOutput(invoice);
         }),
       save: baseProcedure
-        .input(tenantInvoiceSchema)
+        .input(resortInvoiceSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -7928,7 +8630,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           await requireInvoiceCreator(authUser.id);
           const code = input.code.toUpperCase();
           const subtotal = parseMoneyAmount(input.subtotal);
@@ -7942,24 +8644,58 @@ export const appRouter = createTRPCRouter({
             0,
           );
 
-          if ([subtotal, discount, tax, totalAmount, depositPaid, balanceDue].some((value) => value < 0)) {
-            throw new TRPCError({ code: "BAD_REQUEST", message: "Invoice amounts cannot be negative." });
+          if (
+            [
+              subtotal,
+              discount,
+              tax,
+              totalAmount,
+              depositPaid,
+              balanceDue,
+            ].some((value) => value < 0)
+          ) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Invoice amounts cannot be negative.",
+            });
           }
-          if (!input.lineItems.length || input.lineItems.some((item) => parseMoneyAmount(item.rate) <= 0 || parseMoneyAmount(item.amount) <= 0)) {
-            throw new TRPCError({ code: "BAD_REQUEST", message: "At least one chargeable line item is required." });
+          if (
+            !input.lineItems.length ||
+            input.lineItems.some(
+              (item) =>
+                parseMoneyAmount(item.rate) <= 0 ||
+                parseMoneyAmount(item.amount) <= 0,
+            )
+          ) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "At least one chargeable line item is required.",
+            });
           }
-          if (Math.abs(lineTotal - subtotal) > 0.01 || Math.abs(totalAmount - (subtotal - discount + tax)) > 0.01 || Math.abs(balanceDue - Math.max(totalAmount - depositPaid, 0)) > 0.01) {
-            throw new TRPCError({ code: "BAD_REQUEST", message: "Invoice totals do not match the line items and payment amounts." });
+          if (
+            Math.abs(lineTotal - subtotal) > 0.01 ||
+            Math.abs(totalAmount - (subtotal - discount + tax)) > 0.01 ||
+            Math.abs(balanceDue - Math.max(totalAmount - depositPaid, 0)) > 0.01
+          ) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message:
+                "Invoice totals do not match the line items and payment amounts.",
+            });
           }
           if (input.status === "Paid" && balanceDue > 0) {
-            throw new TRPCError({ code: "BAD_REQUEST", message: "Record the full payment before marking this invoice paid." });
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message:
+                "Record the full payment before marking this invoice paid.",
+            });
           }
 
           if (input.reservationId) {
-            const reservation = await prisma.tenantReservation.findFirst({
+            const reservation = await prisma.resortReservation.findFirst({
               where: {
                 id: input.reservationId,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -7970,24 +8706,28 @@ export const appRouter = createTRPCRouter({
               });
             }
 
-            const duplicateBookingInvoice = await prisma.tenantInvoice.findFirst({
-              where: {
-                tenantProfileId: tenantProfile.id,
-                reservationId: input.reservationId,
-                id: input.id ? { not: input.id } : undefined,
-                status: { not: "VOID" },
-              },
-            });
+            const duplicateBookingInvoice =
+              await prisma.resortInvoice.findFirst({
+                where: {
+                  resortProfileId: resortProfile.id,
+                  reservationId: input.reservationId,
+                  id: input.id ? { not: input.id } : undefined,
+                  status: { not: "VOID" },
+                },
+              });
             if (duplicateBookingInvoice) {
-              throw new TRPCError({ code: "CONFLICT", message: "This booking already has an invoice." });
+              throw new TRPCError({
+                code: "CONFLICT",
+                message: "This booking already has an invoice.",
+              });
             }
           }
 
           if (input.id) {
-            const existingInvoice = await prisma.tenantInvoice.findFirst({
+            const existingInvoice = await prisma.resortInvoice.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -7999,9 +8739,9 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const duplicateCode = await prisma.tenantInvoice.findFirst({
+          const duplicateCode = await prisma.resortInvoice.findFirst({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               code,
               id: input.id
                 ? {
@@ -8032,35 +8772,37 @@ export const appRouter = createTRPCRouter({
             notes: input.notes ?? null,
             paymentInstructions: input.paymentInstructions ?? null,
             paymentMethod: input.paymentMethod ?? null,
-            reminderCadence: toTenantInvoiceReminderCadence(input.reminderCadence),
+            reminderCadence: toResortInvoiceReminderCadence(
+              input.reminderCadence,
+            ),
             reservationId: input.reservationId ?? null,
             paidAt: input.status === "Paid" ? new Date() : null,
-            status: toTenantInvoiceStatus(input.status),
+            status: toResortInvoiceStatus(input.status),
             subtotal: input.subtotal,
             tax: input.tax,
             totalAmount: input.totalAmount,
           };
           const invoice = await prisma.$transaction(async (tx) => {
             const savedInvoice = input.id
-              ? await tx.tenantInvoice.update({
+              ? await tx.resortInvoice.update({
                   where: {
                     id: input.id,
                   },
                   data,
                 })
-              : await tx.tenantInvoice.create({
+              : await tx.resortInvoice.create({
                   data: {
                     ...data,
-                    tenantProfileId: tenantProfile.id,
+                    resortProfileId: resortProfile.id,
                   },
                 });
 
-            await tx.tenantInvoiceLineItem.deleteMany({
+            await tx.resortInvoiceLineItem.deleteMany({
               where: {
                 invoiceId: savedInvoice.id,
               },
             });
-            await tx.tenantInvoiceLineItem.createMany({
+            await tx.resortInvoiceLineItem.createMany({
               data: input.lineItems.map((item, index) => ({
                 amount: item.amount,
                 description: item.description,
@@ -8071,7 +8813,7 @@ export const appRouter = createTRPCRouter({
               })),
             });
 
-            return tx.tenantInvoice.findUniqueOrThrow({
+            return tx.resortInvoice.findUniqueOrThrow({
               where: {
                 id: savedInvoice.id,
               },
@@ -8096,13 +8838,13 @@ export const appRouter = createTRPCRouter({
             });
           });
 
-          return toTenantInvoiceOutput(invoice);
+          return toResortInvoiceOutput(invoice);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantInvoiceStatusSchema,
+            status: resortInvoiceStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -8115,11 +8857,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const invoice = await prisma.tenantInvoice.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const invoice = await prisma.resortInvoice.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8137,13 +8879,32 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantInvoice.update({
+          if (input.status === "Sent") {
+            await requireInvoiceCreator(authUser.id);
+
+            try {
+              await sendInvoiceEmailNow(input.id);
+            } catch (error) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message:
+                  error instanceof Error
+                    ? error.message
+                    : "Unable to send invoice.",
+              });
+            }
+
+            return {
+              id: input.id,
+            };
+          }
+
+          await prisma.resortInvoice.update({
             where: {
               id: input.id,
             },
             data: {
-              sentAt: input.status === "Sent" ? new Date() : undefined,
-              status: toTenantInvoiceStatus(input.status),
+              status: toResortInvoiceStatus(input.status),
             },
           });
 
@@ -8155,7 +8916,7 @@ export const appRouter = createTRPCRouter({
         .input(
           z.object({
             id: z.string(),
-            reminderCadence: tenantInvoiceReminderCadenceSchema,
+            reminderCadence: resortInvoiceReminderCadenceSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -8168,11 +8929,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const invoice = await prisma.tenantInvoice.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const invoice = await prisma.resortInvoice.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8183,13 +8944,18 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantInvoice.update({
+          await prisma.resortInvoice.update({
             where: {
               id: input.id,
             },
             data: {
-              nextReminderAt: input.reminderCadence === "Paused" ? null : invoice.nextReminderAt,
-              reminderCadence: toTenantInvoiceReminderCadence(input.reminderCadence),
+              nextReminderAt:
+                input.reminderCadence === "Paused"
+                  ? null
+                  : invoice.nextReminderAt,
+              reminderCadence: toResortInvoiceReminderCadence(
+                input.reminderCadence,
+              ),
             },
           });
 
@@ -8213,11 +8979,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const invoice = await prisma.tenantInvoice.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const invoice = await prisma.resortInvoice.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8233,7 +8999,34 @@ export const appRouter = createTRPCRouter({
           } catch (error) {
             throw new TRPCError({
               code: "BAD_REQUEST",
-              message: error instanceof Error ? error.message : "Unable to send invoice reminder.",
+              message:
+                error instanceof Error
+                  ? error.message
+                  : "Unable to send invoice reminder.",
+            });
+          }
+        }),
+      send: baseProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+          if (!authUser?.id) {
+            throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+          }
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          await requireInvoiceCreator(authUser.id);
+          const invoice = await prisma.resortInvoice.findFirst({
+            where: { id: input.id, resortProfileId: resortProfile.id },
+          });
+          if (!invoice) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found." });
+          }
+          try {
+            return await sendInvoiceEmailNow(input.id);
+          } catch (error) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: error instanceof Error ? error.message : "Unable to send invoice.",
             });
           }
         }),
@@ -8253,11 +9046,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const invoice = await prisma.tenantInvoice.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const invoice = await prisma.resortInvoice.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8268,7 +9061,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantInvoice.delete({
+          await prisma.resortInvoice.delete({
             where: {
               id: input.id,
             },
@@ -8290,17 +9083,17 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const entries = await prisma.tenantFinanceEntry.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const entries = await prisma.resortFinanceEntry.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           orderBy: {
             entryDate: "desc",
           },
         });
 
-        return entries.map(toTenantFinanceEntryOutput);
+        return entries.map(toResortFinanceEntryOutput);
       }),
       get: baseProcedure
         .input(
@@ -8318,11 +9111,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const entry = await prisma.tenantFinanceEntry.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const entry = await prisma.resortFinanceEntry.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8333,10 +9126,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantFinanceEntryOutput(entry);
+          return toResortFinanceEntryOutput(entry);
         }),
       save: baseProcedure
-        .input(tenantFinanceEntrySchema)
+        .input(resortFinanceEntrySchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -8347,16 +9140,16 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const code = input.code?.trim()
             ? input.code.trim().toUpperCase()
-            : await getNextFinanceEntryCode(tenantProfile.id, input.type);
+            : await getNextFinanceEntryCode(resortProfile.id, input.type);
 
           if (input.id) {
-            const existingEntry = await prisma.tenantFinanceEntry.findFirst({
+            const existingEntry = await prisma.resortFinanceEntry.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -8368,9 +9161,9 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const duplicateCode = await prisma.tenantFinanceEntry.findFirst({
+          const duplicateCode = await prisma.resortFinanceEntry.findFirst({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               code,
               id: input.id
                 ? {
@@ -8400,31 +9193,31 @@ export const appRouter = createTRPCRouter({
             receiptSize: input.receiptSize ?? null,
             receiptType: input.receiptType ?? null,
             receiptUrl: input.receiptUrl ?? null,
-            source: toTenantFinanceEntrySource(input.source),
-            status: toTenantFinanceEntryStatus(input.status),
-            type: toTenantFinanceEntryType(input.type),
+            source: toResortFinanceEntrySource(input.source),
+            status: toResortFinanceEntryStatus(input.status),
+            type: toResortFinanceEntryType(input.type),
           };
           const entry = input.id
-            ? await prisma.tenantFinanceEntry.update({
+            ? await prisma.resortFinanceEntry.update({
                 where: {
                   id: input.id,
                 },
                 data,
               })
-            : await prisma.tenantFinanceEntry.create({
+            : await prisma.resortFinanceEntry.create({
                 data: {
                   ...data,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                 },
               });
 
-          return toTenantFinanceEntryOutput(entry);
+          return toResortFinanceEntryOutput(entry);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantFinanceEntryStatusSchema,
+            status: resortFinanceEntryStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -8437,11 +9230,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const entry = await prisma.tenantFinanceEntry.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const entry = await prisma.resortFinanceEntry.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8452,12 +9245,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantFinanceEntry.update({
+          await prisma.resortFinanceEntry.update({
             where: {
               id: input.id,
             },
             data: {
-              status: toTenantFinanceEntryStatus(input.status),
+              status: toResortFinanceEntryStatus(input.status),
             },
           });
 
@@ -8481,11 +9274,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const entry = await prisma.tenantFinanceEntry.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const entry = await prisma.resortFinanceEntry.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8496,7 +9289,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantFinanceEntry.delete({
+          await prisma.resortFinanceEntry.delete({
             where: {
               id: input.id,
             },
@@ -8518,17 +9311,17 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const exportJobs = await prisma.tenantTransactionExport.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const exportJobs = await prisma.resortTransactionExport.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           orderBy: {
             createdAt: "desc",
           },
         });
 
-        return exportJobs.map(toTenantTransactionExportOutput);
+        return exportJobs.map(toResortTransactionExportOutput);
       }),
       download: baseProcedure
         .input(
@@ -8546,11 +9339,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const exportJob = await prisma.tenantTransactionExport.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const exportJob = await prisma.resortTransactionExport.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8578,7 +9371,7 @@ export const appRouter = createTRPCRouter({
           };
         }),
       create: baseProcedure
-        .input(tenantTransactionExportSchema)
+        .input(resortTransactionExportSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -8589,25 +9382,30 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const payload = await buildTransactionExportPayload(tenantProfile.id, input.name);
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const period = input.period ?? getDefaultExportPeriod(input.name);
+          const payload = await buildTransactionExportPayload(
+            resortProfile.id,
+            input.name,
+            period,
+          );
           const payloadJson = JSON.stringify(payload);
-          const code = await getNextTransactionExportCode(tenantProfile.id);
-          const exportJob = await prisma.tenantTransactionExport.create({
+          const code = await getNextTransactionExportCode(resortProfile.id);
+          const exportJob = await prisma.resortTransactionExport.create({
             data: {
               code,
               format: input.format,
               name: input.name,
               payload,
-              period: input.period ?? getDefaultExportPeriod(input.name),
+              period,
               rowCount: payload.length,
               size: formatExportSize(Buffer.byteLength(payloadJson, "utf8")),
               status: "READY",
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
-          return toTenantTransactionExportOutput(exportJob);
+          return toResortTransactionExportOutput(exportJob);
         }),
       retry: baseProcedure
         .input(
@@ -8625,11 +9423,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const exportJob = await prisma.tenantTransactionExport.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const exportJob = await prisma.resortTransactionExport.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -8641,11 +9439,12 @@ export const appRouter = createTRPCRouter({
           }
 
           const payload = await buildTransactionExportPayload(
-            tenantProfile.id,
-            exportJob.name as z.infer<typeof tenantTransactionExportNameSchema>,
+            resortProfile.id,
+            exportJob.name as z.infer<typeof resortTransactionExportNameSchema>,
+            exportJob.period,
           );
           const payloadJson = JSON.stringify(payload);
-          const updatedExport = await prisma.tenantTransactionExport.update({
+          const updatedExport = await prisma.resortTransactionExport.update({
             where: {
               id: input.id,
             },
@@ -8657,7 +9456,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantTransactionExportOutput(updatedExport);
+          return toResortTransactionExportOutput(updatedExport);
         }),
     }),
     packages: createTRPCRouter({
@@ -8671,10 +9470,10 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const packages = await prisma.tenantPackage.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const packages = await prisma.resortPackage.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
             amenities: {
@@ -8711,7 +9510,7 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return packages.map(toTenantPackageOutput);
+        return packages.map(toResortPackageOutput);
       }),
       get: baseProcedure
         .input(
@@ -8729,11 +9528,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const pack = await prisma.tenantPackage.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const pack = await prisma.resortPackage.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               amenities: {
@@ -8769,10 +9568,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantPackageOutput(pack);
+          return toResortPackageOutput(pack);
         }),
       save: baseProcedure
-        .input(tenantPackageSchema)
+        .input(resortPackageSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -8783,14 +9582,14 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const code = input.code.toUpperCase();
 
           if (input.id) {
-            const existingPackage = await prisma.tenantPackage.findFirst({
+            const existingPackage = await prisma.resortPackage.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -8802,9 +9601,9 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const duplicateCode = await prisma.tenantPackage.findFirst({
+          const duplicateCode = await prisma.resortPackage.findFirst({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               code,
               id: input.id
                 ? {
@@ -8823,32 +9622,32 @@ export const appRouter = createTRPCRouter({
 
           const [roomCount, serviceCount, amenityCount] = await Promise.all([
             input.roomIds.length
-              ? prisma.tenantRoom.count({
+              ? prisma.resortRoom.count({
                   where: {
                     id: {
                       in: input.roomIds,
                     },
-                    tenantProfileId: tenantProfile.id,
+                    resortProfileId: resortProfile.id,
                   },
                 })
               : Promise.resolve(0),
             input.serviceIds.length
-              ? prisma.tenantService.count({
+              ? prisma.resortService.count({
                   where: {
                     id: {
                       in: input.serviceIds,
                     },
-                    tenantProfileId: tenantProfile.id,
+                    resortProfileId: resortProfile.id,
                   },
                 })
               : Promise.resolve(0),
             input.amenityIds.length
-              ? prisma.tenantAmenity.count({
+              ? prisma.resortAmenity.count({
                   where: {
                     id: {
                       in: input.amenityIds,
                     },
-                    tenantProfileId: tenantProfile.id,
+                    resortProfileId: resortProfile.id,
                   },
                 })
               : Promise.resolve(0),
@@ -8861,7 +9660,7 @@ export const appRouter = createTRPCRouter({
           ) {
             throw new TRPCError({
               code: "BAD_REQUEST",
-              message: "Package includes an item from another tenant.",
+              message: "Package includes an item from another resort.",
             });
           }
 
@@ -8878,7 +9677,7 @@ export const appRouter = createTRPCRouter({
             price: input.price,
             showOnBookingPage: input.showOnBookingPage,
             sortOrder: input.sortOrder,
-            status: toTenantPackageStatus(input.status),
+            status: toResortPackageStatus(input.status),
           };
           const updateRelations = {
             amenities: {
@@ -8904,7 +9703,7 @@ export const appRouter = createTRPCRouter({
           };
 
           const pack = input.id
-            ? await prisma.tenantPackage.update({
+            ? await prisma.resortPackage.update({
                 where: {
                   id: input.id,
                 },
@@ -8938,11 +9737,11 @@ export const appRouter = createTRPCRouter({
                   },
                 },
               })
-            : await prisma.tenantPackage.create({
+            : await prisma.resortPackage.create({
                 data: {
                   ...data,
                   ...createRelations,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                 },
                 include: {
                   amenities: {
@@ -8971,13 +9770,13 @@ export const appRouter = createTRPCRouter({
                 },
               });
 
-          return toTenantPackageOutput(pack);
+          return toResortPackageOutput(pack);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantPackageStatusSchema,
+            status: resortPackageStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -8990,11 +9789,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const pack = await prisma.tenantPackage.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const pack = await prisma.resortPackage.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -9005,12 +9804,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantPackage.update({
+          await prisma.resortPackage.update({
             where: {
               id: input.id,
             },
             data: {
-              status: toTenantPackageStatus(input.status),
+              status: toResortPackageStatus(input.status),
             },
           });
 
@@ -9034,11 +9833,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const pack = await prisma.tenantPackage.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const pack = await prisma.resortPackage.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -9049,7 +9848,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantPackage.delete({
+          await prisma.resortPackage.delete({
             where: {
               id: input.id,
             },
@@ -9071,17 +9870,17 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const services = await prisma.tenantService.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const services = await prisma.resortService.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           orderBy: {
             updatedAt: "desc",
           },
         });
 
-        return services.map(toTenantServiceOutput);
+        return services.map(toResortServiceOutput);
       }),
       get: baseProcedure
         .input(
@@ -9099,11 +9898,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const service = await prisma.tenantService.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const service = await prisma.resortService.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -9114,10 +9913,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantServiceOutput(service);
+          return toResortServiceOutput(service);
         }),
       save: baseProcedure
-        .input(tenantServiceSchema)
+        .input(resortServiceSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -9128,14 +9927,14 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const code = input.code.toUpperCase();
 
           if (input.id) {
-            const existingService = await prisma.tenantService.findFirst({
+            const existingService = await prisma.resortService.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -9147,9 +9946,9 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const duplicateCode = await prisma.tenantService.findFirst({
+          const duplicateCode = await prisma.resortService.findFirst({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               code,
               id: input.id
                 ? {
@@ -9168,7 +9967,7 @@ export const appRouter = createTRPCRouter({
 
           const data = {
             baseCharge: input.baseCharge,
-            billingType: toTenantServiceBillingType(input.billingType),
+            billingType: toResortServiceBillingType(input.billingType),
             bookingLeadTime: input.bookingLeadTime ?? null,
             category: input.category,
             code,
@@ -9178,30 +9977,30 @@ export const appRouter = createTRPCRouter({
             internalNotes: input.internalNotes ?? null,
             provider: input.provider ?? null,
             showOnBookingPage: input.showOnBookingPage,
-            status: toTenantServiceStatus(input.status),
+            status: toResortServiceStatus(input.status),
             title: input.title,
           };
           const service = input.id
-            ? await prisma.tenantService.update({
+            ? await prisma.resortService.update({
                 where: {
                   id: input.id,
                 },
                 data,
               })
-            : await prisma.tenantService.create({
+            : await prisma.resortService.create({
                 data: {
                   ...data,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                 },
               });
 
-          return toTenantServiceOutput(service);
+          return toResortServiceOutput(service);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantServiceStatusSchema,
+            status: resortServiceStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -9214,11 +10013,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const service = await prisma.tenantService.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const service = await prisma.resortService.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -9229,12 +10028,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantService.update({
+          await prisma.resortService.update({
             where: {
               id: input.id,
             },
             data: {
-              status: toTenantServiceStatus(input.status),
+              status: toResortServiceStatus(input.status),
             },
           });
 
@@ -9258,11 +10057,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const service = await prisma.tenantService.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const service = await prisma.resortService.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -9273,7 +10072,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantService.delete({
+          await prisma.resortService.delete({
             where: {
               id: input.id,
             },
@@ -9285,6 +10084,71 @@ export const appRouter = createTRPCRouter({
         }),
     }),
     reservations: createTRPCRouter({
+      guestOptions: baseProcedure.query(async ({ ctx }) => {
+        const authUser = ctx.session?.user;
+
+        if (!authUser?.id) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Sign in required.",
+          });
+        }
+
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const guests = await prisma.appUser.findMany({
+          where: {
+            guestDisabledAt: null,
+            resortProfile: { is: null },
+            staffProfile: { is: null },
+          },
+          select: {
+            authUserId: true,
+            displayName: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+          orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+        });
+        const guestIds = guests.map((guest) => guest.authUserId);
+        const guestEmails = guests.map((guest) => guest.email);
+        const previousReservations = guests.length
+          ? await prisma.resortReservation.findMany({
+              where: {
+                resortProfileId: resortProfile.id,
+                OR: [
+                  { guestAccountId: { in: guestIds } },
+                  { guestEmail: { in: guestEmails, mode: "insensitive" } },
+                ],
+              },
+              select: {
+                createdAt: true,
+                guestAccountId: true,
+                guestEmail: true,
+                guestPhone: true,
+              },
+              orderBy: { createdAt: "desc" },
+            })
+          : [];
+
+        return guests.map((guest) => {
+          const previousReservation = previousReservations.find(
+            (reservation) =>
+              reservation.guestAccountId === guest.authUserId ||
+              reservation.guestEmail?.trim().toLowerCase() ===
+                guest.email.trim().toLowerCase(),
+          );
+
+          return {
+            id: guest.authUserId,
+            displayName: guest.displayName,
+            email: guest.email,
+            firstName: guest.firstName ?? "",
+            lastName: guest.lastName ?? "",
+            phone: previousReservation?.guestPhone ?? "",
+          };
+        });
+      }),
       list: baseProcedure.query(async ({ ctx }) => {
         const authUser = ctx.session?.user;
 
@@ -9295,12 +10159,23 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const reservations = await prisma.tenantReservation.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const reservations = await prisma.resortReservation.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
+            invoices: {
+              orderBy: {
+                createdAt: "desc",
+              },
+              select: {
+                balanceDue: true,
+                depositPaid: true,
+                status: true,
+                totalAmount: true,
+              },
+            },
             room: {
               select: {
                 code: true,
@@ -9314,10 +10189,10 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        return reservations.map(toTenantReservationOutput);
+        return reservations.map(toResortReservationOutput);
       }),
       create: baseProcedure
-        .input(tenantReservationSchema)
+        .input(resortReservationSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -9328,83 +10203,89 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const room = await prisma.tenantRoom.findFirst({
-            where: {
-              id: input.roomId,
-              tenantProfileId: tenantProfile.id,
-            },
-          });
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const registeredGuest = input.guestAccountId
+            ? await prisma.appUser.findFirst({
+                where: {
+                  authUserId: input.guestAccountId,
+                  guestDisabledAt: null,
+                  resortProfile: { is: null },
+                  staffProfile: { is: null },
+                },
+                select: {
+                  authUserId: true,
+                  displayName: true,
+                  email: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              })
+            : null;
 
-          if (!room) {
+          if (input.guestAccountId && !registeredGuest) {
             throw new TRPCError({
               code: "NOT_FOUND",
-              message: "Room not found.",
+              message: "Registered guest account not found or unavailable.",
             });
           }
 
-          if (room.status === "OUT_OF_SERVICE") {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Room is out of service.",
-            });
-          }
-
-          if (input.adults > room.maxAdults || input.children > room.childrenOccupancy) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Guest count exceeds room capacity.",
-            });
-          }
+          const registeredGuestName = registeredGuest
+            ? [registeredGuest.firstName, registeredGuest.lastName]
+                .filter(Boolean)
+                .join(" ")
+                .trim() || registeredGuest.displayName
+            : input.guestName;
+          const reservationGuestEmail =
+            registeredGuest?.email ?? input.guestEmail;
 
           const checkIn = parseReservationDate(input.checkIn, "Check-in");
           const checkOut = parseReservationDate(input.checkOut, "Check-out");
           const nights = getReservationNights(checkIn, checkOut);
 
-          if (nights < room.minNights) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: `Minimum stay is ${room.minNights} night${room.minNights === 1 ? "" : "s"}.`,
+          const overlappingReservation =
+            await prisma.resortReservation.findFirst({
+              where: {
+                resortProfileId: resortProfile.id,
+                status: {
+                  notIn: ["CANCELED", "CHECKED_OUT"],
+                },
+                checkIn: {
+                  lt: checkOut,
+                },
+                checkOut: {
+                  gt: checkIn,
+                },
+              },
             });
-          }
-
-          const overlappingReservation = await prisma.tenantReservation.findFirst({
-            where: {
-              tenantProfileId: tenantProfile.id,
-              roomId: input.roomId,
-              status: {
-                notIn: ["CANCELED", "CHECKED_OUT"],
-              },
-              checkIn: {
-                lt: checkOut,
-              },
-              checkOut: {
-                gt: checkIn,
-              },
-            },
-          });
 
           if (overlappingReservation) {
             throw new TRPCError({
               code: "CONFLICT",
-              message: "Room already has a booking for selected dates.",
+              message:
+                "Alrio Private Resort is already booked for the selected dates.",
             });
           }
+
+          const includedRoomCount = await prisma.resortRoom.count({
+            where: {
+              resortProfileId: resortProfile.id,
+              status: { not: "OUT_OF_SERVICE" },
+            },
+          });
 
           const appUrl =
             process.env.NEXT_PUBLIC_APP_URL ??
             process.env.BETTER_AUTH_URL ??
             "http://localhost:3000";
           const workspaceName =
-            tenantProfile.resortName ??
-            tenantProfile.businessName ??
-            "ResortCloud workspace";
-          const reservation = await prisma.tenantReservation.create({
+            resortProfile.resortName ?? "Alrio Private Resort";
+          const reservation = await prisma.resortReservation.create({
             data: {
-              tenantProfileId: tenantProfile.id,
-              roomId: input.roomId,
-              guestName: input.guestName,
-              guestEmail: input.guestEmail ?? null,
+              resortProfileId: resortProfile.id,
+              roomId: null,
+              guestAccountId: registeredGuest?.authUserId ?? null,
+              guestName: registeredGuestName,
+              guestEmail: reservationGuestEmail ?? null,
               guestPhone: input.guestPhone ?? null,
               checkIn,
               checkOut,
@@ -9412,13 +10293,13 @@ export const appRouter = createTRPCRouter({
               children: input.children,
               nights,
               rate: input.rate,
-              packageName: input.packageName ?? null,
-              packagePrice: input.packagePrice ?? null,
-              roomsIncluded: input.roomsIncluded,
+              packageName: null,
+              packagePrice: null,
+              roomsIncluded: Math.max(includedRoomCount, 1),
               deposit: input.deposit ?? null,
               totalAmount: input.totalAmount,
               paymentMethod: input.paymentMethod ?? null,
-              status: toTenantReservationStatus(input.status),
+              status: toResortReservationStatus(input.status),
               notes: input.notes ?? null,
             },
             include: {
@@ -9432,38 +10313,27 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          if (input.status === "Checked in") {
-            await prisma.tenantRoom.update({
-              where: {
-                id: input.roomId,
-              },
-              data: {
-                status: "OCCUPIED",
-              },
-            });
-          }
-
           await createInvoiceForReservation({
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             reservation,
           });
 
           let emailNotificationSent = false;
           let emailNotificationError = "";
 
-          if (input.guestEmail) {
+          if (reservationGuestEmail) {
             try {
               await sendReservationConfirmationEmail({
                 appUrl,
                 checkIn,
                 checkOut,
                 deposit: input.deposit,
-                email: input.guestEmail,
-                guestName: input.guestName,
+                email: reservationGuestEmail,
+                guestName: registeredGuestName,
                 nights,
                 reservationId: reservation.id,
-                roomName: reservation.room.name,
-                roomType: reservation.room.type,
+                roomName: "Alrio Private Resort",
+                roomType: "Exclusive whole-resort booking",
                 totalAmount: input.totalAmount,
                 workspaceName,
               });
@@ -9478,9 +10348,191 @@ export const appRouter = createTRPCRouter({
           }
 
           return {
-            ...toTenantReservationOutput(reservation),
+            ...toResortReservationOutput(reservation),
             emailNotificationError,
             emailNotificationSent,
+          };
+        }),
+      updateStatus: baseProcedure
+        .input(
+          z.object({
+            id: z.string(),
+            status: resortReservationStatusSchema,
+          }),
+        )
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+          if (!authUser?.id) {
+            throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+          }
+
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const reservation = await prisma.resortReservation.findFirst({
+            where: { id: input.id, resortProfileId: resortProfile.id },
+            include: {
+              invoices: {
+                where: { status: { not: "VOID" } },
+                select: { balanceDue: true },
+              },
+            },
+          });
+          if (!reservation) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Reservation not found." });
+          }
+
+          const outstandingBalance = reservation.invoices.reduce(
+            (total, invoice) => total + parseMoneyAmount(invoice.balanceDue),
+            0,
+          );
+          if (input.status === "Checked out" && outstandingBalance > 0.009) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Record the remaining payment before checking out this booking.",
+            });
+          }
+
+          const updated = await prisma.resortReservation.update({
+            where: { id: reservation.id },
+            data: {
+              frontDeskStatus:
+                input.status === "Checked in"
+                  ? "IN_HOUSE"
+                  : input.status === "Checked out"
+                    ? "COMPLETED"
+                    : null,
+              status: toResortReservationStatus(input.status),
+            },
+          });
+
+          return { id: updated.id, status: fromResortReservationStatus(updated.status) };
+        }),
+      recordPayment: baseProcedure
+        .input(
+          z.object({
+            amount: z.string().trim().min(1, "Payment amount is required."),
+            note: z.string().trim().optional(),
+            paymentMethod: z.string().trim().min(1, "Payment method is required."),
+            reservationId: z.string(),
+          }),
+        )
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+          if (!authUser?.id) {
+            throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+          }
+
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const reservation = await prisma.resortReservation.findFirst({
+            where: { id: input.reservationId, resortProfileId: resortProfile.id },
+          });
+          if (!reservation) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Reservation not found." });
+          }
+
+          const invoices = await prisma.resortInvoice.findMany({
+            where: {
+              reservationId: reservation.id,
+              resortProfileId: resortProfile.id,
+              status: { notIn: ["PAID", "VOID"] },
+            },
+            orderBy: { createdAt: "asc" },
+          });
+          const outstandingBalance = invoices.reduce(
+            (total, invoice) => total + parseMoneyAmount(invoice.balanceDue),
+            0,
+          );
+          const paymentAmount = parseMoneyAmount(input.amount);
+
+          if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Enter a payment amount greater than zero.",
+            });
+          }
+          if (!invoices.length || outstandingBalance <= 0.009) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "This booking has no outstanding balance.",
+            });
+          }
+          if (paymentAmount - outstandingBalance > 0.009) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Payment cannot exceed the remaining balance.",
+            });
+          }
+
+          let unallocatedAmount = paymentAmount;
+          const allocations = invoices.flatMap((invoice) => {
+            const invoiceBalance = parseMoneyAmount(invoice.balanceDue);
+            const appliedAmount = Math.min(invoiceBalance, unallocatedAmount);
+            unallocatedAmount -= appliedAmount;
+            return appliedAmount > 0 ? [{ appliedAmount, invoice, invoiceBalance }] : [];
+          });
+          const financeCode = await getNextFinanceEntryCode(resortProfile.id, "Revenue");
+          const firstPaymentCode = await getNextPaymentLogCode(resortProfile.id);
+          const firstPaymentNumber = Number(firstPaymentCode.replace(/\D/g, ""));
+          const paidAt = new Date();
+
+          await prisma.$transaction(async (tx) => {
+            for (const [index, allocation] of allocations.entries()) {
+              const newBalance = Math.max(
+                allocation.invoiceBalance - allocation.appliedAmount,
+                0,
+              );
+              const previousPaid = parseMoneyAmount(allocation.invoice.depositPaid);
+
+              await tx.resortPaymentLog.create({
+                data: {
+                  amount: toMoneyString(allocation.appliedAmount),
+                  code: `PAY-${String(firstPaymentNumber + index).padStart(5, "0")}`,
+                  invoiceId: allocation.invoice.id,
+                  paidAt,
+                  paymentMethod: input.paymentMethod,
+                  proofNote: input.note || null,
+                  reservationId: reservation.id,
+                  status: "RECORDED",
+                  resortProfileId: resortProfile.id,
+                },
+              });
+              await tx.resortInvoice.update({
+                where: { id: allocation.invoice.id },
+                data: {
+                  balanceDue: toMoneyString(newBalance),
+                  depositPaid: toMoneyString(previousPaid + allocation.appliedAmount),
+                  paidAt: newBalance <= 0.009 ? paidAt : null,
+                  paymentMethod: input.paymentMethod,
+                  status: newBalance <= 0.009 ? "PAID" : "SENT",
+                },
+              });
+            }
+
+            await tx.resortReservation.update({
+              where: { id: reservation.id },
+              data: { paymentMethod: input.paymentMethod },
+            });
+            await tx.resortFinanceEntry.create({
+              data: {
+                amount: toMoneyString(paymentAmount),
+                category: "Reservation payment",
+                code: financeCode,
+                description: `Payment for booking ${reservation.id}`,
+                entryDate: paidAt,
+                notes: [input.paymentMethod, input.note].filter(Boolean).join(" · "),
+                source: "INVOICE_PAYMENT",
+                status: "CLEARED",
+                resortProfileId: resortProfile.id,
+                type: "REVENUE",
+              },
+            });
+          });
+
+          const balanceDue = Math.max(outstandingBalance - paymentAmount, 0);
+          return {
+            amount: toMoneyString(paymentAmount),
+            balanceDue: toMoneyString(balanceDue),
+            fullyPaid: balanceDue <= 0.009,
+            id: reservation.id,
           };
         }),
     }),
@@ -9495,7 +10547,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
         const todayEnd = new Date(todayStart);
@@ -9504,9 +10556,9 @@ export const appRouter = createTRPCRouter({
         upcomingEnd.setDate(upcomingEnd.getDate() + 7);
 
         const [reservations, requests, shiftNotes] = await Promise.all([
-          prisma.tenantReservation.findMany({
+          prisma.resortReservation.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               status: {
                 notIn: ["CANCELED", "CHECKED_OUT"],
               },
@@ -9569,18 +10621,18 @@ export const appRouter = createTRPCRouter({
               },
             ],
           }),
-          prisma.tenantReceptionRequest.findMany({
+          prisma.resortReceptionRequest.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             orderBy: {
               createdAt: "desc",
             },
             take: 8,
           }),
-          prisma.tenantReceptionShiftNote.findMany({
+          prisma.resortReceptionShiftNote.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             orderBy: {
               createdAt: "desc",
@@ -9590,20 +10642,20 @@ export const appRouter = createTRPCRouter({
         ]);
 
         const guests = reservations.map((reservation) =>
-          toTenantReceptionGuestOutput(reservation, todayEnd),
+          toResortReceptionGuestOutput(reservation, todayEnd),
         );
 
         return {
           guests,
-          requests: requests.map(toTenantReceptionRequestOutput),
-          shiftNotes: shiftNotes.map(toTenantReceptionShiftNoteOutput),
+          requests: requests.map(toResortReceptionRequestOutput),
+          shiftNotes: shiftNotes.map(toResortReceptionShiftNoteOutput),
         };
       }),
       updateReservationStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantReceptionQueueStatusSchema,
+            status: resortReceptionQueueStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -9616,11 +10668,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const reservation = await prisma.tenantReservation.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const reservation = await prisma.resortReservation.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               folioCharges: true,
@@ -9643,36 +10695,49 @@ export const appRouter = createTRPCRouter({
             );
             const unbilledTotal = activeCharges
               .filter((charge) => charge.status === "UNBILLED")
-              .reduce((total, charge) => total + parseMoneyAmount(charge.amount), 0);
+              .reduce(
+                (total, charge) => total + parseMoneyAmount(charge.amount),
+                0,
+              );
             const folioTotal = activeCharges.reduce(
               (total, charge) => total + parseMoneyAmount(charge.amount),
               0,
             );
             const invoiceTotal = reservation.invoices
               .filter((invoice) => invoice.status !== "VOID")
-              .reduce((total, invoice) => total + parseMoneyAmount(invoice.totalAmount), 0);
+              .reduce(
+                (total, invoice) =>
+                  total + parseMoneyAmount(invoice.totalAmount),
+                0,
+              );
             const paymentTotal = reservation.paymentLogs
               .filter((payment) => payment.status === "RECORDED")
-              .reduce((total, payment) => total + parseMoneyAmount(payment.amount), 0);
+              .reduce(
+                (total, payment) => total + parseMoneyAmount(payment.amount),
+                0,
+              );
 
             if (unbilledTotal > 0) {
               throw new TRPCError({
                 code: "BAD_REQUEST",
-                message: "Cannot check out with un-billed folio charges. Generate invoice first.",
+                message:
+                  "Cannot check out with un-billed folio charges. Generate invoice first.",
               });
             }
 
             if (Math.abs(folioTotal - invoiceTotal) > 0.01) {
               throw new TRPCError({
                 code: "BAD_REQUEST",
-                message: "Cannot check out until folio total matches generated invoices.",
+                message:
+                  "Cannot check out until folio total matches generated invoices.",
               });
             }
 
             if (Math.abs(invoiceTotal - paymentTotal) > 0.01) {
               throw new TRPCError({
                 code: "BAD_REQUEST",
-                message: "Cannot check out until payment log matches generated invoices.",
+                message:
+                  "Cannot check out until payment log matches generated invoices.",
               });
             }
           }
@@ -9683,36 +10748,24 @@ export const appRouter = createTRPCRouter({
               : input.status === "Checking out"
                 ? "CHECKED_IN"
                 : "CHECKED_IN";
-          const roomStatus = input.status === "Completed" ? "AVAILABLE" : "OCCUPIED";
-
-          await prisma.$transaction([
-            prisma.tenantReservation.update({
-              where: {
-                id: input.id,
-              },
+          await prisma.resortReservation.update({
+            where: {
+              id: input.id,
+            },
             data: {
-                frontDeskStatus:
-                  input.status === "Completed"
-                    ? "COMPLETED"
-                    : input.status === "Checking out"
-                      ? "CHECKING_OUT"
-                      : "IN_HOUSE",
-                status,
-              },
-            }),
-            prisma.tenantRoom.update({
-              where: {
-                id: reservation.roomId,
-              },
-              data: {
-                status: roomStatus,
-              },
-            }),
-          ]);
+              frontDeskStatus:
+                input.status === "Completed"
+                  ? "COMPLETED"
+                  : input.status === "Checking out"
+                    ? "CHECKING_OUT"
+                    : "IN_HOUSE",
+              status,
+            },
+          });
 
           return {
             id: input.id,
-            status: fromTenantReservationStatus(status),
+            status: fromResortReservationStatus(status),
           };
         }),
       getBilling: baseProcedure
@@ -9731,11 +10784,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const reservation = await prisma.tenantReservation.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const reservation = await prisma.resortReservation.findFirst({
             where: {
               id: input.reservationId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               folioCharges: {
@@ -9811,35 +10864,48 @@ export const appRouter = createTRPCRouter({
           );
           const invoiceTotal = reservation.invoices
             .filter((invoice) => invoice.status !== "VOID")
-            .reduce((total, invoice) => total + parseMoneyAmount(invoice.totalAmount), 0);
+            .reduce(
+              (total, invoice) => total + parseMoneyAmount(invoice.totalAmount),
+              0,
+            );
           const paymentTotal = reservation.paymentLogs
             .filter((payment) => payment.status === "RECORDED")
-            .reduce((total, payment) => total + parseMoneyAmount(payment.amount), 0);
+            .reduce(
+              (total, payment) => total + parseMoneyAmount(payment.amount),
+              0,
+            );
           const unbilledTotal = activeCharges
             .filter((charge) => charge.status === "UNBILLED")
-            .reduce((total, charge) => total + parseMoneyAmount(charge.amount), 0);
+            .reduce(
+              (total, charge) => total + parseMoneyAmount(charge.amount),
+              0,
+            );
 
           return {
-            balanceDue: toMoneyString(Math.max(subFolioTotal - paymentTotal, 0)),
-            charges: reservation.folioCharges.map(toTenantFolioChargeOutput),
+            balanceDue: toMoneyString(
+              Math.max(subFolioTotal - paymentTotal, 0),
+            ),
+            charges: reservation.folioCharges.map(toResortFolioChargeOutput),
             invoiceTotal: toMoneyString(invoiceTotal),
-            invoices: reservation.invoices.map(toTenantInvoiceOutput),
-            paymentLogs: reservation.paymentLogs.map(toTenantPaymentLogOutput),
+            invoices: reservation.invoices.map(toResortInvoiceOutput),
+            paymentLogs: reservation.paymentLogs.map(toResortPaymentLogOutput),
             paymentTotal: toMoneyString(paymentTotal),
             reservation: {
               checkIn: reservation.checkIn,
               checkOut: reservation.checkOut,
               guestName: reservation.guestName,
               id: reservation.id,
-              roomLabel: `${reservation.room.code} - ${reservation.room.name}`,
-              status: fromTenantReservationStatus(reservation.status),
+              roomLabel: reservation.room
+                ? `${reservation.room.code} - ${reservation.room.name}`
+                : "Alrio Private Resort - Whole Resort",
+              status: fromResortReservationStatus(reservation.status),
             },
             subFolioTotal: toMoneyString(subFolioTotal),
             unbilledTotal: toMoneyString(unbilledTotal),
           };
         }),
       createFolioCharge: baseProcedure
-        .input(tenantFolioChargeSchema)
+        .input(resortFolioChargeSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -9850,11 +10916,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const reservation = await prisma.tenantReservation.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const reservation = await prisma.resortReservation.findFirst({
             where: {
               id: input.reservationId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -9865,17 +10931,17 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const charge = await prisma.tenantFolioCharge.create({
+          const charge = await prisma.resortFolioCharge.create({
             data: {
               amount: input.amount,
-              code: await getNextFolioChargeCode(tenantProfile.id),
+              code: await getNextFolioChargeCode(resortProfile.id),
               description: input.description,
               quantity: input.quantity,
               rate: input.rate,
               reservationId: input.reservationId,
-              status: toTenantFolioChargeStatus(input.status),
-              tenantProfileId: tenantProfile.id,
-              type: toTenantFolioChargeType(input.type),
+              status: toResortFolioChargeStatus(input.status),
+              resortProfileId: resortProfile.id,
+              type: toResortFolioChargeType(input.type),
             },
             include: {
               invoice: {
@@ -9886,7 +10952,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantFolioChargeOutput(charge);
+          return toResortFolioChargeOutput(charge);
         }),
       generateInvoiceFromFolio: baseProcedure
         .input(
@@ -9905,12 +10971,12 @@ export const appRouter = createTRPCRouter({
           }
 
           await requireInvoiceCreator(authUser.id);
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const charges = await prisma.tenantFolioCharge.findMany({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const charges = await prisma.resortFolioCharge.findMany({
             where: {
               reservationId: input.reservationId,
               status: "UNBILLED",
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             select: {
               id: true,
@@ -9919,7 +10985,7 @@ export const appRouter = createTRPCRouter({
 
           const invoice = await createInvoiceForFolioCharges({
             chargeIds: charges.map((charge) => charge.id),
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           });
 
           return {
@@ -9927,7 +10993,7 @@ export const appRouter = createTRPCRouter({
           };
         }),
       recordPayment: baseProcedure
-        .input(tenantPaymentLogSchema)
+        .input(resortPaymentLogSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -9938,11 +11004,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const reservation = await prisma.tenantReservation.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const reservation = await prisma.resortReservation.findFirst({
             where: {
               id: input.reservationId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -9953,7 +11019,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const invoices = await prisma.tenantInvoice.findMany({
+          const invoices = await prisma.resortInvoice.findMany({
             where: {
               id: input.invoiceIds.length
                 ? {
@@ -9964,7 +11030,7 @@ export const appRouter = createTRPCRouter({
               status: {
                 notIn: ["PAID", "VOID"],
               },
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             orderBy: {
               createdAt: "asc",
@@ -9991,11 +11057,18 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const financeCode = await getNextFinanceEntryCode(tenantProfile.id, "Revenue");
-          const firstPaymentCode = await getNextPaymentLogCode(tenantProfile.id);
-          const firstPaymentNumber = Number(firstPaymentCode.replace(/\D/g, ""));
+          const financeCode = await getNextFinanceEntryCode(
+            resortProfile.id,
+            "Revenue",
+          );
+          const firstPaymentCode = await getNextPaymentLogCode(
+            resortProfile.id,
+          );
+          const firstPaymentNumber = Number(
+            firstPaymentCode.replace(/\D/g, ""),
+          );
           await prisma.$transaction(async (tx) => {
-            await tx.tenantPaymentLog.createMany({
+            await tx.resortPaymentLog.createMany({
               data: invoices.map((invoice, index) => ({
                 amount: invoice.balanceDue,
                 code: `PAY-${String(firstPaymentNumber + index).padStart(5, "0")}`,
@@ -10006,11 +11079,11 @@ export const appRouter = createTRPCRouter({
                 proofUrl: input.proofUrl ?? null,
                 reservationId: input.reservationId,
                 status: "RECORDED",
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               })),
             });
 
-            await tx.tenantInvoice.updateMany({
+            await tx.resortInvoice.updateMany({
               where: {
                 id: {
                   in: invoices.map((invoice) => invoice.id),
@@ -10023,18 +11096,20 @@ export const appRouter = createTRPCRouter({
               },
             });
 
-            await tx.tenantFinanceEntry.create({
+            await tx.resortFinanceEntry.create({
               data: {
                 amount: input.amount,
                 category: "Invoice payment",
                 code: financeCode,
                 description: `Payment for booking ${reservation.id}`,
                 entryDate: new Date(),
-                notes: input.proofNote ?? null,
+                notes: [input.paymentMethod, input.proofNote]
+                  .filter(Boolean)
+                  .join(" · "),
                 receiptUrl: input.proofUrl ?? null,
                 source: "INVOICE_PAYMENT",
                 status: "CLEARED",
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 type: "REVENUE",
               },
             });
@@ -10045,7 +11120,7 @@ export const appRouter = createTRPCRouter({
           };
         }),
       createRequest: baseProcedure
-        .input(tenantReceptionRequestSchema)
+        .input(resortReceptionRequestSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -10056,13 +11131,13 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
 
           if (input.reservationId) {
-            const reservation = await prisma.tenantReservation.findFirst({
+            const reservation = await prisma.resortReservation.findFirst({
               where: {
                 id: input.reservationId,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -10074,42 +11149,43 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const request = await prisma.tenantReceptionRequest.create({
+          const request = await prisma.resortReceptionRequest.create({
             data: {
               department: input.department,
               note: input.note,
-              priority: toTenantReceptionRequestPriority(input.priority),
+              priority: toResortReceptionRequestPriority(input.priority),
               reservationId: input.reservationId ?? null,
               roomOrArea: input.roomOrArea,
               status: "SENT",
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
           if (input.department.toLowerCase().includes("maintenance")) {
-            const maintenanceCount = await prisma.tenantMaintenanceRequest.count({
-              where: {
-                tenantProfileId: tenantProfile.id,
-              },
-            });
+            const maintenanceCount =
+              await prisma.resortMaintenanceRequest.count({
+                where: {
+                  resortProfileId: resortProfile.id,
+                },
+              });
 
-            await prisma.tenantMaintenanceRequest.create({
+            await prisma.resortMaintenanceRequest.create({
               data: {
                 area: input.roomOrArea,
                 code: `MNT-${String(maintenanceCount + 1).padStart(4, "0")}`,
                 forwardedBy: "Reception",
                 issue: input.note.slice(0, 120),
                 notes: input.note,
-                priority: toTenantMaintenancePriority(input.priority),
-                tenantProfileId: tenantProfile.id,
+                priority: toResortMaintenancePriority(input.priority),
+                resortProfileId: resortProfile.id,
               },
             });
           }
 
-          return toTenantReceptionRequestOutput(request);
+          return toResortReceptionRequestOutput(request);
         }),
       createShiftNote: baseProcedure
-        .input(tenantReceptionShiftNoteSchema)
+        .input(resortReceptionShiftNoteSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -10120,16 +11196,16 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const note = await prisma.tenantReceptionShiftNote.create({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const note = await prisma.resortReceptionShiftNote.create({
             data: {
               note: input.note,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               title: input.title,
             },
           });
 
-          return toTenantReceptionShiftNoteOutput(note);
+          return toResortReceptionShiftNoteOutput(note);
         }),
       resolveRequest: baseProcedure
         .input(
@@ -10147,11 +11223,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const request = await prisma.tenantReceptionRequest.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const request = await prisma.resortReceptionRequest.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -10162,7 +11238,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantReceptionRequest.update({
+          await prisma.resortReceptionRequest.update({
             where: {
               id: input.id,
             },
@@ -10187,10 +11263,10 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const requests = await prisma.tenantMaintenanceRequest.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const requests = await prisma.resortMaintenanceRequest.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           orderBy: [
             {
@@ -10202,10 +11278,10 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return requests.map(toTenantMaintenanceRequestOutput);
+        return requests.map(toResortMaintenanceRequestOutput);
       }),
       create: baseProcedure
-        .input(tenantMaintenanceRequestSchema)
+        .input(resortMaintenanceRequestSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -10216,14 +11292,14 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const roomId = input.roomId?.trim() || null;
 
           if (roomId) {
-            const room = await prisma.tenantRoom.findFirst({
+            const room = await prisma.resortRoom.findFirst({
               where: {
                 id: roomId,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -10235,28 +11311,28 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const requestCount = await prisma.tenantMaintenanceRequest.count({
+          const requestCount = await prisma.resortMaintenanceRequest.count({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
-          const request = await prisma.tenantMaintenanceRequest.create({
+          const request = await prisma.resortMaintenanceRequest.create({
             data: {
               area: input.area,
               code: `MNT-${String(requestCount + 1).padStart(4, "0")}`,
               forwardedBy: "Reception",
               issue: input.issue,
               notes: input.notes?.trim() || null,
-              priority: toTenantMaintenancePriority(input.priority),
+              priority: toResortMaintenancePriority(input.priority),
               roomId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
-          return toTenantMaintenanceRequestOutput(request);
+          return toResortMaintenanceRequestOutput(request);
         }),
       complete: baseProcedure
-        .input(tenantMaintenanceCompleteSchema)
+        .input(resortMaintenanceCompleteSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -10267,11 +11343,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const request = await prisma.tenantMaintenanceRequest.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const request = await prisma.resortMaintenanceRequest.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -10282,7 +11358,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const updatedRequest = await prisma.tenantMaintenanceRequest.update({
+          const updatedRequest = await prisma.resortMaintenanceRequest.update({
             where: {
               id: input.id,
             },
@@ -10293,7 +11369,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantMaintenanceRequestOutput(updatedRequest);
+          return toResortMaintenanceRequestOutput(updatedRequest);
         }),
     }),
     laundry: createTRPCRouter({
@@ -10307,10 +11383,10 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const jobs = await prisma.tenantLaundryJob.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const jobs = await prisma.resortLaundryJob.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           orderBy: [
             {
@@ -10322,10 +11398,10 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return jobs.map(toTenantLaundryJobOutput);
+        return jobs.map(toResortLaundryJobOutput);
       }),
       create: baseProcedure
-        .input(tenantLaundryJobSchema)
+        .input(resortLaundryJobSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -10336,13 +11412,13 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const jobCount = await prisma.tenantLaundryJob.count({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const jobCount = await prisma.resortLaundryJob.count({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
-          const job = await prisma.tenantLaundryJob.create({
+          const job = await prisma.resortLaundryJob.create({
             data: {
               category: input.category,
               code: `LND-${String(jobCount + 1).padStart(4, "0")}`,
@@ -10350,18 +11426,18 @@ export const appRouter = createTRPCRouter({
               guestOrRoom: input.guestOrRoom,
               notes: input.notes?.trim() || null,
               pieces: input.pieces,
-              priority: toTenantLaundryPriority(input.priority),
-              tenantProfileId: tenantProfile.id,
+              priority: toResortLaundryPriority(input.priority),
+              resortProfileId: resortProfile.id,
             },
           });
 
-          return toTenantLaundryJobOutput(job);
+          return toResortLaundryJobOutput(job);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string().trim().min(1, "Laundry job is required."),
-            status: tenantLaundryStatusSchema,
+            status: resortLaundryStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -10374,11 +11450,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const existingJob = await prisma.tenantLaundryJob.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const existingJob = await prisma.resortLaundryJob.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -10389,16 +11465,16 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const job = await prisma.tenantLaundryJob.update({
+          const job = await prisma.resortLaundryJob.update({
             where: {
               id: input.id,
             },
             data: {
-              status: toTenantLaundryStatus(input.status),
+              status: toResortLaundryStatus(input.status),
             },
           });
 
-          return toTenantLaundryJobOutput(job);
+          return toResortLaundryJobOutput(job);
         }),
     }),
     inventory: createTRPCRouter({
@@ -10412,11 +11488,11 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const [items, movements] = await Promise.all([
-          prisma.tenantInventoryItem.findMany({
+          prisma.resortInventoryItem.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               movements: {
@@ -10430,9 +11506,9 @@ export const appRouter = createTRPCRouter({
               createdAt: "desc",
             },
           }),
-          prisma.tenantInventoryMovement.findMany({
+          prisma.resortInventoryMovement.findMany({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               item: {
@@ -10449,8 +11525,8 @@ export const appRouter = createTRPCRouter({
         ]);
 
         return {
-          items: items.map(toTenantInventoryItemOutput),
-          movements: movements.map(toTenantInventoryMovementOutput),
+          items: items.map(toResortInventoryItemOutput),
+          movements: movements.map(toResortInventoryMovementOutput),
         };
       }),
       byId: baseProcedure
@@ -10469,8 +11545,8 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const item = await prisma.tenantInventoryItem.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const item = await prisma.resortInventoryItem.findFirst({
             where: {
               OR: [
                 {
@@ -10480,7 +11556,7 @@ export const appRouter = createTRPCRouter({
                   code: input.id,
                 },
               ],
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               movements: {
@@ -10499,10 +11575,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantInventoryItemOutput(item);
+          return toResortInventoryItemOutput(item);
         }),
       upsert: baseProcedure
-        .input(tenantInventoryItemSchema)
+        .input(resortInventoryItemSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -10513,12 +11589,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const existingItem = input.id
-            ? await prisma.tenantInventoryItem.findFirst({
+            ? await prisma.resortInventoryItem.findFirst({
                 where: {
                   id: input.id,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                 },
               })
             : null;
@@ -10530,10 +11606,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const duplicate = await prisma.tenantInventoryItem.findFirst({
+          const duplicate = await prisma.resortInventoryItem.findFirst({
             where: {
               code: input.code,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               ...(input.id
                 ? {
                     id: {
@@ -10552,7 +11628,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const item = input.id
-            ? await prisma.tenantInventoryItem.update({
+            ? await prisma.resortInventoryItem.update({
                 where: {
                   id: input.id,
                 },
@@ -10576,7 +11652,7 @@ export const appRouter = createTRPCRouter({
                   },
                 },
               })
-            : await prisma.tenantInventoryItem.create({
+            : await prisma.resortInventoryItem.create({
                 data: {
                   category: input.category,
                   code: input.code,
@@ -10585,7 +11661,7 @@ export const appRouter = createTRPCRouter({
                   name: input.name,
                   notes: input.notes?.trim() || null,
                   quantity: input.quantity,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                   threshold: input.threshold,
                   unit: input.unit,
                 },
@@ -10599,7 +11675,7 @@ export const appRouter = createTRPCRouter({
                 },
               });
 
-          return toTenantInventoryItemOutput(item);
+          return toResortInventoryItemOutput(item);
         }),
       delete: baseProcedure
         .input(
@@ -10617,11 +11693,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const item = await prisma.tenantInventoryItem.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const item = await prisma.resortInventoryItem.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -10632,7 +11708,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantInventoryItem.delete({
+          await prisma.resortInventoryItem.delete({
             where: {
               id: input.id,
             },
@@ -10643,7 +11719,7 @@ export const appRouter = createTRPCRouter({
           };
         }),
       createMovement: baseProcedure
-        .input(tenantInventoryMovementSchema)
+        .input(resortInventoryMovementSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -10654,11 +11730,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const item = await prisma.tenantInventoryItem.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const item = await prisma.resortInventoryItem.findFirst({
             where: {
               id: input.itemId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -10669,17 +11745,17 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const movementCount = await prisma.tenantInventoryMovement.count({
+          const movementCount = await prisma.resortInventoryMovement.count({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
           const movement = await prisma.$transaction(async (tx) => {
-            const currentItem = await tx.tenantInventoryItem.findFirst({
+            const currentItem = await tx.resortInventoryItem.findFirst({
               where: {
                 id: item.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -10702,20 +11778,20 @@ export const appRouter = createTRPCRouter({
                 ? currentItem.quantity + input.quantity
                 : currentItem.quantity - input.quantity;
 
-            await tx.tenantInventoryItem.update({
+            await tx.resortInventoryItem.update({
               where: { id: currentItem.id },
               data: {
                 quantity: nextQuantity,
               },
             });
 
-            return tx.tenantInventoryMovement.create({
+            return tx.resortInventoryMovement.create({
               data: {
                 code: `MOV-${String(movementCount + 1).padStart(4, "0")}`,
                 itemId: item.id,
                 quantity: input.quantity,
                 reason: input.reason,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 type: input.type,
               },
               include: {
@@ -10728,7 +11804,7 @@ export const appRouter = createTRPCRouter({
             });
           });
 
-          return toTenantInventoryMovementOutput(movement);
+          return toResortInventoryMovementOutput(movement);
         }),
     }),
     housekeeping: createTRPCRouter({
@@ -10741,127 +11817,128 @@ export const appRouter = createTRPCRouter({
             .optional(),
         )
         .query(async ({ ctx, input }) => {
-        const authUser = ctx.session?.user;
+          const authUser = ctx.session?.user;
 
-        if (!authUser?.id) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Sign in required.",
-          });
-        }
+          if (!authUser?.id) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Sign in required.",
+            });
+          }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const selectedDate = input?.date ? new Date(input.date) : new Date();
-        const dayStart =
-          Number.isNaN(selectedDate.getTime()) ? new Date() : selectedDate;
-        dayStart.setHours(0, 0, 0, 0);
-        const dayEnd = new Date(dayStart);
-        dayEnd.setDate(dayEnd.getDate() + 1);
-        const upcomingEnd = new Date(dayStart);
-        upcomingEnd.setDate(upcomingEnd.getDate() + 7);
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const selectedDate = input?.date ? new Date(input.date) : new Date();
+          const dayStart = Number.isNaN(selectedDate.getTime())
+            ? new Date()
+            : selectedDate;
+          dayStart.setHours(0, 0, 0, 0);
+          const dayEnd = new Date(dayStart);
+          dayEnd.setDate(dayEnd.getDate() + 1);
+          const upcomingEnd = new Date(dayStart);
+          upcomingEnd.setDate(upcomingEnd.getDate() + 7);
 
-        const [rooms, staffProfiles, damageReports] = await Promise.all([
-          prisma.tenantRoom.findMany({
-            where: {
-              tenantProfileId: tenantProfile.id,
-            },
-            include: {
-              housekeepingState: {
-                include: {
-                  attendantStaffProfile: {
-                    include: {
-                      appUser: true,
+          const [rooms, staffProfiles, damageReports] = await Promise.all([
+            prisma.resortRoom.findMany({
+              where: {
+                resortProfileId: resortProfile.id,
+              },
+              include: {
+                housekeepingState: {
+                  include: {
+                    attendantStaffProfile: {
+                      include: {
+                        appUser: true,
+                      },
                     },
                   },
                 },
-              },
-              reservations: {
-                where: {
-                  status: {
-                    in: ["PENDING", "CONFIRMED", "CHECKED_IN"],
+                reservations: {
+                  where: {
+                    status: {
+                      in: ["PENDING", "CONFIRMED", "CHECKED_IN"],
+                    },
+                    OR: [
+                      {
+                        status: "CHECKED_IN",
+                        checkIn: {
+                          lte: dayEnd,
+                        },
+                        checkOut: {
+                          gte: dayStart,
+                        },
+                      },
+                      {
+                        checkIn: {
+                          gte: dayStart,
+                          lt: upcomingEnd,
+                        },
+                      },
+                    ],
                   },
-                  OR: [
-                    {
-                      status: "CHECKED_IN",
-                      checkIn: {
-                        lte: dayEnd,
-                      },
-                      checkOut: {
-                        gte: dayStart,
-                      },
-                    },
-                    {
-                      checkIn: {
-                        gte: dayStart,
-                        lt: upcomingEnd,
-                      },
-                    },
-                  ],
-                },
-                orderBy: {
-                  checkIn: "asc",
-                },
-                take: 1,
-              },
-            },
-            orderBy: [
-              {
-                code: "asc",
-              },
-              {
-                name: "asc",
-              },
-            ],
-          }),
-          prisma.tenantStaffProfile.findMany({
-            where: {
-              tenantProfileId: tenantProfile.id,
-              status: "ACTIVE",
-            },
-            include: {
-              appUser: true,
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-          }),
-          prisma.tenantHousekeepingDamageReport.findMany({
-            where: {
-              createdAt: {
-                gte: dayStart,
-                lt: dayEnd,
-              },
-              tenantProfileId: tenantProfile.id,
-            },
-            include: {
-              room: {
-                select: {
-                  code: true,
-                  name: true,
+                  orderBy: {
+                    checkIn: "asc",
+                  },
+                  take: 1,
                 },
               },
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-            take: 8,
-          }),
-        ]);
+              orderBy: [
+                {
+                  code: "asc",
+                },
+                {
+                  name: "asc",
+                },
+              ],
+            }),
+            prisma.resortStaffProfile.findMany({
+              where: {
+                resortProfileId: resortProfile.id,
+                status: "ACTIVE",
+              },
+              include: {
+                appUser: true,
+              },
+              orderBy: {
+                createdAt: "desc",
+              },
+            }),
+            prisma.resortHousekeepingDamageReport.findMany({
+              where: {
+                createdAt: {
+                  gte: dayStart,
+                  lt: dayEnd,
+                },
+                resortProfileId: resortProfile.id,
+              },
+              include: {
+                room: {
+                  select: {
+                    code: true,
+                    name: true,
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: "desc",
+              },
+              take: 8,
+            }),
+          ]);
 
-        return {
-          damageReports: damageReports.map(toTenantHousekeepingDamageOutput),
-          rooms: rooms.map(toTenantHousekeepingRoomOutput),
-          staff: staffProfiles.map((staffProfile) => ({
-            id: staffProfile.id,
-            name: staffProfile.appUser.displayName,
-          })),
-        };
-      }),
+          return {
+            damageReports: damageReports.map(toResortHousekeepingDamageOutput),
+            rooms: rooms.map(toResortHousekeepingRoomOutput),
+            staff: staffProfiles.map((staffProfile) => ({
+              id: staffProfile.id,
+              name: staffProfile.appUser.displayName,
+            })),
+          };
+        }),
       updateRoomStatus: baseProcedure
         .input(
           z.object({
             roomId: z.string().trim().min(1, "Room is required."),
-            status: tenantHousekeepingStatusSchema,
+            status: resortHousekeepingStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -10874,11 +11951,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const room = await prisma.tenantRoom.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const room = await prisma.resortRoom.findFirst({
             where: {
               id: input.roomId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -10890,20 +11967,20 @@ export const appRouter = createTRPCRouter({
           }
 
           await prisma.$transaction([
-            prisma.tenantHousekeepingRoom.upsert({
+            prisma.resortHousekeepingRoom.upsert({
               where: {
                 roomId: input.roomId,
               },
               create: {
                 roomId: input.roomId,
-                status: toTenantHousekeepingStatus(input.status),
-                tenantProfileId: tenantProfile.id,
+                status: toResortHousekeepingStatus(input.status),
+                resortProfileId: resortProfile.id,
               },
               update: {
-                status: toTenantHousekeepingStatus(input.status),
+                status: toResortHousekeepingStatus(input.status),
               },
             }),
-            prisma.tenantRoom.update({
+            prisma.resortRoom.update({
               where: {
                 id: input.roomId,
               },
@@ -10919,7 +11996,7 @@ export const appRouter = createTRPCRouter({
           };
         }),
       markReady: baseProcedure
-        .input(tenantHousekeepingReadySchema)
+        .input(resortHousekeepingReadySchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -10930,11 +12007,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const room = await prisma.tenantRoom.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const room = await prisma.resortRoom.findFirst({
             where: {
               id: input.roomId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -10952,10 +12029,10 @@ export const appRouter = createTRPCRouter({
               : null;
 
           if (attendantStaffProfileId) {
-            const staffProfile = await prisma.tenantStaffProfile.findFirst({
+            const staffProfile = await prisma.resortStaffProfile.findFirst({
               where: {
                 id: attendantStaffProfileId,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -10968,7 +12045,7 @@ export const appRouter = createTRPCRouter({
           }
 
           await prisma.$transaction([
-            prisma.tenantHousekeepingRoom.upsert({
+            prisma.resortHousekeepingRoom.upsert({
               where: {
                 roomId: input.roomId,
               },
@@ -10982,7 +12059,7 @@ export const appRouter = createTRPCRouter({
                 lastPhotoUrl: input.photo?.url ?? null,
                 roomId: input.roomId,
                 status: "CLEAN",
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
               update: {
                 attendantStaffProfileId,
@@ -10995,7 +12072,7 @@ export const appRouter = createTRPCRouter({
                 status: "CLEAN",
               },
             }),
-            prisma.tenantRoom.update({
+            prisma.resortRoom.update({
               where: {
                 id: input.roomId,
               },
@@ -11010,7 +12087,7 @@ export const appRouter = createTRPCRouter({
           };
         }),
       reportDamage: baseProcedure
-        .input(tenantHousekeepingDamageSchema)
+        .input(resortHousekeepingDamageSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -11021,11 +12098,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const room = await prisma.tenantRoom.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const room = await prisma.resortRoom.findFirst({
             where: {
               id: input.roomId,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -11036,9 +12113,9 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const maintenanceCount = await prisma.tenantMaintenanceRequest.count({
+          const maintenanceCount = await prisma.resortMaintenanceRequest.count({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
           const maintenanceNotes = [
@@ -11051,7 +12128,7 @@ export const appRouter = createTRPCRouter({
             .join("\n\n");
 
           const [report] = await prisma.$transaction([
-            prisma.tenantHousekeepingDamageReport.create({
+            prisma.resortHousekeepingDamageReport.create({
               data: {
                 details: input.details,
                 photoKey: input.photo?.key ?? null,
@@ -11060,7 +12137,7 @@ export const appRouter = createTRPCRouter({
                 photoSize: input.photo?.size ?? null,
                 photoUrl: input.photo?.url ?? null,
                 roomId: input.roomId,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
                 title: input.title,
               },
               include: {
@@ -11072,20 +12149,20 @@ export const appRouter = createTRPCRouter({
                 },
               },
             }),
-            prisma.tenantHousekeepingRoom.upsert({
+            prisma.resortHousekeepingRoom.upsert({
               where: {
                 roomId: input.roomId,
               },
               create: {
                 roomId: input.roomId,
                 status: "DIRTY",
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
               update: {
                 status: "DIRTY",
               },
             }),
-            prisma.tenantRoom.update({
+            prisma.resortRoom.update({
               where: {
                 id: input.roomId,
               },
@@ -11093,7 +12170,7 @@ export const appRouter = createTRPCRouter({
                 status: "MAINTENANCE",
               },
             }),
-            prisma.tenantMaintenanceRequest.create({
+            prisma.resortMaintenanceRequest.create({
               data: {
                 area: `${room.code} - ${room.name}`,
                 code: `MNT-${String(maintenanceCount + 1).padStart(4, "0")}`,
@@ -11102,12 +12179,12 @@ export const appRouter = createTRPCRouter({
                 notes: maintenanceNotes,
                 priority: "URGENT",
                 roomId: input.roomId,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             }),
           ]);
 
-          return toTenantHousekeepingDamageOutput(report);
+          return toResortHousekeepingDamageOutput(report);
         }),
       resolveDamage: baseProcedure
         .input(
@@ -11125,11 +12202,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const report = await prisma.tenantHousekeepingDamageReport.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const report = await prisma.resortHousekeepingDamageReport.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               room: {
@@ -11148,18 +12225,18 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantHousekeepingDamageReport.update({
+          await prisma.resortHousekeepingDamageReport.update({
             where: { id: input.id },
             data: { status: "RESOLVED" },
           });
 
-          await prisma.tenantMaintenanceRequest.updateMany({
+          await prisma.resortMaintenanceRequest.updateMany({
             where: {
               area: `${report.room.code} - ${report.room.name}`,
               issue: report.title,
               roomId: report.roomId,
               status: "PENDING",
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             data: {
               completedAt: new Date(),
@@ -11184,10 +12261,10 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const configuredPageId = process.env.META_PAGE_ID ?? "";
         const integration = configuredPageId
-          ? await prisma.tenantMessengerIntegration.findUnique({
+          ? await prisma.resortMessengerIntegration.findUnique({
               where: {
                 pageId: configuredPageId,
               },
@@ -11196,8 +12273,8 @@ export const appRouter = createTRPCRouter({
 
         return {
           connected: Boolean(
-            integration?.tenantProfileId === tenantProfile.id &&
-              integration.isActive,
+            integration?.resortProfileId === resortProfile.id &&
+            integration.isActive,
           ),
           integration: integration
             ? {
@@ -11227,7 +12304,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const pageId = process.env.META_PAGE_ID ?? "";
         const pageAccessToken = process.env.META_PAGE_ACCESS_TOKEN ?? "";
         const graphVersion = process.env.META_GRAPH_API_VERSION ?? "v25.0";
@@ -11247,19 +12324,23 @@ export const appRouter = createTRPCRouter({
         }
 
         if (!process.env.META_APP_SECRET) {
-          issues.push("META_APP_SECRET missing. Webhook signature check may fail in production.");
+          issues.push(
+            "META_APP_SECRET missing. Webhook signature check may fail in production.",
+          );
         }
 
         if (!webhookUrl) {
           issues.push("META_MESSENGER_WEBHOOK_URL missing.");
         } else if (!webhookUrl.includes("/api/webhooks/meta/messenger")) {
-          issues.push("Webhook URL must end with /api/webhooks/meta/messenger.");
+          issues.push(
+            "Webhook URL must end with /api/webhooks/meta/messenger.",
+          );
         } else {
           checks.push(`Webhook URL: ${webhookUrl}.`);
         }
 
         const integration = pageId
-          ? await prisma.tenantMessengerIntegration.findUnique({
+          ? await prisma.resortMessengerIntegration.findUnique({
               where: {
                 pageId,
               },
@@ -11267,34 +12348,38 @@ export const appRouter = createTRPCRouter({
           : null;
 
         if (!integration) {
-          issues.push("Messenger page not connected in ResortCloud. Click Connect Messenger.");
-        } else if (integration.tenantProfileId !== tenantProfile.id) {
-          issues.push("Messenger page is connected to another tenant workspace.");
+          issues.push(
+            "Messenger page not connected to Alrio Private Resort. Click Connect Messenger.",
+          );
+        } else if (integration.resortProfileId !== resortProfile.id) {
+          issues.push(
+            "Messenger page is connected to another resort workspace.",
+          );
         } else if (!integration.isActive) {
           issues.push("Messenger integration exists but is inactive.");
         } else {
-          checks.push("Messenger integration active in ResortCloud.");
+          checks.push("Messenger integration active for Alrio Private Resort.");
         }
 
         const [leadCount, stageCounts, recentMessages] = await Promise.all([
-          prisma.tenantLead.count({
+          prisma.resortLead.count({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           }),
-          prisma.tenantLead.groupBy({
+          prisma.resortLead.groupBy({
             by: ["stage"],
             _count: {
               _all: true,
             },
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           }),
-          prisma.tenantLeadMessage.findMany({
+          prisma.resortLeadMessage.findMany({
             where: {
               lead: {
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             },
             include: {
@@ -11323,31 +12408,32 @@ export const appRouter = createTRPCRouter({
             error?: { message?: string };
           };
 
-          const pageProbe: { body: MetaPageProbeBody; ok: boolean } = await fetch(
-            `https://graph.facebook.com/${graphVersion}/me?fields=id,name&access_token=${encodeURIComponent(pageAccessToken)}`,
-            {
-              cache: "no-store",
-            },
-          )
-            .then(async (response) => ({
-              ok: response.ok,
-              body: (await response.json()) as {
-                error?: { message?: string };
-                id?: string;
-                name?: string;
+          const pageProbe: { body: MetaPageProbeBody; ok: boolean } =
+            await fetch(
+              `https://graph.facebook.com/${graphVersion}/me?fields=id,name&access_token=${encodeURIComponent(pageAccessToken)}`,
+              {
+                cache: "no-store",
               },
-            }))
-            .catch((error: unknown) => ({
-              ok: false,
-              body: {
-                error: {
-                  message:
-                    error instanceof Error
-                      ? error.message
-                      : "Cannot reach Meta Graph API.",
+            )
+              .then(async (response) => ({
+                ok: response.ok,
+                body: (await response.json()) as {
+                  error?: { message?: string };
+                  id?: string;
+                  name?: string;
                 },
-              },
-            }));
+              }))
+              .catch((error: unknown) => ({
+                ok: false,
+                body: {
+                  error: {
+                    message:
+                      error instanceof Error
+                        ? error.message
+                        : "Cannot reach Meta Graph API.",
+                  },
+                },
+              }));
 
           if (!pageProbe.ok) {
             const message =
@@ -11365,7 +12451,9 @@ export const appRouter = createTRPCRouter({
               issues.push(`Meta Page token check failed: ${message}`);
             }
           } else {
-            checks.push(`Meta token belongs to: ${pageProbe.body.name ?? "Unknown Page"}.`);
+            checks.push(
+              `Meta token belongs to: ${pageProbe.body.name ?? "Unknown Page"}.`,
+            );
 
             if (pageProbe.body.id && pageProbe.body.id !== pageId) {
               issues.push(
@@ -11421,7 +12509,9 @@ export const appRouter = createTRPCRouter({
                 `Meta API did not report subscribed fields: ${missingFields.join(", ")}. If Messenger API Settings shows them as Subscribed, use Meta test webhook or send a real message to confirm.`,
               );
             } else {
-              checks.push("Meta webhook subscribed to Messenger message fields.");
+              checks.push(
+                "Meta webhook subscribed to Messenger message fields.",
+              );
             }
           }
         }
@@ -11465,8 +12555,8 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const integration = await prisma.tenantMessengerIntegration.upsert({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const integration = await prisma.resortMessengerIntegration.upsert({
           where: {
             pageId,
           },
@@ -11479,7 +12569,7 @@ export const appRouter = createTRPCRouter({
               "messaging_postbacks",
               "messaging_referrals",
             ],
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             verifyToken: process.env.META_VERIFY_TOKEN,
           },
           update: {
@@ -11491,7 +12581,7 @@ export const appRouter = createTRPCRouter({
               "messaging_postbacks",
               "messaging_referrals",
             ],
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             verifyToken: process.env.META_VERIFY_TOKEN,
           },
         });
@@ -11512,7 +12602,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
+        const resortProfile = await getResortProfileForSession(authUser.id);
         const pageId = process.env.META_PAGE_ID;
         const pageAccessToken = process.env.META_PAGE_ACCESS_TOKEN;
         const graphVersion = process.env.META_GRAPH_API_VERSION ?? "v25.0";
@@ -11524,7 +12614,7 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const integration = await prisma.tenantMessengerIntegration.upsert({
+        const integration = await prisma.resortMessengerIntegration.upsert({
           where: {
             pageId,
           },
@@ -11537,7 +12627,7 @@ export const appRouter = createTRPCRouter({
               "messaging_postbacks",
               "messaging_referrals",
             ],
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             verifyToken: process.env.META_VERIFY_TOKEN,
           },
           update: {
@@ -11548,7 +12638,7 @@ export const appRouter = createTRPCRouter({
               "messaging_postbacks",
               "messaging_referrals",
             ],
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
             verifyToken: process.env.META_VERIFY_TOKEN,
           },
         });
@@ -11584,7 +12674,7 @@ export const appRouter = createTRPCRouter({
           return nextUrl.toString();
         };
 
-        const fetchMetaPage = async <T,>(url: string) => {
+        const fetchMetaPage = async <T>(url: string) => {
           const response = await fetch(withAccessToken(url), {
             cache: "no-store",
           });
@@ -11600,7 +12690,7 @@ export const appRouter = createTRPCRouter({
           return body;
         };
 
-        const fetchAllMetaPages = async <T,>(initialUrl: string) => {
+        const fetchAllMetaPages = async <T>(initialUrl: string) => {
           const records: T[] = [];
           const seenUrls = new Set<string>();
           let nextUrl: string | undefined = initialUrl;
@@ -11615,11 +12705,9 @@ export const appRouter = createTRPCRouter({
           return records;
         };
 
-        const fields = [
-          "id",
-          "updated_time",
-          "participants{id,name}",
-        ].join(",");
+        const fields = ["id", "updated_time", "participants{id,name}"].join(
+          ",",
+        );
         const conversations = await fetchAllMetaPages<MetaConversation>(
           `https://graph.facebook.com/${graphVersion}/${pageId}/conversations?platform=messenger&fields=${encodeURIComponent(fields)}&access_token=${encodeURIComponent(pageAccessToken)}`,
         );
@@ -11637,12 +12725,18 @@ export const appRouter = createTRPCRouter({
           const newestMessage =
             [...messages].sort(
               (a, b) =>
-                new Date(b.created_time ?? conversation.updated_time ?? Date.now()).getTime() -
-                new Date(a.created_time ?? conversation.updated_time ?? Date.now()).getTime(),
+                new Date(
+                  b.created_time ?? conversation.updated_time ?? Date.now(),
+                ).getTime() -
+                new Date(
+                  a.created_time ?? conversation.updated_time ?? Date.now(),
+                ).getTime(),
             )[0] ?? null;
           const summary =
             newestMessage?.message?.trim() ||
-            (newestMessage?.attachments ? "Messenger attachment" : "Messenger inquiry");
+            (newestMessage?.attachments
+              ? "Messenger attachment"
+              : "Messenger inquiry");
           const lastMessageAt = newestMessage?.created_time
             ? new Date(newestMessage.created_time)
             : conversation.updated_time
@@ -11657,11 +12751,11 @@ export const appRouter = createTRPCRouter({
             pageAccessToken,
             psid,
           });
-          const existingLead = await prisma.tenantLead.findUnique({
+          const existingLead = await prisma.resortLead.findUnique({
             where: {
-              tenantProfileId_psid: {
+              resortProfileId_psid: {
                 psid,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             },
             select: {
@@ -11670,7 +12764,9 @@ export const appRouter = createTRPCRouter({
               targetDate: true,
             },
           });
-          const inferredStage = inferMessengerLeadStage(conversationText || summary);
+          const inferredStage = inferMessengerLeadStage(
+            conversationText || summary,
+          );
           const inferredTargetDate = extractMessengerTargetDate(
             conversationText || summary,
             lastMessageAt,
@@ -11678,11 +12774,11 @@ export const appRouter = createTRPCRouter({
           const shouldAutoStage =
             !existingLead || existingLead.stage === "INTAKE";
 
-          const lead = await prisma.tenantLead.upsert({
+          const lead = await prisma.resortLead.upsert({
             where: {
-              tenantProfileId_psid: {
+              resortProfileId_psid: {
                 psid,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             },
             create: {
@@ -11696,7 +12792,7 @@ export const appRouter = createTRPCRouter({
               source: "Messenger",
               stage: inferredStage,
               targetDate: inferredTargetDate,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             update: {
               guestName: profile?.name ?? guest?.name ?? undefined,
@@ -11709,7 +12805,8 @@ export const appRouter = createTRPCRouter({
                 existingLead?.profilePictureUrl ??
                 undefined,
               stage: shouldAutoStage ? inferredStage : undefined,
-              targetDate: existingLead?.targetDate ?? inferredTargetDate ?? undefined,
+              targetDate:
+                existingLead?.targetDate ?? inferredTargetDate ?? undefined,
             },
           });
 
@@ -11721,7 +12818,7 @@ export const appRouter = createTRPCRouter({
               ? new Date(message.created_time)
               : lastMessageAt;
 
-            await prisma.tenantLeadMessage.upsert({
+            await prisma.resortLeadMessage.upsert({
               where: {
                 metaMessageId: message.id,
               },
@@ -11760,70 +12857,73 @@ export const appRouter = createTRPCRouter({
           messages: syncedMessages,
         };
       }),
-      save: baseProcedure.input(tenantLeadSaveSchema).mutation(async ({ ctx, input }) => {
-        const authUser = ctx.session?.user;
+      save: baseProcedure
+        .input(resortLeadSaveSchema)
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
 
-        if (!authUser?.id) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Sign in required.",
-          });
-        }
-
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const targetDate = input.targetDate
-          ? new Date(`${input.targetDate}T00:00:00`)
-          : null;
-
-        if (input.id) {
-          const lead = await prisma.tenantLead.findFirst({
-            where: {
-              id: input.id,
-              tenantProfileId: tenantProfile.id,
-            },
-          });
-
-          if (!lead) {
+          if (!authUser?.id) {
             throw new TRPCError({
-              code: "NOT_FOUND",
-              message: "Lead not found.",
+              code: "UNAUTHORIZED",
+              message: "Sign in required.",
             });
           }
 
-          return prisma.tenantLead.update({
-            where: {
-              id: input.id,
-            },
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const targetDate = input.targetDate
+            ? new Date(`${input.targetDate}T00:00:00`)
+            : null;
+
+          if (input.id) {
+            const lead = await prisma.resortLead.findFirst({
+              where: {
+                id: input.id,
+                resortProfileId: resortProfile.id,
+              },
+            });
+
+            if (!lead) {
+              throw new TRPCError({
+                code: "NOT_FOUND",
+                message: "Lead not found.",
+              });
+            }
+
+            return prisma.resortLead.update({
+              where: {
+                id: input.id,
+              },
+              data: {
+                guestName: input.guestName,
+                inquiry: input.inquiry ?? null,
+                lastMessage: input.lastMessage ?? lead.lastMessage,
+                source: input.source,
+                stage: input.stage,
+                targetDate,
+              },
+            });
+          }
+
+          return prisma.resortLead.create({
             data: {
               guestName: input.guestName,
               inquiry: input.inquiry ?? null,
-              lastMessage: input.lastMessage ?? lead.lastMessage,
+              lastMessage: input.lastMessage ?? input.inquiry ?? null,
+              lastMessageAt:
+                input.lastMessage || input.inquiry ? new Date() : null,
+              psid: `manual:${Date.now()}:${generateRandomString(8)}`,
               source: input.source,
               stage: input.stage,
               targetDate,
+              resortProfileId: resortProfile.id,
             },
           });
-        }
-
-        return prisma.tenantLead.create({
-          data: {
-            guestName: input.guestName,
-            inquiry: input.inquiry ?? null,
-            lastMessage: input.lastMessage ?? input.inquiry ?? null,
-            lastMessageAt: input.lastMessage || input.inquiry ? new Date() : null,
-            psid: `manual:${Date.now()}:${generateRandomString(8)}`,
-            source: input.source,
-            stage: input.stage,
-            targetDate,
-            tenantProfileId: tenantProfile.id,
-          },
-        });
-      }),
+        }),
       updateStage: baseProcedure
         .input(
           z.object({
             id: z.string().trim().min(1, "Lead is required."),
-            stage: tenantLeadStageSchema,
+            stage: resortLeadStageSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -11836,11 +12936,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const lead = await prisma.tenantLead.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const lead = await prisma.resortLead.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -11851,7 +12951,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantLead.update({
+          await prisma.resortLead.update({
             where: {
               id: input.id,
             },
@@ -11865,7 +12965,7 @@ export const appRouter = createTRPCRouter({
           };
         }),
       convertToReservation: baseProcedure
-        .input(tenantLeadConvertReservationSchema)
+        .input(resortLeadConvertReservationSchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -11876,21 +12976,13 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const [lead, room] = await Promise.all([
-            prisma.tenantLead.findFirst({
-              where: {
-                id: input.leadId,
-                tenantProfileId: tenantProfile.id,
-              },
-            }),
-            prisma.tenantRoom.findFirst({
-              where: {
-                id: input.roomId,
-                tenantProfileId: tenantProfile.id,
-              },
-            }),
-          ]);
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const lead = await prisma.resortLead.findFirst({
+            where: {
+              id: input.leadId,
+              resortProfileId: resortProfile.id,
+            },
+          });
 
           if (!lead) {
             throw new TRPCError({
@@ -11906,62 +12998,42 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          if (!room) {
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: "Room not found.",
-            });
-          }
-
-          if (room.status === "OUT_OF_SERVICE") {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Room is out of service.",
-            });
-          }
-
-          if (input.adults > room.maxAdults || input.children > room.childrenOccupancy) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Guest count exceeds room capacity.",
-            });
-          }
-
           const checkIn = parseReservationDate(input.checkIn, "Check-in");
           const checkOut = parseReservationDate(input.checkOut, "Check-out");
           const nights = getReservationNights(checkIn, checkOut);
 
-          if (nights < room.minNights) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: `Minimum stay is ${room.minNights} night${room.minNights === 1 ? "" : "s"}.`,
+          const overlappingReservation =
+            await prisma.resortReservation.findFirst({
+              where: {
+                checkIn: {
+                  lt: checkOut,
+                },
+                checkOut: {
+                  gt: checkIn,
+                },
+                status: {
+                  notIn: ["CANCELED", "CHECKED_OUT"],
+                },
+                resortProfileId: resortProfile.id,
+              },
             });
-          }
-
-          const overlappingReservation = await prisma.tenantReservation.findFirst({
-            where: {
-              checkIn: {
-                lt: checkOut,
-              },
-              checkOut: {
-                gt: checkIn,
-              },
-              roomId: input.roomId,
-              status: {
-                notIn: ["CANCELED", "CHECKED_OUT"],
-              },
-              tenantProfileId: tenantProfile.id,
-            },
-          });
 
           if (overlappingReservation) {
             throw new TRPCError({
               code: "CONFLICT",
-              message: "Room already has a booking for selected dates.",
+              message:
+                "Alrio Private Resort is already booked for the selected dates.",
             });
           }
 
-          const reservation = await prisma.tenantReservation.create({
+          const includedRoomCount = await prisma.resortRoom.count({
+            where: {
+              resortProfileId: resortProfile.id,
+              status: { not: "OUT_OF_SERVICE" },
+            },
+          });
+
+          const reservation = await prisma.resortReservation.create({
             data: {
               adults: input.adults,
               checkIn,
@@ -11973,14 +13045,14 @@ export const appRouter = createTRPCRouter({
               notes:
                 input.notes ??
                 `Converted from lead ${lead.id}${lead.inquiry ? `: ${lead.inquiry}` : ""}`,
-              packageName: input.packageName ?? null,
-              packagePrice: input.packagePrice ?? null,
+              packageName: null,
+              packagePrice: null,
               paymentMethod: input.paymentMethod ?? null,
               rate: input.rate,
-              roomId: input.roomId,
-              roomsIncluded: input.roomsIncluded,
-              status: toTenantReservationStatus(input.status),
-              tenantProfileId: tenantProfile.id,
+              roomId: null,
+              roomsIncluded: Math.max(includedRoomCount, 1),
+              status: toResortReservationStatus(input.status),
+              resortProfileId: resortProfile.id,
               totalAmount: input.totalAmount,
             },
             include: {
@@ -11994,23 +13066,12 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          if (input.status === "Checked in") {
-            await prisma.tenantRoom.update({
-              where: {
-                id: input.roomId,
-              },
-              data: {
-                status: "OCCUPIED",
-              },
-            });
-          }
-
           await createInvoiceForReservation({
             reservation,
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           });
 
-          await prisma.tenantLead.update({
+          await prisma.resortLead.update({
             where: {
               id: input.leadId,
             },
@@ -12020,10 +13081,10 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          return toTenantReservationOutput(reservation);
+          return toResortReservationOutput(reservation);
         }),
       sendReply: baseProcedure
-        .input(tenantLeadReplySchema)
+        .input(resortLeadReplySchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -12034,11 +13095,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const lead = await prisma.tenantLead.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const lead = await prisma.resortLead.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
             include: {
               messengerIntegration: true,
@@ -12055,7 +13116,8 @@ export const appRouter = createTRPCRouter({
           const pageAccessToken =
             lead.messengerIntegration?.pageAccessToken ??
             process.env.META_PAGE_ACCESS_TOKEN;
-          const pageId = lead.messengerIntegration?.pageId ?? process.env.META_PAGE_ID;
+          const pageId =
+            lead.messengerIntegration?.pageId ?? process.env.META_PAGE_ID;
 
           if (lead.psid.startsWith("manual:")) {
             throw new TRPCError({
@@ -12105,7 +13167,7 @@ export const appRouter = createTRPCRouter({
           const sentAt = new Date();
 
           await prisma.$transaction([
-            prisma.tenantLead.update({
+            prisma.resortLead.update({
               where: {
                 id: input.id,
               },
@@ -12114,7 +13176,7 @@ export const appRouter = createTRPCRouter({
                 lastMessageAt: sentAt,
               },
             }),
-            prisma.tenantLeadMessage.create({
+            prisma.resortLeadMessage.create({
               data: {
                 direction: "OUTBOUND",
                 lead: {
@@ -12122,7 +13184,8 @@ export const appRouter = createTRPCRouter({
                     id: input.id,
                   },
                 },
-                metaMessageId: body.message_id ?? `outbound:${input.id}:${sentAt.getTime()}`,
+                metaMessageId:
+                  body.message_id ?? `outbound:${input.id}:${sentAt.getTime()}`,
                 recipientId: lead.psid,
                 senderId: pageId,
                 sentAt,
@@ -12151,11 +13214,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const lead = await prisma.tenantLead.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const lead = await prisma.resortLead.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -12166,7 +13229,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantLead.delete({
+          await prisma.resortLead.delete({
             where: {
               id: input.id,
             },
@@ -12186,10 +13249,10 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const leads = await prisma.tenantLead.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const leads = await prisma.resortLead.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           include: {
             messages: {
@@ -12247,8 +13310,10 @@ export const appRouter = createTRPCRouter({
                 checkIn: lead.reservation.checkIn.toISOString(),
                 checkOut: lead.reservation.checkOut.toISOString(),
                 id: lead.reservation.id,
-                roomLabel: `${lead.reservation.room.code} - ${lead.reservation.room.name}`,
-                status: fromTenantReservationStatus(lead.reservation.status),
+                roomLabel: lead.reservation.room
+                  ? `${lead.reservation.room.code} - ${lead.reservation.room.name}`
+                  : "Alrio Private Resort - Whole Resort",
+                status: fromResortReservationStatus(lead.reservation.status),
               }
             : null,
           reservationId: lead.reservationId,
@@ -12269,10 +13334,10 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const tenantProfile = await getTenantProfileForSession(authUser.id);
-        const amenities = await prisma.tenantAmenity.findMany({
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const amenities = await prisma.resortAmenity.findMany({
           where: {
-            tenantProfileId: tenantProfile.id,
+            resortProfileId: resortProfile.id,
           },
           orderBy: [
             {
@@ -12284,7 +13349,7 @@ export const appRouter = createTRPCRouter({
           ],
         });
 
-        return amenities.map(toTenantAmenityOutput);
+        return amenities.map(toResortAmenityOutput);
       }),
       get: baseProcedure
         .input(
@@ -12302,11 +13367,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const amenity = await prisma.tenantAmenity.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const amenity = await prisma.resortAmenity.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -12317,10 +13382,10 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          return toTenantAmenityOutput(amenity);
+          return toResortAmenityOutput(amenity);
         }),
       save: baseProcedure
-        .input(tenantAmenitySchema)
+        .input(resortAmenitySchema)
         .mutation(async ({ ctx, input }) => {
           const authUser = ctx.session?.user;
 
@@ -12331,14 +13396,14 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const code = input.code.toUpperCase();
 
           if (input.id) {
-            const existingAmenity = await prisma.tenantAmenity.findFirst({
+            const existingAmenity = await prisma.resortAmenity.findFirst({
               where: {
                 id: input.id,
-                tenantProfileId: tenantProfile.id,
+                resortProfileId: resortProfile.id,
               },
             });
 
@@ -12350,9 +13415,9 @@ export const appRouter = createTRPCRouter({
             }
           }
 
-          const duplicateCode = await prisma.tenantAmenity.findFirst({
+          const duplicateCode = await prisma.resortAmenity.findFirst({
             where: {
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
               code,
               id: input.id
                 ? {
@@ -12375,11 +13440,11 @@ export const appRouter = createTRPCRouter({
             category: input.category,
             icon: input.icon,
             description: input.description ?? null,
-            appliesTo: toTenantAmenityScope(input.appliesTo),
+            appliesTo: toResortAmenityScope(input.appliesTo),
             chargeable: input.chargeable,
             feeAmount: input.chargeable ? (input.feeAmount ?? null) : null,
-            feeUnit: toTenantAmenityFeeUnit(input.feeUnit),
-            status: toTenantAmenityStatus(input.status),
+            feeUnit: toResortAmenityFeeUnit(input.feeUnit),
+            status: toResortAmenityStatus(input.status),
             showOnBookingPage: input.showOnBookingPage,
             featured: input.featured,
             sortOrder: input.sortOrder,
@@ -12387,26 +13452,26 @@ export const appRouter = createTRPCRouter({
           };
 
           const amenity = input.id
-            ? await prisma.tenantAmenity.update({
+            ? await prisma.resortAmenity.update({
                 where: {
                   id: input.id,
                 },
                 data,
               })
-            : await prisma.tenantAmenity.create({
+            : await prisma.resortAmenity.create({
                 data: {
                   ...data,
-                  tenantProfileId: tenantProfile.id,
+                  resortProfileId: resortProfile.id,
                 },
               });
 
-          return toTenantAmenityOutput(amenity);
+          return toResortAmenityOutput(amenity);
         }),
       updateStatus: baseProcedure
         .input(
           z.object({
             id: z.string(),
-            status: tenantAmenityStatusSchema,
+            status: resortAmenityStatusSchema,
           }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -12419,11 +13484,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const amenity = await prisma.tenantAmenity.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const amenity = await prisma.resortAmenity.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -12434,12 +13499,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantAmenity.update({
+          await prisma.resortAmenity.update({
             where: {
               id: input.id,
             },
             data: {
-              status: toTenantAmenityStatus(input.status),
+              status: toResortAmenityStatus(input.status),
             },
           });
 
@@ -12468,14 +13533,14 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
+          const resortProfile = await getResortProfileForSession(authUser.id);
           const ids = input.items.map((item) => item.id);
-          const amenityCount = await prisma.tenantAmenity.count({
+          const amenityCount = await prisma.resortAmenity.count({
             where: {
               id: {
                 in: ids,
               },
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -12488,7 +13553,7 @@ export const appRouter = createTRPCRouter({
 
           await prisma.$transaction(
             input.items.map((item) =>
-              prisma.tenantAmenity.update({
+              prisma.resortAmenity.update({
                 where: {
                   id: item.id,
                 },
@@ -12519,11 +13584,11 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const tenantProfile = await getTenantProfileForSession(authUser.id);
-          const amenity = await prisma.tenantAmenity.findFirst({
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const amenity = await prisma.resortAmenity.findFirst({
             where: {
               id: input.id,
-              tenantProfileId: tenantProfile.id,
+              resortProfileId: resortProfile.id,
             },
           });
 
@@ -12534,7 +13599,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.tenantAmenity.delete({
+          await prisma.resortAmenity.delete({
             where: {
               id: input.id,
             },
@@ -12545,63 +13610,6 @@ export const appRouter = createTRPCRouter({
           };
         }),
     }),
-    onboarding: baseProcedure.query(async ({ ctx }) => {
-      const authUser = ctx.session?.user;
-
-      if (!authUser?.id) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Sign in required.",
-        });
-      }
-
-      const appUser = await prisma.appUser.findUnique({
-        where: {
-          authUserId: authUser.id,
-        },
-        include: {
-          tenantProfile: true,
-        },
-      });
-
-      if (appUser?.role !== "TENANT" || !appUser.tenantProfile) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Tenant account required.",
-        });
-      }
-
-      return appUser.tenantProfile;
-    }),
-    saveOnboarding: baseProcedure
-      .input(onboardingSchema)
-      .mutation(async ({ ctx, input }) => {
-        const authUser = ctx.session?.user;
-
-        if (!authUser?.id) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Sign in required.",
-          });
-        }
-
-        const { complete, ...profileInput } = input;
-        const tenantProfile = await prisma.tenantProfile.update({
-          where: {
-            appUserId: authUser.id,
-          },
-          data: {
-            ...profileInput,
-            onboardingStatus: complete ? "COMPLETED" : "IN_PROGRESS",
-            onboardingCompletedAt: complete ? new Date() : undefined,
-          },
-        });
-
-        return {
-          tenantProfile,
-          redirectTo: complete ? "/tenant/dashboard" : "/auth/onboarding",
-        };
-      }),
   }),
 });
 

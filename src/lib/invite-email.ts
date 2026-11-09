@@ -44,15 +44,22 @@ function escapeHtml(value: string) {
 }
 
 function getInviteUrl(appUrl: string, token: string) {
-  const inviteUrl = new URL("/accept-invitation", appUrl);
-  inviteUrl.searchParams.set("token", token);
+  const inviteUrl = new URL(
+    `/auth/sign-up/staff/${encodeURIComponent(token)}`,
+    appUrl,
+  );
 
   return inviteUrl.toString();
 }
 
 function getInvitationSupportUrl() {
-  const supportUrl = new URL("https://alrioprivateresort.com/support/submit-a-ticket");
-  supportUrl.searchParams.set("invitation_error", randomBytes(16).toString("hex"));
+  const supportUrl = new URL(
+    "https://alrioprivateresort.com/support/submit-a-ticket",
+  );
+  supportUrl.searchParams.set(
+    "invitation_error",
+    randomBytes(16).toString("hex"),
+  );
 
   return supportUrl.toString();
 }
@@ -100,6 +107,19 @@ export async function sendStaffInviteEmail(input: StaffInviteEmailInput) {
   });
 }
 
+export async function sendPasswordResetEmail(input: {
+  email: string;
+  url: string;
+}) {
+  await createTransporter().sendMail({
+    from: getRequiredEnv("SMTP_FROM"),
+    to: input.email,
+    subject: "Reset your Alrio Private Resort password",
+    text: `Reset your Alrio Private Resort password using this link:\n\n${input.url}\n\nThis link expires in one hour and can be used once. If you did not request a reset, you can ignore this email.`,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#18181b;max-width:520px;margin:auto;padding:32px"><h1 style="font-size:24px">Reset your password</h1><p>Use the button below to set a new password for your Alrio Private Resort account.</p><p><a href="${escapeHtml(input.url)}" style="display:inline-block;background:#ae7b0c;color:white;padding:12px 24px;border-radius:8px;text-decoration:none">Reset password</a></p><p>This link expires in one hour and can be used once.</p><p>If you did not request a reset, you can ignore this email.</p><p>Alrio Private Resort</p></div>`,
+  });
+}
+
 export async function sendReservationConfirmationEmail(
   input: ReservationConfirmationEmailInput,
 ) {
@@ -143,7 +163,7 @@ function buildStaffInviteHtml(
           <table role="presentation" width="670" cellspacing="0" cellpadding="0" style="max-width:670px;width:100%;">
             <tr>
               <td style="padding-bottom:40px;">
-                <img src="https://alrioprivateresort.com/main/logo-light.png" width="90" alt="ResortCloud" style="display:block;border:0;outline:none;text-decoration:none;" />
+                <img src="https://q3m5xo7hmq.ufs.sh/f/cwO9cyRsC4yhcPZxvzRsC4yhxXWijpTZmVgvJrAqb9SRz7u6" width="90" alt="Alrio Private Resort" style="display:block;border:0;outline:none;text-decoration:none;" />
               </td>
             </tr>
             <tr>
@@ -163,7 +183,7 @@ function buildStaffInviteHtml(
             </tr>
             <tr>
               <td style="padding-top:70px;">
-                <div style="border-top:1px dashed #cbd5e1;padding-top:20px;color:#64748b;font-size:13px;">© 2026 ResortCloud</div>
+                <div style="border-top:1px dashed #cbd5e1;padding-top:20px;color:#64748b;font-size:13px;">© 2026 Alrio Private Resort</div>
               </td>
             </tr>
           </table>
@@ -195,7 +215,7 @@ function buildReservationConfirmationHtml(
           <table role="presentation" width="670" cellspacing="0" cellpadding="0" style="max-width:670px;width:100%;">
             <tr>
               <td style="padding-bottom:40px;">
-                <img src="https://alrioprivateresort.com/main/logo-light.png" width="90" alt="ResortCloud" style="display:block;border:0;outline:none;text-decoration:none;" />
+                <img src="https://q3m5xo7hmq.ufs.sh/f/cwO9cyRsC4yhcPZxvzRsC4yhxXWijpTZmVgvJrAqb9SRz7u6" width="90" alt="Alrio Private Resort" style="display:block;border:0;outline:none;text-decoration:none;" />
               </td>
             </tr>
             <tr>
@@ -217,7 +237,7 @@ function buildReservationConfirmationHtml(
             </tr>
             <tr>
               <td style="padding-top:70px;">
-                <div style="border-top:1px dashed #cbd5e1;padding-top:20px;color:#64748b;font-size:13px;">Â© 2026 ResortCloud</div>
+                <div style="border-top:1px dashed #cbd5e1;padding-top:20px;color:#64748b;font-size:13px;">Â© 2026 Alrio Private Resort</div>
               </td>
             </tr>
           </table>
@@ -247,7 +267,7 @@ function buildReservationConfirmationText(
     "",
     `View booking: ${input.bookingUrl}`,
     "",
-    "Â© 2026 ResortCloud",
+    "Â© 2026 Alrio Private Resort",
   ]
     .filter(Boolean)
     .join("\n");
@@ -295,7 +315,7 @@ function buildStaffInviteText(
     `Accept invitation: ${input.inviteUrl}`,
     `Invitation support: ${input.supportUrl}`,
     "",
-    "© 2026 ResortCloud",
+    "© 2026 Alrio Private Resort",
   ]
     .filter(Boolean)
     .join("\n");

@@ -2,103 +2,76 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { KeyRound, Menu, X } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
-const menuLinks = [
-  { label: "Stays", href: "#stays" },
-  { label: "Davao guide", href: "#guide" },
-  { label: "About", href: "#about" },
-  { label: "Guest support", href: "#support" },
-  { label: "Journal", href: "#journal" },
+const links = [
+  { label: "Gallery", href: "/#gallery" },
+  { label: "Amenities", href: "/#amenities" },
+  { label: "Activities & experiences", href: "/#experiences" },
+  { label: "Guest stories", href: "/#testimonials" },
+  { label: "Contact us", href: "/#contact" },
 ];
 
 export function LandingMenu({ dark = false }: { dark?: boolean }) {
+  const [open, setOpen] = useState(false);
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <button
           type="button"
           aria-label="Open menu"
-          className={[
-            "grid size-11 place-items-center rounded-full border",
-            dark
-              ? "border-zinc-300 bg-white text-zinc-950 hover:bg-zinc-100"
-              : "border-white/25 bg-white/10 text-white hover:bg-white/20",
-          ].join(" ")}
+          className={`grid size-10 shrink-0 place-items-center rounded-full border ${dark ? "border-zinc-300 text-zinc-950 hover:bg-zinc-100" : "border-white/25 text-white hover:bg-white/10"}`}
         >
           <Menu className="size-5" />
         </button>
-      </DialogTrigger>
-      <DialogContent
-        showCloseButton={false}
-        className="left-0 top-0 h-dvh max-h-dvh w-screen max-w-full! translate-x-0 translate-y-0 rounded-none border-0 bg-[#faf9f7] p-0 text-zinc-950"
+      </SheetTrigger>
+      <SheetContent
+        className="z-1300 gap-0 overflow-y-auto bg-[#fafaf8] text-zinc-900"
+        aria-describedby={undefined}
       >
-        <DialogTitle className="sr-only">ResortCloud menu</DialogTitle>
-        <div className="flex h-full flex-col">
-          <header className="flex h-22 items-center justify-between border-b border-zinc-200 px-6">
-            <Link href="/" className="inline-flex items-center">
-              <Image
-                src="/main/logo-light.png"
-                alt="ResortCloud logo"
-                width={34}
-                height={34}
-                className="size-9 object-contain"
-              />
-            </Link>
-            <DialogClose asChild>
-              <button
-                type="button"
-                aria-label="Close menu"
-                className="grid size-11 place-items-center rounded-full text-zinc-950 hover:bg-zinc-100"
-              >
-                <X className="size-7" />
-              </button>
-            </DialogClose>
-          </header>
-
-          <div className="flex flex-1 flex-col px-6 py-10">
-            <Button
-              asChild
-              variant="link"
-              className="h-auto w-fit justify-start gap-3 p-0 text-2xl font-normal text-sky-900 hover:no-underline"
-            >
-              <Link href="/auth/sign-up">
-                <KeyRound className="size-5 text-amber-500" />
-                List your property
-              </Link>
-            </Button>
-
-            <nav className="mt-10 flex flex-col gap-9 text-2xl font-light text-zinc-800">
-              {menuLinks.map((link) => (
-                <Link key={link.label} href={link.href} className="w-fit hover:text-sky-900">
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          <footer className="border-t border-zinc-200 px-6 py-7">
-            <Button
-              asChild
-              className="h-17 w-full rounded-full bg-sky-900 text-base font-semibold text-white hover:bg-sky-950"
-            >
-              <Link href="/auth/sign-in">Sign in or create account</Link>
-            </Button>
-            <p className="mt-5 text-center text-sm font-medium text-sky-900">
-              Join ResortCloud Circle - member rates + points
-            </p>
-          </footer>
+        <div className="border-b border-zinc-200 px-6 pb-5 pt-8">
+          <Image src="/favicon.png" alt="" width={40} height={40} />
+          <SheetTitle className="mt-4 font-serif text-2xl">
+            Explore Alrio
+          </SheetTitle>
         </div>
-      </DialogContent>
-    </Dialog>
+        <nav
+          aria-label="Mobile navigation"
+          className="flex flex-col gap-1 px-3 py-5"
+        >
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-3 text-sm hover:bg-accent"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Link
+            href="/auth/sign-in"
+            onClick={() => setOpen(false)}
+            className="mt-3 rounded-lg border-t border-zinc-200 px-3 py-4 text-sm"
+          >
+            Sign in
+          </Link>
+        </nav>
+        <Link
+          href="/#reserve"
+          onClick={() => setOpen(false)}
+          className="mx-6 mb-6 mt-auto rounded-full bg-zinc-900 px-5 py-3 text-center text-sm text-white"
+        >
+          Reserve your stay
+        </Link>
+      </SheetContent>
+    </Sheet>
   );
 }

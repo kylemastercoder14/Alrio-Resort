@@ -25,7 +25,7 @@ type AuthMode = "sign-in" | "sign-up";
 export function CustomerAuthDialog() {
   const router = useRouter();
   const trpc = useTRPC();
-  const finalizeSignUp = useMutation(trpc.auth.finalizeSignUp.mutationOptions());
+  const registerGuest = useMutation(trpc.auth.registerGuest.mutationOptions());
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [mode, setMode] = useState<AuthMode>("sign-in");
@@ -35,7 +35,7 @@ export function CustomerAuthDialog() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSocialSubmitting, setIsSocialSubmitting] = useState(false);
   const isSubmitting =
-    isSigningIn || finalizeSignUp.isPending || isSocialSubmitting;
+    isSigningIn || registerGuest.isPending || isSocialSubmitting;
 
   function handleEmailContinue(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,6 +64,7 @@ export function CustomerAuthDialog() {
       }
 
       setOpen(false);
+      router.replace("/");
       router.refresh();
       return;
     }
@@ -80,11 +81,8 @@ export function CustomerAuthDialog() {
     }
 
     try {
-      await finalizeSignUp.mutateAsync({
-        role: "CUSTOMER",
-        plan: "free_trial",
-        billing: "monthly",
-      });
+      const result = await registerGuest.mutateAsync({});
+      router.replace(result.redirectTo);
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -102,10 +100,9 @@ export function CustomerAuthDialog() {
     setError(null);
     setIsSocialSubmitting(true);
 
-    const returnUrl = `${window.location.pathname}${window.location.search}`;
     const result = await authClient.signIn.social({
       provider,
-      callbackURL: returnUrl,
+      callbackURL: mode === "sign-up" ? "/auth/sign-up/complete" : "/auth/sign-in/complete",
     });
 
     setIsSocialSubmitting(false);
@@ -134,7 +131,7 @@ export function CustomerAuthDialog() {
           <div className="flex flex-col items-center text-center">
             <Image
               src="/main/logo-light.png"
-              alt="ResortCloud"
+              alt="Alrio Private Resort"
               width={56}
               height={56}
               className="h-12 w-auto"

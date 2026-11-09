@@ -26,16 +26,16 @@ export function KpiGrid({
       {items.map((item) => (
         <Card
           key={item.title}
-          className="min-h-24 rounded-xl border-zinc-200 bg-white px-4 py-4"
+          className="min-h-24 min-w-0 rounded-xl border-zinc-200 bg-white px-4 py-4"
         >
           <div className="flex h-full items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="w-fit border-b border-dotted border-zinc-400 text-xs font-bold text-zinc-700">
                 {item.title}
               </p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-zinc-950">
+              <div className="mt-2 break-words text-2xl font-bold tracking-tight text-zinc-950">
                 {item.value}
-              </p>
+              </div>
               {item.note ? (
                 <p className="mt-1 text-xs font-medium text-zinc-500">
                   {item.note}
@@ -43,7 +43,7 @@ export function KpiGrid({
               ) : null}
             </div>
             {item.icon ? (
-              <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-2 text-zinc-600">
+              <div className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 p-2 text-zinc-600">
                 {item.icon}
               </div>
             ) : null}

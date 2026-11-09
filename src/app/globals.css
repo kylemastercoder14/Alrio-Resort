@@ -131,18 +131,6 @@
   }
 }
 
-@keyframes waiting-clock-tick {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-waiting-clock-tick {
-  animation: waiting-clock-tick 1.2s steps(12, end) infinite;
-  transform-box: view-box;
-  transform-origin: center;
-}
-
 .resort-price-marker {
   background: transparent;
   border: 0;

@@ -31,7 +31,7 @@ export function OperatorMessagePanel({
   return (
     <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-7 shadow-xl shadow-zinc-200/70">
       <input
-        form="polar-booking-form"
+        form="reservation-booking-form"
         type="hidden"
         name="messageToHost"
         value={message}

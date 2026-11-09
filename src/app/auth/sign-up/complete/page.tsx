@@ -1,29 +1,16 @@
-import { SignUpCompleteView } from "./sign-up-complete";
+import { TRPCError } from "@trpc/server";
+import { redirect } from "next/navigation";
+import { getServerCaller } from "@/trpc/server";
 
-type SearchParams = Promise<{
-  userType?: string | string[];
-  plan?: string | string[];
-  billing?: string | string[];
-  checkout?: string | string[];
-}>;
-
-function firstParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  const params = await searchParams;
-
-  return (
-    <SignUpCompleteView
-      userType={firstParam(params.userType)}
-      selectedPlan={firstParam(params.plan)}
-      selectedBilling={firstParam(params.billing)}
-      checkoutIntent={firstParam(params.checkout)}
-    />
-  );
+export default async function Page() {
+  let destination: string;
+  try {
+    const caller = await getServerCaller();
+    const result = await caller.auth.registerGuest({});
+    destination = result.redirectTo;
+  } catch (error) {
+    if (!(error instanceof TRPCError) || !["UNAUTHORIZED", "FORBIDDEN"].includes(error.code)) throw error;
+    destination = "/auth/sign-in";
+  }
+  redirect(destination);
 }

@@ -146,8 +146,8 @@ export function ReusableDataTable<TData>({
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xs">
-      <div className="flex min-h-14 items-center gap-3 border-b border-zinc-200 bg-white px-4">
+    <section className="min-w-0 max-w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xs">
+      <div className="flex min-h-14 flex-wrap items-center gap-3 border-b border-zinc-200 bg-white px-3 py-2 sm:px-4">
         <Select value={selectedFilter} onValueChange={handleFilterChange}>
           <SelectTrigger className="h-9 w-auto min-w-16 border-0 bg-transparent px-0 text-sm font-medium shadow-none focus:ring-0">
             <SelectValue />
@@ -161,7 +161,7 @@ export function ReusableDataTable<TData>({
           </SelectContent>
         </Select>
 
-        <div className="relative min-w-0 flex-1">
+        <div className="relative min-w-0 flex-[1_1_10rem]">
           <Search className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
           <Input
             value={globalFilter}
@@ -171,14 +171,14 @@ export function ReusableDataTable<TData>({
           />
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="ml-auto flex max-w-full flex-wrap items-center gap-1">
           {toolbarActions}
           <ColumnsMenu columnIds={columnToggleIds} table={table} />
         </div>
       </div>
 
-      <div className={preventHorizontalScroll ? "overflow-x-hidden" : "overflow-x-auto"}>
-        <Table className={preventHorizontalScroll ? "w-full table-fixed" : undefined}>
+      <div className={preventHorizontalScroll ? "overflow-x-auto lg:overflow-x-hidden" : "overflow-x-auto"}>
+        <Table className={preventHorizontalScroll ? "min-w-[40rem] lg:min-w-0 lg:w-full lg:table-fixed" : undefined}>
           <TableHeader className="bg-zinc-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-zinc-50">

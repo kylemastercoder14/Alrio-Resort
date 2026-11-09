@@ -33,7 +33,7 @@ export default function DocsArticlePage() {
             <span className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
               <BookOpen className="size-4" />
             </span>
-            ResortCloud <span className="text-sm text-muted-foreground">Docs</span>
+            Alrio Private Resort <span className="text-sm text-muted-foreground">Docs</span>
           </Link>
           <Link
             href="/"

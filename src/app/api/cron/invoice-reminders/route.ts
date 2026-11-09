@@ -27,10 +27,22 @@ async function handleInvoiceReminderCron(request: Request) {
     return NextResponse.json({ error: "CRON_SECRET is required." }, { status: 500 });
   }
 
-  const result = await runInvoiceReminderCron();
+  try {
+    const result = await runInvoiceReminderCron();
 
-  return NextResponse.json({
-    ok: true,
-    ...result,
-  });
+    return NextResponse.json({
+      ok: true,
+      ...result,
+    });
+  } catch (error) {
+    console.error("Invoice reminder cron failed", error);
+
+    return NextResponse.json(
+      {
+        error: "Invoice reminder processing failed.",
+        ok: false,
+      },
+      { status: 500 },
+    );
+  }
 }

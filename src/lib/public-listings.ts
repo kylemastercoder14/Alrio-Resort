@@ -57,13 +57,12 @@ export async function getPublicListings(input: {
     .filter((term) => term.length > 1)
     .filter((term) => !["city", "resort", "the"].includes(term));
 
-  const rooms = await prisma.tenantRoom.findMany({
+  const rooms = await prisma.resortRoom.findMany({
     where: {
       // A room that is occupied today can still be sold for a future date.
       // Reservation-overlap filtering below is the source of truth for a
       // requested stay; only operationally unavailable rooms are hidden.
       status: { notIn: ["MAINTENANCE", "OUT_OF_SERVICE"] },
-      tenantProfile: { onboardingStatus: "COMPLETED" },
       ...(input.guests
         ? { maxAdults: { gte: input.guests } }
         : {}),
@@ -80,7 +79,7 @@ export async function getPublicListings(input: {
         : {}),
     },
     include: {
-      tenantProfile: { select: { resortName: true, businessName: true, municipality: true, province: true, shortDescription: true } },
+      resortProfile: { select: { resortName: true, municipality: true, province: true, shortDescription: true } },
       photos: { orderBy: { sortOrder: "asc" }, take: 1 },
       amenities: { where: { status: "ACTIVE", showOnBookingPage: true }, select: { name: true }, take: 6 },
     },
@@ -94,16 +93,15 @@ export async function getPublicListings(input: {
       const searchable = normalizeSearchText([
         room.name,
         room.type,
-        room.tenantProfile.resortName,
-        room.tenantProfile.businessName,
-        room.tenantProfile.municipality,
-        room.tenantProfile.province,
+        room.resortProfile.resortName,
+        room.resortProfile.municipality,
+        room.resortProfile.province,
       ].filter(Boolean).join(" "));
       return searchTerms.every((term) => searchable.includes(term));
     })
     .map((room): PublicListing => {
-    const resortName = room.tenantProfile.resortName ?? room.tenantProfile.businessName ?? "ResortCloud partner";
-    const location = [room.tenantProfile.municipality, room.tenantProfile.province].filter(Boolean).join(", ") || "Philippines";
+    const resortName = room.resortProfile.resortName;
+    const location = [room.resortProfile.municipality, room.resortProfile.province].filter(Boolean).join(", ") || "Philippines";
     const price = decimal(room.baseRate);
     return {
       id: room.id,
@@ -115,20 +113,19 @@ export async function getPublicListings(input: {
       maxGuests: room.maxAdults + room.childrenOccupancy,
       image: room.photos[0]?.url ?? null,
       amenities: room.amenities.map((amenity) => amenity.name),
-      description: room.guestNote ?? room.tenantProfile.shortDescription,
+      description: room.guestNote ?? room.resortProfile.shortDescription,
     };
     });
 }
 
 export async function getPublicRoom(roomId: string) {
-  return prisma.tenantRoom.findFirst({
+  return prisma.resortRoom.findFirst({
     where: {
       id: roomId,
       status: { notIn: ["MAINTENANCE", "OUT_OF_SERVICE"] },
-      tenantProfile: { onboardingStatus: "COMPLETED" },
     },
     include: {
-      tenantProfile: { include: { appUser: { select: { displayName: true } } } },
+      resortProfile: { include: { appUser: { select: { displayName: true } } } },
       amenities: { where: { status: "ACTIVE", showOnBookingPage: true }, orderBy: { sortOrder: "asc" } },
       photos: { orderBy: { sortOrder: "asc" } },
     },

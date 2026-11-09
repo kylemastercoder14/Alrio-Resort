@@ -1,8 +1,13 @@
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { importPKCS8, SignJWT } from "jose";
 import { prisma } from "@/lib/prisma";
+import { sendPasswordResetEmail } from "@/lib/invite-email";
+import {
+  safelyRecordStaffActivityForAuthUser,
+  STAFF_ACTIVITY_ACTIONS,
+} from "@/lib/staff-activity";
 
 async function generateAppleClientSecret(input: {
   clientId: string;
@@ -53,15 +58,64 @@ const socialProviders = {
 };
 
 export const auth = betterAuth({
-  appName: "ResortCloud",
+  appName: "Alrio Private Resort",
   baseURL: process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const appUser = await prisma.appUser.findUnique({
+            where: { authUserId: session.userId },
+            select: { guestDisabledAt: true },
+          });
+
+          if (appUser?.guestDisabledAt) {
+            throw new APIError("FORBIDDEN", {
+              code: "GUEST_ACCOUNT_DISABLED",
+              message:
+                "This guest account is disabled. Please contact Alrio Private Resort for assistance.",
+            });
+          }
+        },
+        after: async (session) => {
+          await safelyRecordStaffActivityForAuthUser(session.userId, {
+            action: STAFF_ACTIVITY_ACTIONS.signedIn,
+            title: "Signed in",
+            detail: "Signed in to the Alrio staff workspace.",
+            actorAuthUserId: session.userId,
+            ipAddress: session.ipAddress,
+            userAgent: session.userAgent,
+            metadata: { sessionId: session.id },
+          });
+        },
+      },
+      delete: {
+        before: async (session) => {
+          await safelyRecordStaffActivityForAuthUser(session.userId, {
+            action: STAFF_ACTIVITY_ACTIONS.signedOut,
+            title: "Signed out",
+            detail: "Signed out of the Alrio staff workspace.",
+            actorAuthUserId: session.userId,
+            ipAddress: session.ipAddress,
+            userAgent: session.userAgent,
+            metadata: { sessionId: session.id },
+          });
+        },
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    resetPasswordTokenExpiresIn: 3600,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail({ email: user.email, url });
+    },
   },
   socialProviders,
   plugins: [nextCookies()],

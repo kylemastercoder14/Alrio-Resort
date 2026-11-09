@@ -64,7 +64,7 @@ export function SocialButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="flex h-9 w-full items-center justify-center gap-3 rounded-2xl border border-zinc-200 bg-white px-5 text-base font-medium text-zinc-900 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-zinc-200 bg-white px-5 text-base font-medium text-zinc-900 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
     >
       <span>{icon}</span>
       <span>{children}</span>

@@ -45,7 +45,7 @@ export const sections: Section[] = [
     id: "getting-started",
     label: "Getting started",
     eyebrow: "Start here",
-    title: "Your first day in ResortCloud",
+    title: "Your first day with Alrio operations",
     description:
       "A friendly, step-by-step tour for owners, managers, and staff.",
   },
@@ -63,7 +63,7 @@ export const sections: Section[] = [
     eyebrow: "Foundation",
     title: "Set up your resort workspace",
     description:
-      "Complete onboarding, create departments, and make your property ready for bookings.",
+      "Configure resort details, create departments, and prepare for bookings.",
   },
   {
     id: "reservations",
@@ -108,7 +108,7 @@ export const sections: Section[] = [
     id: "integrations",
     label: "Integrations",
     eyebrow: "Connected tools",
-    title: "Connect UploadThing, Polar, and Messenger",
+    title: "Connect UploadThing, PayMongo, and Messenger",
     description:
       "What each integration does, what it needs, and how to troubleshoot it.",
   },
@@ -128,7 +128,7 @@ const changelog = [
     items: [
       "Added a searchable Documentation and Changelog hub.",
       "Improved Operations workflows for housekeeping, damage reports, maintenance, laundry, and inventory.",
-      "Added durable Polar webhook replay protection and tenant-scoped subscription updates.",
+      "Added PayMongo hosted checkout and verified one-time reservation payments.",
     ],
   },
   {
@@ -136,7 +136,7 @@ const changelog = [
     version: "2026.10.28",
     items: [
       "Improved responsive landing and search layouts.",
-      "Added tenant-aware header navigation and clearer empty states.",
+      "Added resort-aware header navigation and clearer empty states.",
       "Expanded test coverage documentation for reservations, finance, HR, and operations.",
     ],
   },
@@ -200,7 +200,7 @@ const sidebarGroups = [
   {
     label: "Integrations & Help",
     links: [
-      { label: "UploadThing & Polar", id: "integrations" },
+      { label: "UploadThing & PayMongo", id: "integrations" },
       { label: "Messenger", id: "integrations" },
       { label: "Troubleshooting", id: "troubleshooting" },
     ],
@@ -209,7 +209,7 @@ const sidebarGroups = [
     label: "Account & Security",
     links: [
       { label: "Roles & permissions", id: "people" },
-      { label: "Tenant isolation", id: "people" },
+      { label: "Resort isolation", id: "people" },
       { label: "Privacy & data safety", id: "troubleshooting" },
     ],
   },
@@ -287,7 +287,7 @@ export function Article({ section }: { section: Section }) {
       {section.id === "getting-started" && (
         <>
           <Callout>
-            ResortCloud is easiest to learn in this order:{" "}
+            The Alrio management system is easiest to learn in this order:{" "}
             <strong>
               set up your workspace → publish rooms → create a reservation →
               operate the stay → collect payment
@@ -296,12 +296,12 @@ export function Article({ section }: { section: Section }) {
           </Callout>
           <div className="space-y-6">
             <Step number="1" title="Open the app">
-              Go to your ResortCloud URL. Guests use the public landing page;
+              Open the Alrio Private Resort website. Guests use the public landing page;
               owners and staff use the Sign in button.
             </Step>
-            <Step number="2" title="Finish onboarding">
-              Enter the resort name, property details, contact information, and
-              billing details. Save each step before moving on.
+            <Step number="2" title="Check resort details">
+              Keep property details and contact information current through
+              the resort settings.
             </Step>
             <Step number="3" title="Add your foundation">
               Create departments, roles, rooms, amenities, services, and
@@ -345,7 +345,7 @@ export function Article({ section }: { section: Section }) {
           <h3 className="mt-10 text-xl font-bold">Sign in</h3>
           <p className="mt-3 leading-7 text-slate-600">
             Choose <strong>Sign in</strong>, enter your email or username and
-            password, then submit. A tenant owner goes to the tenant workspace.
+            password, then submit. A resort owner goes to the resort workspace.
             Staff see only the modules their role allows.
           </p>
           <Callout tone="green">
@@ -374,7 +374,7 @@ export function Article({ section }: { section: Section }) {
           <h3 className="mt-8 text-xl font-bold">If access is denied</h3>
           <p className="mt-3 leading-7 text-slate-600">
             Ask an owner to check the user status, role permissions, department
-            assignment, onboarding completion, and approval status. Do not try
+            assignment, and account status. Do not try
             to bypass permissions by editing the URL.
           </p>
         </>
@@ -401,9 +401,8 @@ export function Article({ section }: { section: Section }) {
             </Step>
           </div>
           <Callout tone="amber">
-            A workspace that is not approved may show a waiting page. Complete
-            onboarding and ask the approving administrator to activate the
-            workspace.
+            If staff access is pending, ask the resort administrator to check
+            the invitation and account status.
           </Callout>
         </>
       )}
@@ -560,12 +559,12 @@ export function Article({ section }: { section: Section }) {
             to 4 MB or one PDF up to 8 MB. Wait for the success message before
             saving.
           </p>
-          <h3 className="mt-8 text-xl font-bold">Polar</h3>
+          <h3 className="mt-8 text-xl font-bold">PayMongo</h3>
           <p className="mt-3 leading-7 text-slate-600">
-            Polar handles sandbox or production subscription checkout. The
-            platform owns the API key; each tenant is isolated by its Polar
-            customer, subscription, and product IDs. Never paste a Polar secret
-            into a browser form.
+            PayMongo provides secure hosted checkout for one-time Alrio
+            reservation and invoice payments. Payment links are created on the
+            server, while signed webhook events confirm successful payments.
+            Never paste a PayMongo secret into a browser form.
           </p>
           <h3 className="mt-8 text-xl font-bold">Messenger</h3>
           <p className="mt-3 leading-7 text-slate-600">
@@ -583,7 +582,7 @@ export function Article({ section }: { section: Section }) {
         <>
           <h3 className="mt-10 text-xl font-bold">The fastest first checks</h3>
           <ul className="mt-4 list-disc space-y-2 pl-6 text-slate-600">
-            <li>Refresh once and confirm you are in the intended tenant.</li>
+            <li>Refresh once and confirm you are in the intended resort.</li>
             <li>Check the account menu for your role and workspace.</li>
             <li>
               Look for an empty-state explanation rather than assuming data was
@@ -634,12 +633,12 @@ export default function DocsPage() {
           >
             <Image
               src="/main/logo-light.png"
-              alt="ResortCloud"
+              alt="Alrio Private Resort"
               width={24}
               height={24}
               className="size-6 object-contain"
             />
-            ResortCloud{" "}
+            Alrio Private Resort{" "}
             <Badge variant="secondary" className="text-xs">
               Docs v.1.0.4
             </Badge>
@@ -772,14 +771,14 @@ export default function DocsPage() {
           <main className="min-w-0 flex-1 pb-20">
             <div className="border-b border-slate-200 py-14">
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-foreground">
-                ResortCloud user manual
+                Alrio operations manual
               </p>
               <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
                 Everything you need to run your resort, explained simply.
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
                 Follow the steps, copy the checklists, and use the examples.
-                This guide assumes you are brand new to ResortCloud.
+                This guide assumes you are brand new to the Alrio management system.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <a
@@ -836,7 +835,7 @@ export default function DocsPage() {
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
             A plain-language record of improvements, fixes, and new workflows in
-            ResortCloud.
+            the Alrio management system.
           </p>
           <div className="mt-12 space-y-10">
             {changelog.map((entry) => (

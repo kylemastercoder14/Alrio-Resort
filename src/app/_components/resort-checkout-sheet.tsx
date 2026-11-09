@@ -13,7 +13,7 @@ type ResortCheckoutSheetProps = {
   roomId: string;
   checkIn?: string;
   checkOut?: string;
-  tenantProfileId?: string;
+  resortProfileId?: string;
   operatorName?: string;
   ownerName?: string;
 };
@@ -27,7 +27,7 @@ export function ResortCheckoutSheet({
   roomId,
   checkIn,
   checkOut,
-  tenantProfileId,
+  resortProfileId,
   operatorName,
   ownerName,
 }: ResortCheckoutSheetProps) {
@@ -45,7 +45,7 @@ export function ResortCheckoutSheet({
       checkOut: checkOut ?? "",
     });
 
-    if (tenantProfileId) params.set("tenantProfileId", tenantProfileId);
+    if (resortProfileId) params.set("resortProfileId", resortProfileId);
     if (operatorName) params.set("operatorName", operatorName);
     if (ownerName) params.set("ownerName", ownerName);
 

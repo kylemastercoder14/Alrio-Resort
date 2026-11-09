@@ -30,7 +30,7 @@ export type AppUserMinAggregateOutputType = {
   firstName: string | null
   lastName: string | null
   displayName: string | null
-  role: $Enums.UserRole | null
+  guestDisabledAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -41,7 +41,7 @@ export type AppUserMaxAggregateOutputType = {
   firstName: string | null
   lastName: string | null
   displayName: string | null
-  role: $Enums.UserRole | null
+  guestDisabledAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,7 +52,8 @@ export type AppUserCountAggregateOutputType = {
   firstName: number
   lastName: number
   displayName: number
-  role: number
+  guestProfile: number
+  guestDisabledAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -65,7 +66,7 @@ export type AppUserMinAggregateInputType = {
   firstName?: true
   lastName?: true
   displayName?: true
-  role?: true
+  guestDisabledAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,7 +77,7 @@ export type AppUserMaxAggregateInputType = {
   firstName?: true
   lastName?: true
   displayName?: true
-  role?: true
+  guestDisabledAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,7 +88,8 @@ export type AppUserCountAggregateInputType = {
   firstName?: true
   lastName?: true
   displayName?: true
-  role?: true
+  guestProfile?: true
+  guestDisabledAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -171,7 +173,8 @@ export type AppUserGroupByOutputType = {
   firstName: string | null
   lastName: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile: runtime.JsonValue
+  guestDisabledAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: AppUserCountAggregateOutputType | null
@@ -203,12 +206,14 @@ export type AppUserWhereInput = {
   firstName?: Prisma.StringNullableFilter<"AppUser"> | string | null
   lastName?: Prisma.StringNullableFilter<"AppUser"> | string | null
   displayName?: Prisma.StringFilter<"AppUser"> | string
-  role?: Prisma.EnumUserRoleFilter<"AppUser"> | $Enums.UserRole
+  guestProfile?: Prisma.JsonFilter<"AppUser">
+  guestDisabledAt?: Prisma.DateTimeNullableFilter<"AppUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AppUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AppUser"> | Date | string
   authUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  tenantProfile?: Prisma.XOR<Prisma.TenantProfileNullableScalarRelationFilter, Prisma.TenantProfileWhereInput> | null
-  staffProfile?: Prisma.XOR<Prisma.TenantStaffProfileNullableScalarRelationFilter, Prisma.TenantStaffProfileWhereInput> | null
+  resortProfile?: Prisma.XOR<Prisma.ResortProfileNullableScalarRelationFilter, Prisma.ResortProfileWhereInput> | null
+  staffProfile?: Prisma.XOR<Prisma.ResortStaffProfileNullableScalarRelationFilter, Prisma.ResortStaffProfileWhereInput> | null
+  guestReservations?: Prisma.ResortReservationListRelationFilter
 }
 
 export type AppUserOrderByWithRelationInput = {
@@ -217,12 +222,14 @@ export type AppUserOrderByWithRelationInput = {
   firstName?: Prisma.SortOrderInput | Prisma.SortOrder
   lastName?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  guestProfile?: Prisma.SortOrder
+  guestDisabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   authUser?: Prisma.UserOrderByWithRelationInput
-  tenantProfile?: Prisma.TenantProfileOrderByWithRelationInput
-  staffProfile?: Prisma.TenantStaffProfileOrderByWithRelationInput
+  resortProfile?: Prisma.ResortProfileOrderByWithRelationInput
+  staffProfile?: Prisma.ResortStaffProfileOrderByWithRelationInput
+  guestReservations?: Prisma.ResortReservationOrderByRelationAggregateInput
 }
 
 export type AppUserWhereUniqueInput = Prisma.AtLeast<{
@@ -234,12 +241,14 @@ export type AppUserWhereUniqueInput = Prisma.AtLeast<{
   firstName?: Prisma.StringNullableFilter<"AppUser"> | string | null
   lastName?: Prisma.StringNullableFilter<"AppUser"> | string | null
   displayName?: Prisma.StringFilter<"AppUser"> | string
-  role?: Prisma.EnumUserRoleFilter<"AppUser"> | $Enums.UserRole
+  guestProfile?: Prisma.JsonFilter<"AppUser">
+  guestDisabledAt?: Prisma.DateTimeNullableFilter<"AppUser"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AppUser"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AppUser"> | Date | string
   authUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  tenantProfile?: Prisma.XOR<Prisma.TenantProfileNullableScalarRelationFilter, Prisma.TenantProfileWhereInput> | null
-  staffProfile?: Prisma.XOR<Prisma.TenantStaffProfileNullableScalarRelationFilter, Prisma.TenantStaffProfileWhereInput> | null
+  resortProfile?: Prisma.XOR<Prisma.ResortProfileNullableScalarRelationFilter, Prisma.ResortProfileWhereInput> | null
+  staffProfile?: Prisma.XOR<Prisma.ResortStaffProfileNullableScalarRelationFilter, Prisma.ResortStaffProfileWhereInput> | null
+  guestReservations?: Prisma.ResortReservationListRelationFilter
 }, "authUserId" | "email">
 
 export type AppUserOrderByWithAggregationInput = {
@@ -248,7 +257,8 @@ export type AppUserOrderByWithAggregationInput = {
   firstName?: Prisma.SortOrderInput | Prisma.SortOrder
   lastName?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  guestProfile?: Prisma.SortOrder
+  guestDisabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AppUserCountOrderByAggregateInput
@@ -265,7 +275,8 @@ export type AppUserScalarWhereWithAggregatesInput = {
   firstName?: Prisma.StringNullableWithAggregatesFilter<"AppUser"> | string | null
   lastName?: Prisma.StringNullableWithAggregatesFilter<"AppUser"> | string | null
   displayName?: Prisma.StringWithAggregatesFilter<"AppUser"> | string
-  role?: Prisma.EnumUserRoleWithAggregatesFilter<"AppUser"> | $Enums.UserRole
+  guestProfile?: Prisma.JsonWithAggregatesFilter<"AppUser">
+  guestDisabledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AppUser"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AppUser"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AppUser"> | Date | string
 }
@@ -275,12 +286,14 @@ export type AppUserCreateInput = {
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   authUser: Prisma.UserCreateNestedOneWithoutAppUserInput
-  tenantProfile?: Prisma.TenantProfileCreateNestedOneWithoutAppUserInput
-  staffProfile?: Prisma.TenantStaffProfileCreateNestedOneWithoutAppUserInput
+  resortProfile?: Prisma.ResortProfileCreateNestedOneWithoutAppUserInput
+  staffProfile?: Prisma.ResortStaffProfileCreateNestedOneWithoutAppUserInput
+  guestReservations?: Prisma.ResortReservationCreateNestedManyWithoutGuestAccountInput
 }
 
 export type AppUserUncheckedCreateInput = {
@@ -289,11 +302,13 @@ export type AppUserUncheckedCreateInput = {
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  tenantProfile?: Prisma.TenantProfileUncheckedCreateNestedOneWithoutAppUserInput
-  staffProfile?: Prisma.TenantStaffProfileUncheckedCreateNestedOneWithoutAppUserInput
+  resortProfile?: Prisma.ResortProfileUncheckedCreateNestedOneWithoutAppUserInput
+  staffProfile?: Prisma.ResortStaffProfileUncheckedCreateNestedOneWithoutAppUserInput
+  guestReservations?: Prisma.ResortReservationUncheckedCreateNestedManyWithoutGuestAccountInput
 }
 
 export type AppUserUpdateInput = {
@@ -301,12 +316,14 @@ export type AppUserUpdateInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authUser?: Prisma.UserUpdateOneRequiredWithoutAppUserNestedInput
-  tenantProfile?: Prisma.TenantProfileUpdateOneWithoutAppUserNestedInput
-  staffProfile?: Prisma.TenantStaffProfileUpdateOneWithoutAppUserNestedInput
+  resortProfile?: Prisma.ResortProfileUpdateOneWithoutAppUserNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUpdateOneWithoutAppUserNestedInput
+  guestReservations?: Prisma.ResortReservationUpdateManyWithoutGuestAccountNestedInput
 }
 
 export type AppUserUncheckedUpdateInput = {
@@ -315,11 +332,13 @@ export type AppUserUncheckedUpdateInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tenantProfile?: Prisma.TenantProfileUncheckedUpdateOneWithoutAppUserNestedInput
-  staffProfile?: Prisma.TenantStaffProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  resortProfile?: Prisma.ResortProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  guestReservations?: Prisma.ResortReservationUncheckedUpdateManyWithoutGuestAccountNestedInput
 }
 
 export type AppUserCreateManyInput = {
@@ -328,7 +347,8 @@ export type AppUserCreateManyInput = {
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -338,7 +358,8 @@ export type AppUserUpdateManyMutationInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -349,7 +370,8 @@ export type AppUserUncheckedUpdateManyInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -365,7 +387,8 @@ export type AppUserCountOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  guestProfile?: Prisma.SortOrder
+  guestDisabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -376,7 +399,7 @@ export type AppUserMaxOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  guestDisabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -387,7 +410,7 @@ export type AppUserMinOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  guestDisabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -429,22 +452,18 @@ export type AppUserUncheckedUpdateOneWithoutAuthUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AppUserUpdateToOneWithWhereWithoutAuthUserInput, Prisma.AppUserUpdateWithoutAuthUserInput>, Prisma.AppUserUncheckedUpdateWithoutAuthUserInput>
 }
 
-export type EnumUserRoleFieldUpdateOperationsInput = {
-  set?: $Enums.UserRole
-}
-
-export type AppUserCreateNestedOneWithoutTenantProfileInput = {
-  create?: Prisma.XOR<Prisma.AppUserCreateWithoutTenantProfileInput, Prisma.AppUserUncheckedCreateWithoutTenantProfileInput>
-  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutTenantProfileInput
+export type AppUserCreateNestedOneWithoutResortProfileInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutResortProfileInput, Prisma.AppUserUncheckedCreateWithoutResortProfileInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutResortProfileInput
   connect?: Prisma.AppUserWhereUniqueInput
 }
 
-export type AppUserUpdateOneRequiredWithoutTenantProfileNestedInput = {
-  create?: Prisma.XOR<Prisma.AppUserCreateWithoutTenantProfileInput, Prisma.AppUserUncheckedCreateWithoutTenantProfileInput>
-  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutTenantProfileInput
-  upsert?: Prisma.AppUserUpsertWithoutTenantProfileInput
+export type AppUserUpdateOneRequiredWithoutResortProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutResortProfileInput, Prisma.AppUserUncheckedCreateWithoutResortProfileInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutResortProfileInput
+  upsert?: Prisma.AppUserUpsertWithoutResortProfileInput
   connect?: Prisma.AppUserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AppUserUpdateToOneWithWhereWithoutTenantProfileInput, Prisma.AppUserUpdateWithoutTenantProfileInput>, Prisma.AppUserUncheckedUpdateWithoutTenantProfileInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppUserUpdateToOneWithWhereWithoutResortProfileInput, Prisma.AppUserUpdateWithoutResortProfileInput>, Prisma.AppUserUncheckedUpdateWithoutResortProfileInput>
 }
 
 export type AppUserCreateNestedOneWithoutStaffProfileInput = {
@@ -461,16 +480,34 @@ export type AppUserUpdateOneRequiredWithoutStaffProfileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AppUserUpdateToOneWithWhereWithoutStaffProfileInput, Prisma.AppUserUpdateWithoutStaffProfileInput>, Prisma.AppUserUncheckedUpdateWithoutStaffProfileInput>
 }
 
+export type AppUserCreateNestedOneWithoutGuestReservationsInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutGuestReservationsInput, Prisma.AppUserUncheckedCreateWithoutGuestReservationsInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutGuestReservationsInput
+  connect?: Prisma.AppUserWhereUniqueInput
+}
+
+export type AppUserUpdateOneWithoutGuestReservationsNestedInput = {
+  create?: Prisma.XOR<Prisma.AppUserCreateWithoutGuestReservationsInput, Prisma.AppUserUncheckedCreateWithoutGuestReservationsInput>
+  connectOrCreate?: Prisma.AppUserCreateOrConnectWithoutGuestReservationsInput
+  upsert?: Prisma.AppUserUpsertWithoutGuestReservationsInput
+  disconnect?: Prisma.AppUserWhereInput | boolean
+  delete?: Prisma.AppUserWhereInput | boolean
+  connect?: Prisma.AppUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppUserUpdateToOneWithWhereWithoutGuestReservationsInput, Prisma.AppUserUpdateWithoutGuestReservationsInput>, Prisma.AppUserUncheckedUpdateWithoutGuestReservationsInput>
+}
+
 export type AppUserCreateWithoutAuthUserInput = {
   email: string
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  tenantProfile?: Prisma.TenantProfileCreateNestedOneWithoutAppUserInput
-  staffProfile?: Prisma.TenantStaffProfileCreateNestedOneWithoutAppUserInput
+  resortProfile?: Prisma.ResortProfileCreateNestedOneWithoutAppUserInput
+  staffProfile?: Prisma.ResortStaffProfileCreateNestedOneWithoutAppUserInput
+  guestReservations?: Prisma.ResortReservationCreateNestedManyWithoutGuestAccountInput
 }
 
 export type AppUserUncheckedCreateWithoutAuthUserInput = {
@@ -478,11 +515,13 @@ export type AppUserUncheckedCreateWithoutAuthUserInput = {
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  tenantProfile?: Prisma.TenantProfileUncheckedCreateNestedOneWithoutAppUserInput
-  staffProfile?: Prisma.TenantStaffProfileUncheckedCreateNestedOneWithoutAppUserInput
+  resortProfile?: Prisma.ResortProfileUncheckedCreateNestedOneWithoutAppUserInput
+  staffProfile?: Prisma.ResortStaffProfileUncheckedCreateNestedOneWithoutAppUserInput
+  guestReservations?: Prisma.ResortReservationUncheckedCreateNestedManyWithoutGuestAccountInput
 }
 
 export type AppUserCreateOrConnectWithoutAuthUserInput = {
@@ -506,11 +545,13 @@ export type AppUserUpdateWithoutAuthUserInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tenantProfile?: Prisma.TenantProfileUpdateOneWithoutAppUserNestedInput
-  staffProfile?: Prisma.TenantStaffProfileUpdateOneWithoutAppUserNestedInput
+  resortProfile?: Prisma.ResortProfileUpdateOneWithoutAppUserNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUpdateOneWithoutAppUserNestedInput
+  guestReservations?: Prisma.ResortReservationUpdateManyWithoutGuestAccountNestedInput
 }
 
 export type AppUserUncheckedUpdateWithoutAuthUserInput = {
@@ -518,75 +559,85 @@ export type AppUserUncheckedUpdateWithoutAuthUserInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tenantProfile?: Prisma.TenantProfileUncheckedUpdateOneWithoutAppUserNestedInput
-  staffProfile?: Prisma.TenantStaffProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  resortProfile?: Prisma.ResortProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  guestReservations?: Prisma.ResortReservationUncheckedUpdateManyWithoutGuestAccountNestedInput
 }
 
-export type AppUserCreateWithoutTenantProfileInput = {
+export type AppUserCreateWithoutResortProfileInput = {
   email: string
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   authUser: Prisma.UserCreateNestedOneWithoutAppUserInput
-  staffProfile?: Prisma.TenantStaffProfileCreateNestedOneWithoutAppUserInput
+  staffProfile?: Prisma.ResortStaffProfileCreateNestedOneWithoutAppUserInput
+  guestReservations?: Prisma.ResortReservationCreateNestedManyWithoutGuestAccountInput
 }
 
-export type AppUserUncheckedCreateWithoutTenantProfileInput = {
+export type AppUserUncheckedCreateWithoutResortProfileInput = {
   authUserId: string
   email: string
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  staffProfile?: Prisma.TenantStaffProfileUncheckedCreateNestedOneWithoutAppUserInput
+  staffProfile?: Prisma.ResortStaffProfileUncheckedCreateNestedOneWithoutAppUserInput
+  guestReservations?: Prisma.ResortReservationUncheckedCreateNestedManyWithoutGuestAccountInput
 }
 
-export type AppUserCreateOrConnectWithoutTenantProfileInput = {
+export type AppUserCreateOrConnectWithoutResortProfileInput = {
   where: Prisma.AppUserWhereUniqueInput
-  create: Prisma.XOR<Prisma.AppUserCreateWithoutTenantProfileInput, Prisma.AppUserUncheckedCreateWithoutTenantProfileInput>
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutResortProfileInput, Prisma.AppUserUncheckedCreateWithoutResortProfileInput>
 }
 
-export type AppUserUpsertWithoutTenantProfileInput = {
-  update: Prisma.XOR<Prisma.AppUserUpdateWithoutTenantProfileInput, Prisma.AppUserUncheckedUpdateWithoutTenantProfileInput>
-  create: Prisma.XOR<Prisma.AppUserCreateWithoutTenantProfileInput, Prisma.AppUserUncheckedCreateWithoutTenantProfileInput>
+export type AppUserUpsertWithoutResortProfileInput = {
+  update: Prisma.XOR<Prisma.AppUserUpdateWithoutResortProfileInput, Prisma.AppUserUncheckedUpdateWithoutResortProfileInput>
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutResortProfileInput, Prisma.AppUserUncheckedCreateWithoutResortProfileInput>
   where?: Prisma.AppUserWhereInput
 }
 
-export type AppUserUpdateToOneWithWhereWithoutTenantProfileInput = {
+export type AppUserUpdateToOneWithWhereWithoutResortProfileInput = {
   where?: Prisma.AppUserWhereInput
-  data: Prisma.XOR<Prisma.AppUserUpdateWithoutTenantProfileInput, Prisma.AppUserUncheckedUpdateWithoutTenantProfileInput>
+  data: Prisma.XOR<Prisma.AppUserUpdateWithoutResortProfileInput, Prisma.AppUserUncheckedUpdateWithoutResortProfileInput>
 }
 
-export type AppUserUpdateWithoutTenantProfileInput = {
+export type AppUserUpdateWithoutResortProfileInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authUser?: Prisma.UserUpdateOneRequiredWithoutAppUserNestedInput
-  staffProfile?: Prisma.TenantStaffProfileUpdateOneWithoutAppUserNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUpdateOneWithoutAppUserNestedInput
+  guestReservations?: Prisma.ResortReservationUpdateManyWithoutGuestAccountNestedInput
 }
 
-export type AppUserUncheckedUpdateWithoutTenantProfileInput = {
+export type AppUserUncheckedUpdateWithoutResortProfileInput = {
   authUserId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  staffProfile?: Prisma.TenantStaffProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  guestReservations?: Prisma.ResortReservationUncheckedUpdateManyWithoutGuestAccountNestedInput
 }
 
 export type AppUserCreateWithoutStaffProfileInput = {
@@ -594,11 +645,13 @@ export type AppUserCreateWithoutStaffProfileInput = {
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   authUser: Prisma.UserCreateNestedOneWithoutAppUserInput
-  tenantProfile?: Prisma.TenantProfileCreateNestedOneWithoutAppUserInput
+  resortProfile?: Prisma.ResortProfileCreateNestedOneWithoutAppUserInput
+  guestReservations?: Prisma.ResortReservationCreateNestedManyWithoutGuestAccountInput
 }
 
 export type AppUserUncheckedCreateWithoutStaffProfileInput = {
@@ -607,10 +660,12 @@ export type AppUserUncheckedCreateWithoutStaffProfileInput = {
   firstName?: string | null
   lastName?: string | null
   displayName: string
-  role: $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  tenantProfile?: Prisma.TenantProfileUncheckedCreateNestedOneWithoutAppUserInput
+  resortProfile?: Prisma.ResortProfileUncheckedCreateNestedOneWithoutAppUserInput
+  guestReservations?: Prisma.ResortReservationUncheckedCreateNestedManyWithoutGuestAccountInput
 }
 
 export type AppUserCreateOrConnectWithoutStaffProfileInput = {
@@ -634,11 +689,13 @@ export type AppUserUpdateWithoutStaffProfileInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authUser?: Prisma.UserUpdateOneRequiredWithoutAppUserNestedInput
-  tenantProfile?: Prisma.TenantProfileUpdateOneWithoutAppUserNestedInput
+  resortProfile?: Prisma.ResortProfileUpdateOneWithoutAppUserNestedInput
+  guestReservations?: Prisma.ResortReservationUpdateManyWithoutGuestAccountNestedInput
 }
 
 export type AppUserUncheckedUpdateWithoutStaffProfileInput = {
@@ -647,12 +704,115 @@ export type AppUserUncheckedUpdateWithoutStaffProfileInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tenantProfile?: Prisma.TenantProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  resortProfile?: Prisma.ResortProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  guestReservations?: Prisma.ResortReservationUncheckedUpdateManyWithoutGuestAccountNestedInput
 }
 
+export type AppUserCreateWithoutGuestReservationsInput = {
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  displayName: string
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  authUser: Prisma.UserCreateNestedOneWithoutAppUserInput
+  resortProfile?: Prisma.ResortProfileCreateNestedOneWithoutAppUserInput
+  staffProfile?: Prisma.ResortStaffProfileCreateNestedOneWithoutAppUserInput
+}
+
+export type AppUserUncheckedCreateWithoutGuestReservationsInput = {
+  authUserId: string
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  displayName: string
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  resortProfile?: Prisma.ResortProfileUncheckedCreateNestedOneWithoutAppUserInput
+  staffProfile?: Prisma.ResortStaffProfileUncheckedCreateNestedOneWithoutAppUserInput
+}
+
+export type AppUserCreateOrConnectWithoutGuestReservationsInput = {
+  where: Prisma.AppUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutGuestReservationsInput, Prisma.AppUserUncheckedCreateWithoutGuestReservationsInput>
+}
+
+export type AppUserUpsertWithoutGuestReservationsInput = {
+  update: Prisma.XOR<Prisma.AppUserUpdateWithoutGuestReservationsInput, Prisma.AppUserUncheckedUpdateWithoutGuestReservationsInput>
+  create: Prisma.XOR<Prisma.AppUserCreateWithoutGuestReservationsInput, Prisma.AppUserUncheckedCreateWithoutGuestReservationsInput>
+  where?: Prisma.AppUserWhereInput
+}
+
+export type AppUserUpdateToOneWithWhereWithoutGuestReservationsInput = {
+  where?: Prisma.AppUserWhereInput
+  data: Prisma.XOR<Prisma.AppUserUpdateWithoutGuestReservationsInput, Prisma.AppUserUncheckedUpdateWithoutGuestReservationsInput>
+}
+
+export type AppUserUpdateWithoutGuestReservationsInput = {
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  authUser?: Prisma.UserUpdateOneRequiredWithoutAppUserNestedInput
+  resortProfile?: Prisma.ResortProfileUpdateOneWithoutAppUserNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUpdateOneWithoutAppUserNestedInput
+}
+
+export type AppUserUncheckedUpdateWithoutGuestReservationsInput = {
+  authUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  guestProfile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  guestDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resortProfile?: Prisma.ResortProfileUncheckedUpdateOneWithoutAppUserNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUncheckedUpdateOneWithoutAppUserNestedInput
+}
+
+
+/**
+ * Count Type AppUserCountOutputType
+ */
+
+export type AppUserCountOutputType = {
+  guestReservations: number
+}
+
+export type AppUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  guestReservations?: boolean | AppUserCountOutputTypeCountGuestReservationsArgs
+}
+
+/**
+ * AppUserCountOutputType without action
+ */
+export type AppUserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AppUserCountOutputType
+   */
+  select?: Prisma.AppUserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AppUserCountOutputType without action
+ */
+export type AppUserCountOutputTypeCountGuestReservationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ResortReservationWhereInput
+}
 
 
 export type AppUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -661,12 +821,15 @@ export type AppUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   firstName?: boolean
   lastName?: boolean
   displayName?: boolean
-  role?: boolean
+  guestProfile?: boolean
+  guestDisabledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   authUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  tenantProfile?: boolean | Prisma.AppUser$tenantProfileArgs<ExtArgs>
+  resortProfile?: boolean | Prisma.AppUser$resortProfileArgs<ExtArgs>
   staffProfile?: boolean | Prisma.AppUser$staffProfileArgs<ExtArgs>
+  guestReservations?: boolean | Prisma.AppUser$guestReservationsArgs<ExtArgs>
+  _count?: boolean | Prisma.AppUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["appUser"]>
 
 export type AppUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -675,7 +838,8 @@ export type AppUserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   firstName?: boolean
   lastName?: boolean
   displayName?: boolean
-  role?: boolean
+  guestProfile?: boolean
+  guestDisabledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   authUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -687,7 +851,8 @@ export type AppUserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   firstName?: boolean
   lastName?: boolean
   displayName?: boolean
-  role?: boolean
+  guestProfile?: boolean
+  guestDisabledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   authUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -699,16 +864,19 @@ export type AppUserSelectScalar = {
   firstName?: boolean
   lastName?: boolean
   displayName?: boolean
-  role?: boolean
+  guestProfile?: boolean
+  guestDisabledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AppUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"authUserId" | "email" | "firstName" | "lastName" | "displayName" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["appUser"]>
+export type AppUserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"authUserId" | "email" | "firstName" | "lastName" | "displayName" | "guestProfile" | "guestDisabledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["appUser"]>
 export type AppUserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   authUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  tenantProfile?: boolean | Prisma.AppUser$tenantProfileArgs<ExtArgs>
+  resortProfile?: boolean | Prisma.AppUser$resortProfileArgs<ExtArgs>
   staffProfile?: boolean | Prisma.AppUser$staffProfileArgs<ExtArgs>
+  guestReservations?: boolean | Prisma.AppUser$guestReservationsArgs<ExtArgs>
+  _count?: boolean | Prisma.AppUserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AppUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   authUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -721,8 +889,9 @@ export type $AppUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "AppUser"
   objects: {
     authUser: Prisma.$UserPayload<ExtArgs>
-    tenantProfile: Prisma.$TenantProfilePayload<ExtArgs> | null
-    staffProfile: Prisma.$TenantStaffProfilePayload<ExtArgs> | null
+    resortProfile: Prisma.$ResortProfilePayload<ExtArgs> | null
+    staffProfile: Prisma.$ResortStaffProfilePayload<ExtArgs> | null
+    guestReservations: Prisma.$ResortReservationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     authUserId: string
@@ -730,7 +899,8 @@ export type $AppUserPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     firstName: string | null
     lastName: string | null
     displayName: string
-    role: $Enums.UserRole
+    guestProfile: runtime.JsonValue
+    guestDisabledAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["appUser"]>
@@ -1128,8 +1298,9 @@ readonly fields: AppUserFieldRefs;
 export interface Prisma__AppUserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   authUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  tenantProfile<T extends Prisma.AppUser$tenantProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppUser$tenantProfileArgs<ExtArgs>>): Prisma.Prisma__TenantProfileClient<runtime.Types.Result.GetResult<Prisma.$TenantProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  staffProfile<T extends Prisma.AppUser$staffProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppUser$staffProfileArgs<ExtArgs>>): Prisma.Prisma__TenantStaffProfileClient<runtime.Types.Result.GetResult<Prisma.$TenantStaffProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  resortProfile<T extends Prisma.AppUser$resortProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppUser$resortProfileArgs<ExtArgs>>): Prisma.Prisma__ResortProfileClient<runtime.Types.Result.GetResult<Prisma.$ResortProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  staffProfile<T extends Prisma.AppUser$staffProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppUser$staffProfileArgs<ExtArgs>>): Prisma.Prisma__ResortStaffProfileClient<runtime.Types.Result.GetResult<Prisma.$ResortStaffProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  guestReservations<T extends Prisma.AppUser$guestReservationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AppUser$guestReservationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1164,7 +1335,8 @@ export interface AppUserFieldRefs {
   readonly firstName: Prisma.FieldRef<"AppUser", 'String'>
   readonly lastName: Prisma.FieldRef<"AppUser", 'String'>
   readonly displayName: Prisma.FieldRef<"AppUser", 'String'>
-  readonly role: Prisma.FieldRef<"AppUser", 'UserRole'>
+  readonly guestProfile: Prisma.FieldRef<"AppUser", 'Json'>
+  readonly guestDisabledAt: Prisma.FieldRef<"AppUser", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"AppUser", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AppUser", 'DateTime'>
 }
@@ -1568,22 +1740,22 @@ export type AppUserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * AppUser.tenantProfile
+ * AppUser.resortProfile
  */
-export type AppUser$tenantProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type AppUser$resortProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the TenantProfile
+   * Select specific fields to fetch from the ResortProfile
    */
-  select?: Prisma.TenantProfileSelect<ExtArgs> | null
+  select?: Prisma.ResortProfileSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the TenantProfile
+   * Omit specific fields from the ResortProfile
    */
-  omit?: Prisma.TenantProfileOmit<ExtArgs> | null
+  omit?: Prisma.ResortProfileOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TenantProfileInclude<ExtArgs> | null
-  where?: Prisma.TenantProfileWhereInput
+  include?: Prisma.ResortProfileInclude<ExtArgs> | null
+  where?: Prisma.ResortProfileWhereInput
 }
 
 /**
@@ -1591,18 +1763,42 @@ export type AppUser$tenantProfileArgs<ExtArgs extends runtime.Types.Extensions.I
  */
 export type AppUser$staffProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the TenantStaffProfile
+   * Select specific fields to fetch from the ResortStaffProfile
    */
-  select?: Prisma.TenantStaffProfileSelect<ExtArgs> | null
+  select?: Prisma.ResortStaffProfileSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the TenantStaffProfile
+   * Omit specific fields from the ResortStaffProfile
    */
-  omit?: Prisma.TenantStaffProfileOmit<ExtArgs> | null
+  omit?: Prisma.ResortStaffProfileOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TenantStaffProfileInclude<ExtArgs> | null
-  where?: Prisma.TenantStaffProfileWhereInput
+  include?: Prisma.ResortStaffProfileInclude<ExtArgs> | null
+  where?: Prisma.ResortStaffProfileWhereInput
+}
+
+/**
+ * AppUser.guestReservations
+ */
+export type AppUser$guestReservationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResortReservation
+   */
+  select?: Prisma.ResortReservationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ResortReservation
+   */
+  omit?: Prisma.ResortReservationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResortReservationInclude<ExtArgs> | null
+  where?: Prisma.ResortReservationWhereInput
+  orderBy?: Prisma.ResortReservationOrderByWithRelationInput | Prisma.ResortReservationOrderByWithRelationInput[]
+  cursor?: Prisma.ResortReservationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ResortReservationScalarFieldEnum | Prisma.ResortReservationScalarFieldEnum[]
 }
 
 /**

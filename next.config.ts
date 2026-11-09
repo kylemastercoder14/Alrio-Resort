@@ -32,6 +32,10 @@ const nextConfig: NextConfig = {
       {
         hostname: "pipsporetech.com",
         protocol: "https"
+      },
+      {
+        hostname: "scontent.fmnl19-1.fna.fbcdn.net",
+        protocol: "https"
       }
     ],
   },

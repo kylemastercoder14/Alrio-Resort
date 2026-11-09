@@ -43,177 +43,187 @@ export type Verification = Prisma.VerificationModel
  */
 export type AppUser = Prisma.AppUserModel
 /**
- * Model TenantProfile
+ * Model ResortProfile
  * 
  */
-export type TenantProfile = Prisma.TenantProfileModel
+export type ResortProfile = Prisma.ResortProfileModel
 /**
- * Model PolarWebhookEvent
+ * Model ResortContactInquiry
  * 
  */
-export type PolarWebhookEvent = Prisma.PolarWebhookEventModel
+export type ResortContactInquiry = Prisma.ResortContactInquiryModel
 /**
- * Model TenantMessengerIntegration
+ * Model ResortMessengerIntegration
  * 
  */
-export type TenantMessengerIntegration = Prisma.TenantMessengerIntegrationModel
+export type ResortMessengerIntegration = Prisma.ResortMessengerIntegrationModel
 /**
- * Model TenantLead
+ * Model ResortLead
  * 
  */
-export type TenantLead = Prisma.TenantLeadModel
+export type ResortLead = Prisma.ResortLeadModel
 /**
- * Model TenantLeadMessage
+ * Model ResortLeadMessage
  * 
  */
-export type TenantLeadMessage = Prisma.TenantLeadMessageModel
+export type ResortLeadMessage = Prisma.ResortLeadMessageModel
 /**
- * Model TenantStaffProfile
+ * Model ResortStaffProfile
  * 
  */
-export type TenantStaffProfile = Prisma.TenantStaffProfileModel
+export type ResortStaffProfile = Prisma.ResortStaffProfileModel
 /**
- * Model TenantAccessRole
+ * Model ResortStaffActivityLog
  * 
  */
-export type TenantAccessRole = Prisma.TenantAccessRoleModel
+export type ResortStaffActivityLog = Prisma.ResortStaffActivityLogModel
 /**
- * Model TenantTimeLog
+ * Model ResortAccessRole
  * 
  */
-export type TenantTimeLog = Prisma.TenantTimeLogModel
+export type ResortAccessRole = Prisma.ResortAccessRoleModel
 /**
- * Model TenantScheduleShift
+ * Model ResortTimeLog
  * 
  */
-export type TenantScheduleShift = Prisma.TenantScheduleShiftModel
+export type ResortTimeLog = Prisma.ResortTimeLogModel
 /**
- * Model TenantLeaveRequest
+ * Model ResortScheduleShift
  * 
  */
-export type TenantLeaveRequest = Prisma.TenantLeaveRequestModel
+export type ResortScheduleShift = Prisma.ResortScheduleShiftModel
 /**
- * Model TenantOtUndertimeEntry
+ * Model ResortLeaveRequest
  * 
  */
-export type TenantOtUndertimeEntry = Prisma.TenantOtUndertimeEntryModel
+export type ResortLeaveRequest = Prisma.ResortLeaveRequestModel
 /**
- * Model TenantPayrollRun
+ * Model ResortOtUndertimeEntry
  * 
  */
-export type TenantPayrollRun = Prisma.TenantPayrollRunModel
+export type ResortOtUndertimeEntry = Prisma.ResortOtUndertimeEntryModel
 /**
- * Model TenantPayrollItem
+ * Model ResortPayrollRun
  * 
  */
-export type TenantPayrollItem = Prisma.TenantPayrollItemModel
+export type ResortPayrollRun = Prisma.ResortPayrollRunModel
 /**
- * Model TenantDepartment
+ * Model ResortPayrollItem
  * 
  */
-export type TenantDepartment = Prisma.TenantDepartmentModel
+export type ResortPayrollItem = Prisma.ResortPayrollItemModel
 /**
- * Model TenantStaffInvitation
+ * Model ResortDepartment
  * 
  */
-export type TenantStaffInvitation = Prisma.TenantStaffInvitationModel
+export type ResortDepartment = Prisma.ResortDepartmentModel
 /**
- * Model TenantAmenity
+ * Model ResortStaffInvitation
  * 
  */
-export type TenantAmenity = Prisma.TenantAmenityModel
+export type ResortStaffInvitation = Prisma.ResortStaffInvitationModel
 /**
- * Model TenantRoom
+ * Model ResortAmenity
  * 
  */
-export type TenantRoom = Prisma.TenantRoomModel
+export type ResortAmenity = Prisma.ResortAmenityModel
 /**
- * Model TenantRoomPhoto
+ * Model ResortRoom
  * 
  */
-export type TenantRoomPhoto = Prisma.TenantRoomPhotoModel
+export type ResortRoom = Prisma.ResortRoomModel
 /**
- * Model TenantHousekeepingRoom
+ * Model ResortRoomPhoto
  * 
  */
-export type TenantHousekeepingRoom = Prisma.TenantHousekeepingRoomModel
+export type ResortRoomPhoto = Prisma.ResortRoomPhotoModel
 /**
- * Model TenantHousekeepingDamageReport
+ * Model ResortHousekeepingRoom
  * 
  */
-export type TenantHousekeepingDamageReport = Prisma.TenantHousekeepingDamageReportModel
+export type ResortHousekeepingRoom = Prisma.ResortHousekeepingRoomModel
 /**
- * Model TenantLaundryJob
+ * Model ResortHousekeepingDamageReport
  * 
  */
-export type TenantLaundryJob = Prisma.TenantLaundryJobModel
+export type ResortHousekeepingDamageReport = Prisma.ResortHousekeepingDamageReportModel
 /**
- * Model TenantReservation
+ * Model ResortLaundryJob
  * 
  */
-export type TenantReservation = Prisma.TenantReservationModel
+export type ResortLaundryJob = Prisma.ResortLaundryJobModel
 /**
- * Model TenantReceptionRequest
+ * Model ResortReservation
  * 
  */
-export type TenantReceptionRequest = Prisma.TenantReceptionRequestModel
+export type ResortReservation = Prisma.ResortReservationModel
 /**
- * Model TenantReceptionShiftNote
+ * Model ResortReceptionRequest
  * 
  */
-export type TenantReceptionShiftNote = Prisma.TenantReceptionShiftNoteModel
+export type ResortReceptionRequest = Prisma.ResortReceptionRequestModel
 /**
- * Model TenantMaintenanceRequest
+ * Model ResortReceptionShiftNote
  * 
  */
-export type TenantMaintenanceRequest = Prisma.TenantMaintenanceRequestModel
+export type ResortReceptionShiftNote = Prisma.ResortReceptionShiftNoteModel
 /**
- * Model TenantInventoryItem
+ * Model ResortMaintenanceRequest
  * 
  */
-export type TenantInventoryItem = Prisma.TenantInventoryItemModel
+export type ResortMaintenanceRequest = Prisma.ResortMaintenanceRequestModel
 /**
- * Model TenantInventoryMovement
+ * Model ResortInventoryItem
  * 
  */
-export type TenantInventoryMovement = Prisma.TenantInventoryMovementModel
+export type ResortInventoryItem = Prisma.ResortInventoryItemModel
 /**
- * Model TenantService
+ * Model ResortInventoryMovement
  * 
  */
-export type TenantService = Prisma.TenantServiceModel
+export type ResortInventoryMovement = Prisma.ResortInventoryMovementModel
 /**
- * Model TenantPackage
+ * Model ResortService
  * 
  */
-export type TenantPackage = Prisma.TenantPackageModel
+export type ResortService = Prisma.ResortServiceModel
 /**
- * Model TenantInvoice
+ * Model ResortPackage
  * 
  */
-export type TenantInvoice = Prisma.TenantInvoiceModel
+export type ResortPackage = Prisma.ResortPackageModel
 /**
- * Model TenantInvoiceLineItem
+ * Model ResortInvoice
  * 
  */
-export type TenantInvoiceLineItem = Prisma.TenantInvoiceLineItemModel
+export type ResortInvoice = Prisma.ResortInvoiceModel
 /**
- * Model TenantFolioCharge
+ * Model ResortInvoiceLineItem
  * 
  */
-export type TenantFolioCharge = Prisma.TenantFolioChargeModel
+export type ResortInvoiceLineItem = Prisma.ResortInvoiceLineItemModel
 /**
- * Model TenantPaymentLog
+ * Model ResortFolioCharge
  * 
  */
-export type TenantPaymentLog = Prisma.TenantPaymentLogModel
+export type ResortFolioCharge = Prisma.ResortFolioChargeModel
 /**
- * Model TenantFinanceEntry
+ * Model ResortPaymentLog
  * 
  */
-export type TenantFinanceEntry = Prisma.TenantFinanceEntryModel
+export type ResortPaymentLog = Prisma.ResortPaymentLogModel
 /**
- * Model TenantTransactionExport
+ * Model ResortPaymentCheckout
  * 
  */
-export type TenantTransactionExport = Prisma.TenantTransactionExportModel
+export type ResortPaymentCheckout = Prisma.ResortPaymentCheckoutModel
+/**
+ * Model ResortFinanceEntry
+ * 
+ */
+export type ResortFinanceEntry = Prisma.ResortFinanceEntryModel
+/**
+ * Model ResortTransactionExport
+ * 
+ */
+export type ResortTransactionExport = Prisma.ResortTransactionExportModel

@@ -7,155 +7,106 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole {
-  ADMIN
-  ADMIN_STAFF
-  TENANT
-  TENANT_STAFF
-  CUSTOMER
-}
-
-enum TenantOnboardingStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-}
-
-enum TenantSubscriptionPlan {
-  FREE_TRIAL
-  STARTER
-  GROWTH
-  ENTERPRISE
-}
-
-enum TenantBillingCycle {
-  MONTHLY
-  YEARLY
-}
-
-enum TenantSubscriptionStatus {
-  PENDING
-  TRIALING
-  ACTIVE
-  PAST_DUE
-  CANCELED
-  REVOKED
-  SUSPENDED
-}
-
-enum TenantPaymentMethod {
-  CREDIT_CARD
-  BANK_TRANSFER
-  E_WALLET
-  CASH_DEPOSIT
-}
-
-enum TenantPaymentAccountType {
-  CREDIT_CARD
-  BANK_ACCOUNT
-  E_WALLET
-}
-
-enum TenantStaffStatus {
+enum ResortStaffStatus {
   ACTIVE
   INVITED
   SUSPENDED
 }
 
-enum TenantTimeLogFlag {
+enum ResortTimeLogFlag {
   ON_TIME
   LATE
   ABSENT
 }
 
-enum TenantScheduleShiftStatus {
+enum ResortScheduleShiftStatus {
   ASSIGNED
   OPEN
   CHANGED
 }
 
-enum TenantLeaveRequestStatus {
+enum ResortLeaveRequestStatus {
   PENDING
   APPROVED
   REJECTED
 }
 
-enum TenantOtUndertimeType {
+enum ResortOtUndertimeType {
   OVERTIME
   UNDERTIME
 }
 
-enum TenantOtUndertimeStatus {
+enum ResortOtUndertimeStatus {
   PENDING
   APPROVED
   REJECTED
 }
 
-enum TenantPayrollRunStatus {
+enum ResortPayrollRunStatus {
   DRAFT
   COMPLETED
   VOIDED
 }
 
-enum TenantPayrollPayType {
+enum ResortPayrollPayType {
   REGULAR
   FINAL
 }
 
-enum TenantPayrollFrequency {
+enum ResortPayrollFrequency {
   MONTHLY
   BI_WEEKLY
 }
 
-enum TenantStaffInvitationStatus {
+enum ResortStaffInvitationStatus {
   PENDING
   ACCEPTED
   EXPIRED
   REVOKED
 }
 
-enum TenantDepartmentStatus {
+enum ResortDepartmentStatus {
   ACTIVE
   PAUSED
   ARCHIVED
 }
 
-enum TenantAmenityStatus {
+enum ResortAmenityStatus {
   ACTIVE
   INACTIVE
 }
 
-enum TenantAmenityScope {
+enum ResortAmenityScope {
   ROOM_LEVEL
   PROPERTY_LEVEL
 }
 
-enum TenantAmenityFeeUnit {
+enum ResortAmenityFeeUnit {
   PER_STAY
   PER_DAY
   PER_USE
 }
 
-enum TenantRoomStatus {
+enum ResortRoomStatus {
   AVAILABLE
   OCCUPIED
   MAINTENANCE
   OUT_OF_SERVICE
 }
 
-enum TenantHousekeepingStatus {
+enum ResortHousekeepingStatus {
   CLEAN
   DIRTY
   OCCUPIED
   VACANT
 }
 
-enum TenantHousekeepingDamageStatus {
+enum ResortHousekeepingDamageStatus {
   OPEN
   RESOLVED
 }
 
-enum TenantLaundryStatus {
+enum ResortLaundryStatus {
   RECEIVED
   WASHING
   DRYING
@@ -163,17 +114,17 @@ enum TenantLaundryStatus {
   RETURNED
 }
 
-enum TenantLaundryPriority {
+enum ResortLaundryPriority {
   NORMAL
   URGENT
 }
 
-enum TenantRoomSmokingPolicy {
+enum ResortRoomSmokingPolicy {
   NON_SMOKING
   SMOKING
 }
 
-enum TenantReservationStatus {
+enum ResortReservationStatus {
   PENDING
   CONFIRMED
   CHECKED_IN
@@ -181,58 +132,58 @@ enum TenantReservationStatus {
   CANCELED
 }
 
-enum TenantReceptionQueueStatus {
+enum ResortReceptionQueueStatus {
   ARRIVING
   IN_HOUSE
   CHECKING_OUT
   COMPLETED
 }
 
-enum TenantReceptionRequestPriority {
+enum ResortReceptionRequestPriority {
   NORMAL
   URGENT
 }
 
-enum TenantReceptionRequestStatus {
+enum ResortReceptionRequestStatus {
   OPEN
   SENT
   RESOLVED
 }
 
-enum TenantMaintenancePriority {
+enum ResortMaintenancePriority {
   NORMAL
   URGENT
 }
 
-enum TenantMaintenanceRequestStatus {
+enum ResortMaintenanceRequestStatus {
   PENDING
   COMPLETED
 }
 
-enum TenantInventoryMovementType {
+enum ResortInventoryMovementType {
   IN
   OUT
 }
 
-enum TenantServiceStatus {
+enum ResortServiceStatus {
   ACTIVE
   INACTIVE
 }
 
-enum TenantPackageStatus {
+enum ResortPackageStatus {
   ACTIVE
   INACTIVE
   ARCHIVED
 }
 
-enum TenantServiceBillingType {
+enum ResortServiceBillingType {
   FIXED_PRICE
   PER_HOUR
   PER_GUEST
   CUSTOM_QUOTE
 }
 
-enum TenantInvoiceStatus {
+enum ResortInvoiceStatus {
   DRAFT
   SENT
   PAID
@@ -240,73 +191,73 @@ enum TenantInvoiceStatus {
   VOID
 }
 
-enum TenantFolioChargeStatus {
+enum ResortFolioChargeStatus {
   UNBILLED
   INVOICED
   VOIDED
   ADJUSTED
 }
 
-enum TenantFolioChargeType {
+enum ResortFolioChargeType {
   STAY
   ADDITIONAL
   FEE
   ADJUSTMENT
 }
 
-enum TenantPaymentLogStatus {
+enum ResortPaymentLogStatus {
   RECORDED
   VOIDED
 }
 
-enum TenantInvoiceReminderCadence {
+enum ResortInvoiceReminderCadence {
   STANDARD
   LIGHT
   STRICT
   PAUSED
 }
 
-enum TenantFinanceEntryType {
+enum ResortFinanceEntryType {
   REVENUE
   EXPENSE
 }
 
-enum TenantFinanceEntrySource {
+enum ResortFinanceEntrySource {
   MANUAL
   AUTO_BOOKING
   INVOICE_PAYMENT
 }
 
-enum TenantFinanceEntryStatus {
+enum ResortFinanceEntryStatus {
   CLEARED
   PENDING
 }
 
-enum TenantTransactionExportFormat {
+enum ResortTransactionExportFormat {
   CSV
   PDF
   TXT
   XLSX
 }
 
-enum TenantTransactionExportStatus {
+enum ResortTransactionExportStatus {
   READY
   SCHEDULED
   FAILED
 }
 
-enum TenantLeadStage {
+enum ResortLeadStage {
   INTAKE
   QUALIFIED
   PAYMENT_DONE
   CONVERTED
 }
 
-enum TenantLeadChannel {
+enum ResortLeadChannel {
   MESSENGER
 }
 
-enum TenantLeadMessageDirection {
+enum ResortLeadMessageDirection {
   INBOUND
   OUTBOUND
 }
@@ -376,27 +327,28 @@ model Verification {
 }
 
 model AppUser {
-  authUserId    String              @id
-  email         String              @unique
-  firstName     String?
-  lastName      String?
-  displayName   String
-  role          UserRole
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  authUser      User                @relation(fields: [authUserId], references: [id], onDelete: Cascade)
-  tenantProfile TenantProfile?
-  staffProfile  TenantStaffProfile?
+  authUserId        String              @id
+  email             String              @unique
+  firstName         String?
+  lastName          String?
+  displayName       String
+  guestProfile      Json                @default("{}")
+  guestDisabledAt   DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  authUser          User                @relation(fields: [authUserId], references: [id], onDelete: Cascade)
+  resortProfile     ResortProfile?
+  staffProfile      ResortStaffProfile?
+  guestReservations ResortReservation[] @relation("RegisteredGuestReservations")
   // customerProfile CustomerProfile?
 
-  @@index([role])
   @@map("app_user")
 }
 
-model TenantProfile {
+model ResortProfile {
   id                        String                           @id @default(cuid())
   appUserId                 String                           @unique
-  resortName                String?
+  resortName                String                           @default("Alrio Private Resort")
   propertyType              String?
   fullAddress               String?
   region                    String?
@@ -406,90 +358,65 @@ model TenantProfile {
   phoneNumber               String?
   website                   String?
   shortDescription          String?
-  subscriptionPlan          TenantSubscriptionPlan           @default(STARTER)
-  subscriptionStatus        TenantSubscriptionStatus         @default(PENDING)
-  billingCycle              TenantBillingCycle               @default(MONTHLY)
-  trialStartedAt            DateTime?
-  trialEndsAt               DateTime?
-  currentPeriodEnd          DateTime?
-  suspendedAt               DateTime?
-  stripeCustomerId          String?
-  stripeSubscriptionId      String?
-  polarCustomerId           String?
-  polarSubscriptionId       String?
-  polarProductId            String?
-  businessName              String?
-  billingEmail              String?
-  billingPhoneCountryCode   String?                          @default("+63")
-  billingPhoneNumber        String?
-  billingAddress            String?
-  billingCity               String?
-  billingStateProvince      String?
-  billingPostalCode         String?
-  billingCountry            String?                          @default("Philippines")
-  paymentMethod             TenantPaymentMethod?             @default(CREDIT_CARD)
-  paymentProvider           String?
-  paymentAccountName        String?
-  paymentAccountNumber      String?
-  cardholderName            String?
-  cardBrand                 String?
-  cardLastFour              String?
-  cardExpiry                String?
-  onboardingStatus          TenantOnboardingStatus           @default(PENDING)
-  onboardingCurrentStep     Int                              @default(0)
-  onboardingCompletedAt     DateTime?
   createdAt                 DateTime                         @default(now())
   updatedAt                 DateTime                         @updatedAt
   appUser                   AppUser                          @relation(fields: [appUserId], references: [authUserId], onDelete: Cascade)
-  departments               TenantDepartment[]
-  amenities                 TenantAmenity[]
-  rooms                     TenantRoom[]
-  reservations              TenantReservation[]
-  services                  TenantService[]
-  packages                  TenantPackage[]
-  invoices                  TenantInvoice[]
-  financeEntries            TenantFinanceEntry[]
-  transactionExports        TenantTransactionExport[]
-  messengerIntegrations     TenantMessengerIntegration[]
-  leads                     TenantLead[]
-  folioCharges              TenantFolioCharge[]
-  paymentLogs               TenantPaymentLog[]
-  receptionRequests         TenantReceptionRequest[]
-  receptionShiftNotes       TenantReceptionShiftNote[]
-  maintenanceRequests       TenantMaintenanceRequest[]
-  inventoryItems            TenantInventoryItem[]
-  inventoryMovements        TenantInventoryMovement[]
-  housekeepingRooms         TenantHousekeepingRoom[]
-  housekeepingDamageReports TenantHousekeepingDamageReport[]
-  laundryJobs               TenantLaundryJob[]
-  staffProfiles             TenantStaffProfile[]
-  accessRoles               TenantAccessRole[]
-  staffInvitations          TenantStaffInvitation[]
-  timeLogs                  TenantTimeLog[]
-  scheduleShifts            TenantScheduleShift[]
-  leaveRequests             TenantLeaveRequest[]
-  otUndertimeEntries        TenantOtUndertimeEntry[]
-  payrollRuns               TenantPayrollRun[]
-  payrollItems              TenantPayrollItem[]
-  polarWebhookEvents        PolarWebhookEvent[]
+  departments               ResortDepartment[]
+  amenities                 ResortAmenity[]
+  rooms                     ResortRoom[]
+  reservations              ResortReservation[]
+  services                  ResortService[]
+  packages                  ResortPackage[]
+  invoices                  ResortInvoice[]
+  financeEntries            ResortFinanceEntry[]
+  transactionExports        ResortTransactionExport[]
+  messengerIntegrations     ResortMessengerIntegration[]
+  leads                     ResortLead[]
+  contactInquiries          ResortContactInquiry[]
+  folioCharges              ResortFolioCharge[]
+  paymentLogs               ResortPaymentLog[]
+  paymentCheckouts          ResortPaymentCheckout[]
+  receptionRequests         ResortReceptionRequest[]
+  receptionShiftNotes       ResortReceptionShiftNote[]
+  maintenanceRequests       ResortMaintenanceRequest[]
+  inventoryItems            ResortInventoryItem[]
+  inventoryMovements        ResortInventoryMovement[]
+  housekeepingRooms         ResortHousekeepingRoom[]
+  housekeepingDamageReports ResortHousekeepingDamageReport[]
+  laundryJobs               ResortLaundryJob[]
+  staffProfiles             ResortStaffProfile[]
+  accessRoles               ResortAccessRole[]
+  staffInvitations          ResortStaffInvitation[]
+  timeLogs                  ResortTimeLog[]
+  scheduleShifts            ResortScheduleShift[]
+  leaveRequests             ResortLeaveRequest[]
+  otUndertimeEntries        ResortOtUndertimeEntry[]
+  payrollRuns               ResortPayrollRun[]
+  payrollItems              ResortPayrollItem[]
+  staffActivityLogs         ResortStaffActivityLog[]
 
-  @@map("tenant_profile")
+  @@map("resort_profile")
 }
 
-model PolarWebhookEvent {
-  id             String   @id
-  type           String
-  tenantProfileId String?
-  receivedAt     DateTime @default(now())
-  tenantProfile  TenantProfile? @relation(fields: [tenantProfileId], references: [id], onDelete: SetNull)
+model ResortContactInquiry {
+  id              String        @id @default(cuid())
+  resortProfileId String
+  name            String
+  email           String
+  phone           String?
+  subject         String
+  message         String
+  createdAt       DateTime      @default(now())
+  resortProfile   ResortProfile @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
 
-  @@index([tenantProfileId])
-  @@map("polar_webhook_event")
+  @@index([resortProfileId, createdAt])
+  @@index([email, createdAt])
+  @@map("resort_contact_inquiry")
 }
 
-model TenantMessengerIntegration {
+model ResortMessengerIntegration {
   id               String        @id @default(cuid())
-  tenantProfileId  String
+  resortProfileId  String
   pageId           String        @unique
   pageName         String?
   pageAccessToken  String?
@@ -498,78 +425,76 @@ model TenantMessengerIntegration {
   isActive         Boolean       @default(true)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  tenantProfile    TenantProfile @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  leads            TenantLead[]
+  resortProfile    ResortProfile @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  leads            ResortLead[]
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([isActive])
-  @@map("tenant_messenger_integration")
+  @@map("resort_messenger_integration")
 }
 
-model TenantLead {
+model ResortLead {
   id                     String                      @id @default(cuid())
-  tenantProfileId        String
+  resortProfileId        String
   messengerIntegrationId String?
   reservationId          String?
   psid                   String
-  channel                TenantLeadChannel           @default(MESSENGER)
+  channel                ResortLeadChannel           @default(MESSENGER)
   guestName              String                      @default("Messenger guest")
   profilePictureUrl      String?
   inquiry                String?
   lastMessage            String?
   source                 String                      @default("Organic")
-  stage                  TenantLeadStage             @default(INTAKE)
+  stage                  ResortLeadStage             @default(INTAKE)
   targetDate             DateTime?
   lastMessageAt          DateTime?
   createdAt              DateTime                    @default(now())
   updatedAt              DateTime                    @updatedAt
-  tenantProfile          TenantProfile               @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  messengerIntegration   TenantMessengerIntegration? @relation(fields: [messengerIntegrationId], references: [id], onDelete: SetNull)
-  reservation            TenantReservation?          @relation(fields: [reservationId], references: [id], onDelete: SetNull)
-  messages               TenantLeadMessage[]
+  resortProfile          ResortProfile               @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  messengerIntegration   ResortMessengerIntegration? @relation(fields: [messengerIntegrationId], references: [id], onDelete: SetNull)
+  reservation            ResortReservation?          @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  messages               ResortLeadMessage[]
 
-  @@unique([tenantProfileId, psid])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, psid])
+  @@index([resortProfileId])
   @@index([messengerIntegrationId])
   @@index([reservationId])
   @@index([stage])
   @@index([lastMessageAt])
-  @@map("tenant_lead")
+  @@map("resort_lead")
 }
 
-model TenantLeadMessage {
+model ResortLeadMessage {
   id              String                     @id @default(cuid())
-  tenantLeadId    String
+  resortLeadId    String
   metaMessageId   String?                    @unique
   senderId        String
   recipientId     String
-  direction       TenantLeadMessageDirection @default(INBOUND)
+  direction       ResortLeadMessageDirection @default(INBOUND)
   text            String?
   attachments     Json?
   postbackPayload String?
   raw             Json?
   sentAt          DateTime
   createdAt       DateTime                   @default(now())
-  lead            TenantLead                 @relation(fields: [tenantLeadId], references: [id], onDelete: Cascade)
+  lead            ResortLead                 @relation(fields: [resortLeadId], references: [id], onDelete: Cascade)
 
-  @@index([tenantLeadId])
+  @@index([resortLeadId])
   @@index([senderId])
   @@index([recipientId])
   @@index([sentAt])
-  @@map("tenant_lead_message")
+  @@map("resort_lead_message")
 }
 
-model TenantStaffProfile {
+model ResortStaffProfile {
   id                     String                   @id @default(cuid())
-  tenantProfileId        String
+  resortProfileId        String
   appUserId              String                   @unique
-  accessRoleId           String?
+  accessRoleId           String
   departmentId           String?
   username               String?                  @unique
   phoneNumber            String?
-  roleName               String
-  status                 TenantStaffStatus        @default(INVITED)
-  permissions            String[]                 @default([])
+  status                 ResortStaffStatus        @default(INVITED)
   isDepartmentHead       Boolean                  @default(false)
   employmentType         String                   @default("Regular")
   workLocation           String                   @default("Resort Office")
@@ -588,146 +513,166 @@ model TenantStaffProfile {
   tags                   String[]                 @default([])
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @updatedAt
-  tenantProfile          TenantProfile            @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  accessRole             TenantAccessRole?        @relation(fields: [accessRoleId], references: [id], onDelete: SetNull)
-  department             TenantDepartment?        @relation("TenantDepartmentStaff", fields: [departmentId], references: [id], onDelete: SetNull)
-  headOfDepartment       TenantDepartment?        @relation("TenantDepartmentHead")
+  resortProfile          ResortProfile            @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  accessRole             ResortAccessRole         @relation(fields: [accessRoleId], references: [id], onDelete: Restrict)
+  department             ResortDepartment?        @relation("ResortDepartmentStaff", fields: [departmentId], references: [id], onDelete: SetNull)
+  headOfDepartment       ResortDepartment?        @relation("ResortDepartmentHead")
   appUser                AppUser                  @relation(fields: [appUserId], references: [authUserId], onDelete: Cascade)
-  housekeepingRooms      TenantHousekeepingRoom[]
-  timeLogs               TenantTimeLog[]
-  scheduleShifts         TenantScheduleShift[]
-  leaveRequests          TenantLeaveRequest[]
-  otUndertimeEntries     TenantOtUndertimeEntry[]
-  payrollItems           TenantPayrollItem[]
+  housekeepingRooms      ResortHousekeepingRoom[]
+  timeLogs               ResortTimeLog[]
+  scheduleShifts         ResortScheduleShift[]
+  leaveRequests          ResortLeaveRequest[]
+  otUndertimeEntries     ResortOtUndertimeEntry[]
+  payrollItems           ResortPayrollItem[]
+  activityLogs           ResortStaffActivityLog[]
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([accessRoleId])
   @@index([departmentId])
-  @@index([roleName])
   @@index([status])
-  @@map("tenant_staff_profile")
+  @@map("resort_staff_profile")
 }
 
-model TenantAccessRole {
+model ResortStaffActivityLog {
+  id              String             @id @default(cuid())
+  resortProfileId String
+  staffProfileId  String
+  actorAuthUserId String?
+  action          String
+  title           String
+  detail          String
+  ipAddress       String?
+  userAgent       String?
+  metadata        Json?
+  createdAt       DateTime           @default(now())
+  resortProfile   ResortProfile      @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  staffProfile    ResortStaffProfile @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+
+  @@index([staffProfileId, createdAt])
+  @@index([resortProfileId, createdAt])
+  @@map("resort_staff_activity_log")
+}
+
+model ResortAccessRole {
   id              String               @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   name            String
   description     String?
   permissions     String[]             @default([])
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
-  tenantProfile   TenantProfile        @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  staffProfiles   TenantStaffProfile[]
+  resortProfile   ResortProfile        @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  staffProfiles   ResortStaffProfile[]
 
-  @@unique([tenantProfileId, name])
-  @@index([tenantProfileId])
-  @@map("tenant_access_role")
+  @@unique([resortProfileId, name])
+  @@index([resortProfileId])
+  @@map("resort_access_role")
 }
 
-model TenantTimeLog {
+model ResortTimeLog {
   id              String             @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   staffProfileId  String
   date            DateTime
   clockIn         DateTime?
   clockOut        DateTime?
-  flag            TenantTimeLogFlag  @default(ON_TIME)
+  flag            ResortTimeLogFlag  @default(ON_TIME)
   notes           String?
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
-  tenantProfile   TenantProfile      @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  staffProfile    TenantStaffProfile @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile      @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  staffProfile    ResortStaffProfile @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
 
   @@unique([staffProfileId, date])
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([staffProfileId])
   @@index([date])
   @@index([flag])
-  @@map("tenant_time_log")
+  @@map("resort_time_log")
 }
 
-model TenantScheduleShift {
+model ResortScheduleShift {
   id              String                    @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   staffProfileId  String?
   shift           String
   role            String
   department      String?
   startAt         DateTime
   endAt           DateTime
-  status          TenantScheduleShiftStatus @default(ASSIGNED)
+  status          ResortScheduleShiftStatus @default(ASSIGNED)
   notes           String?
   createdAt       DateTime                  @default(now())
   updatedAt       DateTime                  @updatedAt
-  tenantProfile   TenantProfile             @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  staffProfile    TenantStaffProfile?       @relation(fields: [staffProfileId], references: [id], onDelete: SetNull)
+  resortProfile   ResortProfile             @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  staffProfile    ResortStaffProfile?       @relation(fields: [staffProfileId], references: [id], onDelete: SetNull)
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([staffProfileId])
   @@index([startAt])
   @@index([status])
-  @@map("tenant_schedule_shift")
+  @@map("resort_schedule_shift")
 }
 
-model TenantLeaveRequest {
+model ResortLeaveRequest {
   id              String                   @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   staffProfileId  String
   leaveType       String
   startDate       DateTime
   endDate         DateTime
   reason          String
   balanceDays     Int                      @default(0)
-  status          TenantLeaveRequestStatus @default(PENDING)
+  status          ResortLeaveRequestStatus @default(PENDING)
   reviewedAt      DateTime?
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt
-  tenantProfile   TenantProfile            @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  staffProfile    TenantStaffProfile       @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile            @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  staffProfile    ResortStaffProfile       @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([staffProfileId])
   @@index([status])
   @@index([startDate])
-  @@map("tenant_leave_request")
+  @@map("resort_leave_request")
 }
 
-model TenantOtUndertimeEntry {
+model ResortOtUndertimeEntry {
   id              String                  @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   staffProfileId  String
-  type            TenantOtUndertimeType
+  type            ResortOtUndertimeType
   hours           String
   payPeriod       String
   reason          String
-  status          TenantOtUndertimeStatus @default(PENDING)
+  status          ResortOtUndertimeStatus @default(PENDING)
   reviewedAt      DateTime?
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
-  tenantProfile   TenantProfile           @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  staffProfile    TenantStaffProfile      @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile           @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  staffProfile    ResortStaffProfile      @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([staffProfileId])
   @@index([type])
   @@index([status])
-  @@map("tenant_ot_undertime_entry")
+  @@map("resort_ot_undertime_entry")
 }
 
-model TenantPayrollRun {
+model ResortPayrollRun {
   id                        String                 @id @default(cuid())
-  tenantProfileId           String
+  resortProfileId           String
   code                      String
   name                      String
   payPeriod                 String
   periodStart               DateTime
   periodEnd                 DateTime
   payDate                   DateTime
-  payType                   TenantPayrollPayType   @default(REGULAR)
-  frequency                 TenantPayrollFrequency @default(MONTHLY)
+  payType                   ResortPayrollPayType   @default(REGULAR)
+  frequency                 ResortPayrollFrequency @default(MONTHLY)
   department                String?
   notes                     String?
-  status                    TenantPayrollRunStatus @default(DRAFT)
+  status                    ResortPayrollRunStatus @default(DRAFT)
   totalEmployees            Int                    @default(0)
   includedEmployees         Int                    @default(0)
   excludedEmployees         Int                    @default(0)
@@ -751,20 +696,20 @@ model TenantPayrollRun {
   generatedAt               DateTime?
   createdAt                 DateTime               @default(now())
   updatedAt                 DateTime               @updatedAt
-  tenantProfile             TenantProfile          @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  items                     TenantPayrollItem[]
+  resortProfile             ResortProfile          @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  items                     ResortPayrollItem[]
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([periodStart])
   @@index([status])
-  @@map("tenant_payroll_run")
+  @@map("resort_payroll_run")
 }
 
-model TenantPayrollItem {
+model ResortPayrollItem {
   id                   String             @id @default(cuid())
   payrollRunId         String
-  tenantProfileId      String
+  resortProfileId      String
   staffProfileId       String
   employeeName         String
   employeeCode         String
@@ -795,92 +740,92 @@ model TenantPayrollItem {
   included             Boolean            @default(true)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
-  payrollRun           TenantPayrollRun   @relation(fields: [payrollRunId], references: [id], onDelete: Cascade)
-  tenantProfile        TenantProfile      @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  staffProfile         TenantStaffProfile @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+  payrollRun           ResortPayrollRun   @relation(fields: [payrollRunId], references: [id], onDelete: Cascade)
+  resortProfile        ResortProfile      @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  staffProfile         ResortStaffProfile @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
 
   @@unique([payrollRunId, staffProfileId])
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([staffProfileId])
-  @@map("tenant_payroll_item")
+  @@map("resort_payroll_item")
 }
 
-model TenantDepartment {
+model ResortDepartment {
   id                 String                 @id @default(cuid())
-  tenantProfileId    String
+  resortProfileId    String
   name               String
   code               String
   description        String?
   email              String?
   notes              String?
   routing            String?
-  status             TenantDepartmentStatus @default(ACTIVE)
+  status             ResortDepartmentStatus @default(ACTIVE)
   headStaffProfileId String?                @unique
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
-  tenantProfile      TenantProfile          @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  headStaffProfile   TenantStaffProfile?    @relation("TenantDepartmentHead", fields: [headStaffProfileId], references: [id], onDelete: SetNull)
-  staffProfiles      TenantStaffProfile[]   @relation("TenantDepartmentStaff")
+  resortProfile      ResortProfile          @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  headStaffProfile   ResortStaffProfile?    @relation("ResortDepartmentHead", fields: [headStaffProfileId], references: [id], onDelete: SetNull)
+  staffProfiles      ResortStaffProfile[]   @relation("ResortDepartmentStaff")
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([status])
-  @@map("tenant_department")
+  @@map("resort_department")
 }
 
-model TenantStaffInvitation {
+model ResortStaffInvitation {
   id              String                      @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   email           String
   roleName        String
   message         String?
   tokenHash       String                      @unique
   expiresAt       DateTime
   acceptedAt      DateTime?
-  status          TenantStaffInvitationStatus @default(PENDING)
+  status          ResortStaffInvitationStatus @default(PENDING)
   createdAt       DateTime                    @default(now())
   updatedAt       DateTime                    @updatedAt
-  tenantProfile   TenantProfile               @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile               @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([email])
   @@index([status])
-  @@map("tenant_staff_invitation")
+  @@map("resort_staff_invitation")
 }
 
-model TenantAmenity {
+model ResortAmenity {
   id                String               @id @default(cuid())
-  tenantProfileId   String
+  resortProfileId   String
   code              String
   name              String
   category          String
   icon              String               @default("✨")
   description       String?
-  appliesTo         TenantAmenityScope   @default(ROOM_LEVEL)
+  appliesTo         ResortAmenityScope   @default(ROOM_LEVEL)
   chargeable        Boolean              @default(false)
   feeAmount         String?
-  feeUnit           TenantAmenityFeeUnit @default(PER_STAY)
-  status            TenantAmenityStatus  @default(ACTIVE)
+  feeUnit           ResortAmenityFeeUnit @default(PER_STAY)
+  status            ResortAmenityStatus  @default(ACTIVE)
   showOnBookingPage Boolean              @default(true)
   featured          Boolean              @default(false)
   sortOrder         Int                  @default(0)
   internalNotes     String?
   createdAt         DateTime             @default(now())
   updatedAt         DateTime             @updatedAt
-  tenantProfile     TenantProfile        @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  rooms             TenantRoom[]         @relation("TenantRoomAmenities")
-  packages          TenantPackage[]      @relation("TenantPackageAmenities")
+  resortProfile     ResortProfile        @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  rooms             ResortRoom[]         @relation("ResortRoomAmenities")
+  packages          ResortPackage[]      @relation("ResortPackageAmenities")
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([status])
   @@index([category])
-  @@map("tenant_amenity")
+  @@map("resort_amenity")
 }
 
-model TenantRoom {
+model ResortRoom {
   id                  String                           @id @default(cuid())
-  tenantProfileId     String
+  resortProfileId     String
   code                String
   name                String
   type                String
@@ -894,8 +839,8 @@ model TenantRoom {
   bedConfiguration    String
   roomSize            String?
   viewType            String
-  smokingPolicy       TenantRoomSmokingPolicy          @default(NON_SMOKING)
-  status              TenantRoomStatus                 @default(AVAILABLE)
+  smokingPolicy       ResortRoomSmokingPolicy          @default(NON_SMOKING)
+  status              ResortRoomStatus                 @default(AVAILABLE)
   checkIn             String                           @default("14:00:00")
   checkOut            String                           @default("12:00:00")
   minNights           Int                              @default(1)
@@ -903,23 +848,23 @@ model TenantRoom {
   notes               String?
   createdAt           DateTime                         @default(now())
   updatedAt           DateTime                         @updatedAt
-  tenantProfile       TenantProfile                    @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  amenities           TenantAmenity[]                  @relation("TenantRoomAmenities")
-  packages            TenantPackage[]                  @relation("TenantPackageRooms")
-  photos              TenantRoomPhoto[]
-  reservations        TenantReservation[]
-  maintenanceRequests TenantMaintenanceRequest[]
-  housekeepingState   TenantHousekeepingRoom?
-  damageReports       TenantHousekeepingDamageReport[]
+  resortProfile       ResortProfile                    @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  amenities           ResortAmenity[]                  @relation("ResortRoomAmenities")
+  packages            ResortPackage[]                  @relation("ResortPackageRooms")
+  photos              ResortRoomPhoto[]
+  reservations        ResortReservation[]
+  maintenanceRequests ResortMaintenanceRequest[]
+  housekeepingState   ResortHousekeepingRoom?
+  damageReports       ResortHousekeepingDamageReport[]
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([status])
   @@index([type])
-  @@map("tenant_room")
+  @@map("resort_room")
 }
 
-model TenantRoomPhoto {
+model ResortRoomPhoto {
   id        String     @id @default(cuid())
   roomId    String
   key       String
@@ -928,19 +873,19 @@ model TenantRoomPhoto {
   size      Int?
   sortOrder Int        @default(0)
   createdAt DateTime   @default(now())
-  room      TenantRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room      ResortRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@unique([key])
   @@index([roomId])
-  @@map("tenant_room_photo")
+  @@map("resort_room_photo")
 }
 
-model TenantHousekeepingRoom {
+model ResortHousekeepingRoom {
   id                      String                   @id @default(cuid())
-  tenantProfileId         String
+  resortProfileId         String
   roomId                  String                   @unique
   attendantStaffProfileId String?
-  status                  TenantHousekeepingStatus @default(VACANT)
+  status                  ResortHousekeepingStatus @default(VACANT)
   lastPhotoKey            String?
   lastPhotoName           String?
   lastPhotoNote           String?
@@ -949,19 +894,19 @@ model TenantHousekeepingRoom {
   lastPhotoAt             DateTime?
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
-  tenantProfile           TenantProfile            @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  room                    TenantRoom               @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  attendantStaffProfile   TenantStaffProfile?      @relation(fields: [attendantStaffProfileId], references: [id], onDelete: SetNull)
+  resortProfile           ResortProfile            @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  room                    ResortRoom               @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  attendantStaffProfile   ResortStaffProfile?      @relation(fields: [attendantStaffProfileId], references: [id], onDelete: SetNull)
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([attendantStaffProfileId])
   @@index([status])
-  @@map("tenant_housekeeping_room")
+  @@map("resort_housekeeping_room")
 }
 
-model TenantHousekeepingDamageReport {
+model ResortHousekeepingDamageReport {
   id              String                         @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   roomId          String
   title           String
   details         String
@@ -970,47 +915,48 @@ model TenantHousekeepingDamageReport {
   photoNote       String?
   photoSize       Int?
   photoUrl        String?
-  status          TenantHousekeepingDamageStatus @default(OPEN)
+  status          ResortHousekeepingDamageStatus @default(OPEN)
   createdAt       DateTime                       @default(now())
   updatedAt       DateTime                       @updatedAt
-  tenantProfile   TenantProfile                  @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  room            TenantRoom                     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile                  @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  room            ResortRoom                     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([roomId])
   @@index([status])
-  @@map("tenant_housekeeping_damage_report")
+  @@map("resort_housekeeping_damage_report")
 }
 
-model TenantLaundryJob {
+model ResortLaundryJob {
   id              String                @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   code            String
   guestOrRoom     String
   category        String
   pieces          Int
   dueTime         String
   notes           String?
-  priority        TenantLaundryPriority @default(NORMAL)
-  status          TenantLaundryStatus   @default(RECEIVED)
+  priority        ResortLaundryPriority @default(NORMAL)
+  status          ResortLaundryStatus   @default(RECEIVED)
   receivedAt      DateTime              @default(now())
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
-  tenantProfile   TenantProfile         @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile         @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([category])
   @@index([priority])
   @@index([status])
   @@index([receivedAt])
-  @@map("tenant_laundry_job")
+  @@map("resort_laundry_job")
 }
 
-model TenantReservation {
+model ResortReservation {
   id                String                      @id @default(cuid())
-  tenantProfileId   String
-  roomId            String
+  resortProfileId   String
+  roomId            String?
+  guestAccountId    String?
   guestName         String
   guestEmail        String?
   guestPhone        String?
@@ -1026,92 +972,95 @@ model TenantReservation {
   deposit           String?
   totalAmount       String
   paymentMethod     String?
-  status            TenantReservationStatus     @default(CONFIRMED)
-  frontDeskStatus   TenantReceptionQueueStatus?
+  status            ResortReservationStatus     @default(CONFIRMED)
+  frontDeskStatus   ResortReceptionQueueStatus?
   notes             String?
   createdAt         DateTime                    @default(now())
   updatedAt         DateTime                    @updatedAt
-  tenantProfile     TenantProfile               @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  room              TenantRoom                  @relation(fields: [roomId], references: [id], onDelete: Restrict)
-  invoices          TenantInvoice[]
-  folioCharges      TenantFolioCharge[]
-  paymentLogs       TenantPaymentLog[]
-  leads             TenantLead[]
-  receptionRequests TenantReceptionRequest[]
+  resortProfile     ResortProfile               @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  room              ResortRoom?                 @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  guestAccount      AppUser?                    @relation("RegisteredGuestReservations", fields: [guestAccountId], references: [authUserId], onDelete: SetNull)
+  invoices          ResortInvoice[]
+  folioCharges      ResortFolioCharge[]
+  paymentLogs       ResortPaymentLog[]
+  paymentCheckouts  ResortPaymentCheckout[]
+  leads             ResortLead[]
+  receptionRequests ResortReceptionRequest[]
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([roomId])
+  @@index([guestAccountId])
   @@index([status])
   @@index([frontDeskStatus])
   @@index([checkIn, checkOut])
-  @@map("tenant_reservation")
+  @@map("resort_reservation")
 }
 
-model TenantReceptionRequest {
+model ResortReceptionRequest {
   id              String                         @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   reservationId   String?
   department      String
   roomOrArea      String
-  priority        TenantReceptionRequestPriority @default(NORMAL)
+  priority        ResortReceptionRequestPriority @default(NORMAL)
   note            String
-  status          TenantReceptionRequestStatus   @default(SENT)
+  status          ResortReceptionRequestStatus   @default(SENT)
   createdAt       DateTime                       @default(now())
   updatedAt       DateTime                       @updatedAt
-  tenantProfile   TenantProfile                  @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  reservation     TenantReservation?             @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  resortProfile   ResortProfile                  @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  reservation     ResortReservation?             @relation(fields: [reservationId], references: [id], onDelete: SetNull)
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([reservationId])
   @@index([department])
   @@index([status])
-  @@map("tenant_reception_request")
+  @@map("resort_reception_request")
 }
 
-model TenantReceptionShiftNote {
+model ResortReceptionShiftNote {
   id              String        @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   title           String
   note            String
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  tenantProfile   TenantProfile @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
 
-  @@index([tenantProfileId])
+  @@index([resortProfileId])
   @@index([createdAt])
-  @@map("tenant_reception_shift_note")
+  @@map("resort_reception_shift_note")
 }
 
-model TenantMaintenanceRequest {
+model ResortMaintenanceRequest {
   id              String                         @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   roomId          String?
   code            String
   area            String
   issue           String
   notes           String?
   forwardedBy     String                         @default("Reception")
-  priority        TenantMaintenancePriority      @default(NORMAL)
-  status          TenantMaintenanceRequestStatus @default(PENDING)
+  priority        ResortMaintenancePriority      @default(NORMAL)
+  status          ResortMaintenanceRequestStatus @default(PENDING)
   resolution      String?
   completedAt     DateTime?
   createdAt       DateTime                       @default(now())
   updatedAt       DateTime                       @updatedAt
-  tenantProfile   TenantProfile                  @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  room            TenantRoom?                    @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  resortProfile   ResortProfile                  @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  room            ResortRoom?                    @relation(fields: [roomId], references: [id], onDelete: SetNull)
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([roomId])
   @@index([priority])
   @@index([status])
   @@index([createdAt])
-  @@map("tenant_maintenance_request")
+  @@map("resort_maintenance_request")
 }
 
-model TenantInventoryItem {
+model ResortInventoryItem {
   id              String                    @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   code            String
   name            String
   category        String
@@ -1123,67 +1072,67 @@ model TenantInventoryItem {
   notes           String?
   createdAt       DateTime                  @default(now())
   updatedAt       DateTime                  @updatedAt
-  tenantProfile   TenantProfile             @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  movements       TenantInventoryMovement[]
+  resortProfile   ResortProfile             @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  movements       ResortInventoryMovement[]
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([category])
   @@index([name])
-  @@map("tenant_inventory_item")
+  @@map("resort_inventory_item")
 }
 
-model TenantInventoryMovement {
+model ResortInventoryMovement {
   id              String                      @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   itemId          String
   code            String
-  type            TenantInventoryMovementType
+  type            ResortInventoryMovementType
   quantity        Int
   reason          String
   createdAt       DateTime                    @default(now())
-  tenantProfile   TenantProfile               @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  item            TenantInventoryItem         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile               @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  item            ResortInventoryItem         @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([itemId])
   @@index([type])
   @@index([createdAt])
-  @@map("tenant_inventory_movement")
+  @@map("resort_inventory_movement")
 }
 
-model TenantService {
+model ResortService {
   id                String                   @id @default(cuid())
-  tenantProfileId   String
+  resortProfileId   String
   code              String
   title             String
   category          String
   provider          String?
   baseCharge        String
-  billingType       TenantServiceBillingType @default(FIXED_PRICE)
+  billingType       ResortServiceBillingType @default(FIXED_PRICE)
   duration          String?
   bookingLeadTime   String?
   feeNote           String?
   description       String?
   internalNotes     String?
   showOnBookingPage Boolean                  @default(true)
-  status            TenantServiceStatus      @default(ACTIVE)
+  status            ResortServiceStatus      @default(ACTIVE)
   createdAt         DateTime                 @default(now())
   updatedAt         DateTime                 @updatedAt
-  tenantProfile     TenantProfile            @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  packages          TenantPackage[]          @relation("TenantPackageServices")
+  resortProfile     ResortProfile            @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  packages          ResortPackage[]          @relation("ResortPackageServices")
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([status])
   @@index([category])
-  @@map("tenant_service")
+  @@map("resort_service")
 }
 
-model TenantPackage {
+model ResortPackage {
   id                String              @id @default(cuid())
-  tenantProfileId   String
+  resortProfileId   String
   code              String
   name              String
   category          String
@@ -1195,35 +1144,36 @@ model TenantPackage {
   maxGuests         Int?
   showOnBookingPage Boolean             @default(true)
   featured          Boolean             @default(false)
-  status            TenantPackageStatus @default(ACTIVE)
+  status            ResortPackageStatus @default(ACTIVE)
   sortOrder         Int                 @default(0)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
-  tenantProfile     TenantProfile       @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  rooms             TenantRoom[]        @relation("TenantPackageRooms")
-  services          TenantService[]     @relation("TenantPackageServices")
-  amenities         TenantAmenity[]     @relation("TenantPackageAmenities")
+  resortProfile     ResortProfile       @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  rooms             ResortRoom[]        @relation("ResortPackageRooms")
+  services          ResortService[]     @relation("ResortPackageServices")
+  amenities         ResortAmenity[]     @relation("ResortPackageAmenities")
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([status])
   @@index([category])
   @@index([sortOrder])
-  @@map("tenant_package")
+  @@map("resort_package")
 }
 
-model TenantInvoice {
+model ResortInvoice {
   id                  String                       @id @default(cuid())
-  tenantProfileId     String
+  publicToken         String                       @unique @default(uuid())
+  resortProfileId     String
   reservationId       String?
   code                String
   guestName           String
   guestEmail          String?
   invoiceDate         DateTime
   dueDate             DateTime
-  status              TenantInvoiceStatus          @default(DRAFT)
+  status              ResortInvoiceStatus          @default(DRAFT)
   paymentMethod       String?
-  reminderCadence     TenantInvoiceReminderCadence @default(STANDARD)
+  reminderCadence     ResortInvoiceReminderCadence @default(STANDARD)
   paymentInstructions String?
   notes               String?
   subtotal            String
@@ -1238,21 +1188,22 @@ model TenantInvoice {
   nextReminderAt      DateTime?
   createdAt           DateTime                     @default(now())
   updatedAt           DateTime                     @updatedAt
-  tenantProfile       TenantProfile                @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  reservation         TenantReservation?           @relation(fields: [reservationId], references: [id], onDelete: SetNull)
-  lineItems           TenantInvoiceLineItem[]
-  folioCharges        TenantFolioCharge[]
-  paymentLogs         TenantPaymentLog[]
+  resortProfile       ResortProfile                @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  reservation         ResortReservation?           @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  lineItems           ResortInvoiceLineItem[]
+  folioCharges        ResortFolioCharge[]
+  paymentLogs         ResortPaymentLog[]
+  paymentCheckouts    ResortPaymentCheckout[]
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([reservationId])
   @@index([status])
   @@index([dueDate])
-  @@map("tenant_invoice")
+  @@map("resort_invoice")
 }
 
-model TenantInvoiceLineItem {
+model ResortInvoiceLineItem {
   id          String        @id @default(cuid())
   invoiceId   String
   description String
@@ -1260,41 +1211,41 @@ model TenantInvoiceLineItem {
   rate        String
   amount      String
   sortOrder   Int           @default(0)
-  invoice     TenantInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice     ResortInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
-  @@map("tenant_invoice_line_item")
+  @@map("resort_invoice_line_item")
 }
 
-model TenantFolioCharge {
+model ResortFolioCharge {
   id              String                  @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   reservationId   String
   invoiceId       String?
   code            String
-  type            TenantFolioChargeType   @default(ADDITIONAL)
+  type            ResortFolioChargeType   @default(ADDITIONAL)
   description     String
   quantity        Int                     @default(1)
   rate            String
   amount          String
-  status          TenantFolioChargeStatus @default(UNBILLED)
+  status          ResortFolioChargeStatus @default(UNBILLED)
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
-  tenantProfile   TenantProfile           @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  reservation     TenantReservation       @relation(fields: [reservationId], references: [id], onDelete: Cascade)
-  invoice         TenantInvoice?          @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  resortProfile   ResortProfile           @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  reservation     ResortReservation       @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  invoice         ResortInvoice?          @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([reservationId])
   @@index([invoiceId])
   @@index([status])
-  @@map("tenant_folio_charge")
+  @@map("resort_folio_charge")
 }
 
-model TenantPaymentLog {
+model ResortPaymentLog {
   id              String                 @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   reservationId   String
   invoiceId       String?
   code            String
@@ -1302,29 +1253,56 @@ model TenantPaymentLog {
   paymentMethod   String
   proofUrl        String?
   proofNote       String?
-  status          TenantPaymentLogStatus @default(RECORDED)
+  status          ResortPaymentLogStatus @default(RECORDED)
   paidAt          DateTime               @default(now())
   createdAt       DateTime               @default(now())
-  tenantProfile   TenantProfile          @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
-  reservation     TenantReservation      @relation(fields: [reservationId], references: [id], onDelete: Cascade)
-  invoice         TenantInvoice?         @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  resortProfile   ResortProfile          @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  reservation     ResortReservation      @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  invoice         ResortInvoice?         @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([reservationId])
   @@index([invoiceId])
   @@index([status])
   @@index([paidAt])
-  @@map("tenant_payment_log")
+  @@map("resort_payment_log")
 }
 
-model TenantFinanceEntry {
+model ResortPaymentCheckout {
+  id                String            @id @default(cuid())
+  resortProfileId   String
+  reservationId     String
+  invoiceId         String?
+  paymongoSessionId String            @unique
+  referenceNumber   String            @unique
+  checkoutUrl       String
+  amount            String
+  currency          String            @default("PHP")
+  status            String            @default("ACTIVE")
+  paymentId         String?           @unique
+  paymentMethod     String?
+  paidAt            DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  resortProfile     ResortProfile     @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  reservation       ResortReservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  invoice           ResortInvoice?    @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  @@index([resortProfileId])
+  @@index([reservationId])
+  @@index([invoiceId])
+  @@index([status])
+  @@map("resort_payment_checkout")
+}
+
+model ResortFinanceEntry {
   id              String                   @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   code            String
-  type            TenantFinanceEntryType
-  source          TenantFinanceEntrySource @default(MANUAL)
-  status          TenantFinanceEntryStatus @default(PENDING)
+  type            ResortFinanceEntryType
+  source          ResortFinanceEntrySource @default(MANUAL)
+  status          ResortFinanceEntryStatus @default(PENDING)
   description     String
   category        String
   department      String?
@@ -1338,34 +1316,34 @@ model TenantFinanceEntry {
   receiptType     String?
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt
-  tenantProfile   TenantProfile            @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile            @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([type])
   @@index([status])
   @@index([entryDate])
-  @@map("tenant_finance_entry")
+  @@map("resort_finance_entry")
 }
 
-model TenantTransactionExport {
+model ResortTransactionExport {
   id              String                        @id @default(cuid())
-  tenantProfileId String
+  resortProfileId String
   code            String
   name            String
   period          String
-  format          TenantTransactionExportFormat
-  status          TenantTransactionExportStatus @default(READY)
+  format          ResortTransactionExportFormat
+  status          ResortTransactionExportStatus @default(READY)
   size            String                        @default("--")
   rowCount        Int                           @default(0)
   payload         Json?
   createdAt       DateTime                      @default(now())
   updatedAt       DateTime                      @updatedAt
-  tenantProfile   TenantProfile                 @relation(fields: [tenantProfileId], references: [id], onDelete: Cascade)
+  resortProfile   ResortProfile                 @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
 
-  @@unique([tenantProfileId, code])
-  @@index([tenantProfileId])
+  @@unique([resortProfileId, code])
+  @@index([resortProfileId])
   @@index([status])
   @@index([createdAt])
-  @@map("tenant_transaction_export")
+  @@map("resort_transaction_export")
 }

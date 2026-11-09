@@ -1,0 +1,6 @@
+# Gold ribbon recolor
+
+Tool: built-in image generation, reference-image edit.
+Original preserved: churro-login-cafb2979.webp.
+
++Use case: precise-object-edit. INPUT: the supplied churro-login image is the edit target, not a loose reference. Perform ONLY a material base-color replacement: change the bright orange ribbon to antique ochre gold, exact target base hue #AE7B0C (RGB 174,123,12). Preserve the original image as closely as possible: identical intertwined ribbon geometry, identical number and position of twists, contours, silhouette, every lengthwise fine groove/rib, edge shape, framing, perspective, camera angle, scale, crop and negative-space openings. Preserve its existing smooth satin polymer material, detailed surface texture, highlights, shadow gradients, ambient occlusion and lighting direction. Recolor orange/red/pink highlights and shadows into corresponding gold shades with base #AE7B0C, lighter gold highlights and darker ochre shadows; do not flatten the shading or change gloss. Do not redesign, simplify or recompose the object; no added objects or text. Preserve the original transparent background and accurate antialiased alpha edges: all areas behind and inside the ribbon loops remain truly transparent, not black or white. Output the same aspect ratio as the input. This is strictly a color-only edit.

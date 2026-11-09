@@ -56,41 +56,43 @@ export const ModelName = {
   Account: 'Account',
   Verification: 'Verification',
   AppUser: 'AppUser',
-  TenantProfile: 'TenantProfile',
-  PolarWebhookEvent: 'PolarWebhookEvent',
-  TenantMessengerIntegration: 'TenantMessengerIntegration',
-  TenantLead: 'TenantLead',
-  TenantLeadMessage: 'TenantLeadMessage',
-  TenantStaffProfile: 'TenantStaffProfile',
-  TenantAccessRole: 'TenantAccessRole',
-  TenantTimeLog: 'TenantTimeLog',
-  TenantScheduleShift: 'TenantScheduleShift',
-  TenantLeaveRequest: 'TenantLeaveRequest',
-  TenantOtUndertimeEntry: 'TenantOtUndertimeEntry',
-  TenantPayrollRun: 'TenantPayrollRun',
-  TenantPayrollItem: 'TenantPayrollItem',
-  TenantDepartment: 'TenantDepartment',
-  TenantStaffInvitation: 'TenantStaffInvitation',
-  TenantAmenity: 'TenantAmenity',
-  TenantRoom: 'TenantRoom',
-  TenantRoomPhoto: 'TenantRoomPhoto',
-  TenantHousekeepingRoom: 'TenantHousekeepingRoom',
-  TenantHousekeepingDamageReport: 'TenantHousekeepingDamageReport',
-  TenantLaundryJob: 'TenantLaundryJob',
-  TenantReservation: 'TenantReservation',
-  TenantReceptionRequest: 'TenantReceptionRequest',
-  TenantReceptionShiftNote: 'TenantReceptionShiftNote',
-  TenantMaintenanceRequest: 'TenantMaintenanceRequest',
-  TenantInventoryItem: 'TenantInventoryItem',
-  TenantInventoryMovement: 'TenantInventoryMovement',
-  TenantService: 'TenantService',
-  TenantPackage: 'TenantPackage',
-  TenantInvoice: 'TenantInvoice',
-  TenantInvoiceLineItem: 'TenantInvoiceLineItem',
-  TenantFolioCharge: 'TenantFolioCharge',
-  TenantPaymentLog: 'TenantPaymentLog',
-  TenantFinanceEntry: 'TenantFinanceEntry',
-  TenantTransactionExport: 'TenantTransactionExport'
+  ResortProfile: 'ResortProfile',
+  ResortContactInquiry: 'ResortContactInquiry',
+  ResortMessengerIntegration: 'ResortMessengerIntegration',
+  ResortLead: 'ResortLead',
+  ResortLeadMessage: 'ResortLeadMessage',
+  ResortStaffProfile: 'ResortStaffProfile',
+  ResortStaffActivityLog: 'ResortStaffActivityLog',
+  ResortAccessRole: 'ResortAccessRole',
+  ResortTimeLog: 'ResortTimeLog',
+  ResortScheduleShift: 'ResortScheduleShift',
+  ResortLeaveRequest: 'ResortLeaveRequest',
+  ResortOtUndertimeEntry: 'ResortOtUndertimeEntry',
+  ResortPayrollRun: 'ResortPayrollRun',
+  ResortPayrollItem: 'ResortPayrollItem',
+  ResortDepartment: 'ResortDepartment',
+  ResortStaffInvitation: 'ResortStaffInvitation',
+  ResortAmenity: 'ResortAmenity',
+  ResortRoom: 'ResortRoom',
+  ResortRoomPhoto: 'ResortRoomPhoto',
+  ResortHousekeepingRoom: 'ResortHousekeepingRoom',
+  ResortHousekeepingDamageReport: 'ResortHousekeepingDamageReport',
+  ResortLaundryJob: 'ResortLaundryJob',
+  ResortReservation: 'ResortReservation',
+  ResortReceptionRequest: 'ResortReceptionRequest',
+  ResortReceptionShiftNote: 'ResortReceptionShiftNote',
+  ResortMaintenanceRequest: 'ResortMaintenanceRequest',
+  ResortInventoryItem: 'ResortInventoryItem',
+  ResortInventoryMovement: 'ResortInventoryMovement',
+  ResortService: 'ResortService',
+  ResortPackage: 'ResortPackage',
+  ResortInvoice: 'ResortInvoice',
+  ResortInvoiceLineItem: 'ResortInvoiceLineItem',
+  ResortFolioCharge: 'ResortFolioCharge',
+  ResortPaymentLog: 'ResortPaymentLog',
+  ResortPaymentCheckout: 'ResortPaymentCheckout',
+  ResortFinanceEntry: 'ResortFinanceEntry',
+  ResortTransactionExport: 'ResortTransactionExport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -173,7 +175,8 @@ export const AppUserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   displayName: 'displayName',
-  role: 'role',
+  guestProfile: 'guestProfile',
+  guestDisabledAt: 'guestDisabledAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -181,7 +184,7 @@ export const AppUserScalarFieldEnum = {
 export type AppUserScalarFieldEnum = (typeof AppUserScalarFieldEnum)[keyof typeof AppUserScalarFieldEnum]
 
 
-export const TenantProfileScalarFieldEnum = {
+export const ResortProfileScalarFieldEnum = {
   id: 'id',
   appUserId: 'appUserId',
   resortName: 'resortName',
@@ -194,58 +197,30 @@ export const TenantProfileScalarFieldEnum = {
   phoneNumber: 'phoneNumber',
   website: 'website',
   shortDescription: 'shortDescription',
-  subscriptionPlan: 'subscriptionPlan',
-  subscriptionStatus: 'subscriptionStatus',
-  billingCycle: 'billingCycle',
-  trialStartedAt: 'trialStartedAt',
-  trialEndsAt: 'trialEndsAt',
-  currentPeriodEnd: 'currentPeriodEnd',
-  suspendedAt: 'suspendedAt',
-  stripeCustomerId: 'stripeCustomerId',
-  stripeSubscriptionId: 'stripeSubscriptionId',
-  polarCustomerId: 'polarCustomerId',
-  polarSubscriptionId: 'polarSubscriptionId',
-  polarProductId: 'polarProductId',
-  businessName: 'businessName',
-  billingEmail: 'billingEmail',
-  billingPhoneCountryCode: 'billingPhoneCountryCode',
-  billingPhoneNumber: 'billingPhoneNumber',
-  billingAddress: 'billingAddress',
-  billingCity: 'billingCity',
-  billingStateProvince: 'billingStateProvince',
-  billingPostalCode: 'billingPostalCode',
-  billingCountry: 'billingCountry',
-  paymentMethod: 'paymentMethod',
-  paymentProvider: 'paymentProvider',
-  paymentAccountName: 'paymentAccountName',
-  paymentAccountNumber: 'paymentAccountNumber',
-  cardholderName: 'cardholderName',
-  cardBrand: 'cardBrand',
-  cardLastFour: 'cardLastFour',
-  cardExpiry: 'cardExpiry',
-  onboardingStatus: 'onboardingStatus',
-  onboardingCurrentStep: 'onboardingCurrentStep',
-  onboardingCompletedAt: 'onboardingCompletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantProfileScalarFieldEnum = (typeof TenantProfileScalarFieldEnum)[keyof typeof TenantProfileScalarFieldEnum]
+export type ResortProfileScalarFieldEnum = (typeof ResortProfileScalarFieldEnum)[keyof typeof ResortProfileScalarFieldEnum]
 
 
-export const PolarWebhookEventScalarFieldEnum = {
+export const ResortContactInquiryScalarFieldEnum = {
   id: 'id',
-  type: 'type',
-  tenantProfileId: 'tenantProfileId',
-  receivedAt: 'receivedAt'
+  resortProfileId: 'resortProfileId',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  subject: 'subject',
+  message: 'message',
+  createdAt: 'createdAt'
 } as const
 
-export type PolarWebhookEventScalarFieldEnum = (typeof PolarWebhookEventScalarFieldEnum)[keyof typeof PolarWebhookEventScalarFieldEnum]
+export type ResortContactInquiryScalarFieldEnum = (typeof ResortContactInquiryScalarFieldEnum)[keyof typeof ResortContactInquiryScalarFieldEnum]
 
 
-export const TenantMessengerIntegrationScalarFieldEnum = {
+export const ResortMessengerIntegrationScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   pageId: 'pageId',
   pageName: 'pageName',
   pageAccessToken: 'pageAccessToken',
@@ -256,12 +231,12 @@ export const TenantMessengerIntegrationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantMessengerIntegrationScalarFieldEnum = (typeof TenantMessengerIntegrationScalarFieldEnum)[keyof typeof TenantMessengerIntegrationScalarFieldEnum]
+export type ResortMessengerIntegrationScalarFieldEnum = (typeof ResortMessengerIntegrationScalarFieldEnum)[keyof typeof ResortMessengerIntegrationScalarFieldEnum]
 
 
-export const TenantLeadScalarFieldEnum = {
+export const ResortLeadScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   messengerIntegrationId: 'messengerIntegrationId',
   reservationId: 'reservationId',
   psid: 'psid',
@@ -278,12 +253,12 @@ export const TenantLeadScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantLeadScalarFieldEnum = (typeof TenantLeadScalarFieldEnum)[keyof typeof TenantLeadScalarFieldEnum]
+export type ResortLeadScalarFieldEnum = (typeof ResortLeadScalarFieldEnum)[keyof typeof ResortLeadScalarFieldEnum]
 
 
-export const TenantLeadMessageScalarFieldEnum = {
+export const ResortLeadMessageScalarFieldEnum = {
   id: 'id',
-  tenantLeadId: 'tenantLeadId',
+  resortLeadId: 'resortLeadId',
   metaMessageId: 'metaMessageId',
   senderId: 'senderId',
   recipientId: 'recipientId',
@@ -296,20 +271,18 @@ export const TenantLeadMessageScalarFieldEnum = {
   createdAt: 'createdAt'
 } as const
 
-export type TenantLeadMessageScalarFieldEnum = (typeof TenantLeadMessageScalarFieldEnum)[keyof typeof TenantLeadMessageScalarFieldEnum]
+export type ResortLeadMessageScalarFieldEnum = (typeof ResortLeadMessageScalarFieldEnum)[keyof typeof ResortLeadMessageScalarFieldEnum]
 
 
-export const TenantStaffProfileScalarFieldEnum = {
+export const ResortStaffProfileScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   appUserId: 'appUserId',
   accessRoleId: 'accessRoleId',
   departmentId: 'departmentId',
   username: 'username',
   phoneNumber: 'phoneNumber',
-  roleName: 'roleName',
   status: 'status',
-  permissions: 'permissions',
   isDepartmentHead: 'isDepartmentHead',
   employmentType: 'employmentType',
   workLocation: 'workLocation',
@@ -330,12 +303,29 @@ export const TenantStaffProfileScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantStaffProfileScalarFieldEnum = (typeof TenantStaffProfileScalarFieldEnum)[keyof typeof TenantStaffProfileScalarFieldEnum]
+export type ResortStaffProfileScalarFieldEnum = (typeof ResortStaffProfileScalarFieldEnum)[keyof typeof ResortStaffProfileScalarFieldEnum]
 
 
-export const TenantAccessRoleScalarFieldEnum = {
+export const ResortStaffActivityLogScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
+  staffProfileId: 'staffProfileId',
+  actorAuthUserId: 'actorAuthUserId',
+  action: 'action',
+  title: 'title',
+  detail: 'detail',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type ResortStaffActivityLogScalarFieldEnum = (typeof ResortStaffActivityLogScalarFieldEnum)[keyof typeof ResortStaffActivityLogScalarFieldEnum]
+
+
+export const ResortAccessRoleScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
   name: 'name',
   description: 'description',
   permissions: 'permissions',
@@ -343,12 +333,12 @@ export const TenantAccessRoleScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantAccessRoleScalarFieldEnum = (typeof TenantAccessRoleScalarFieldEnum)[keyof typeof TenantAccessRoleScalarFieldEnum]
+export type ResortAccessRoleScalarFieldEnum = (typeof ResortAccessRoleScalarFieldEnum)[keyof typeof ResortAccessRoleScalarFieldEnum]
 
 
-export const TenantTimeLogScalarFieldEnum = {
+export const ResortTimeLogScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   staffProfileId: 'staffProfileId',
   date: 'date',
   clockIn: 'clockIn',
@@ -359,12 +349,12 @@ export const TenantTimeLogScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantTimeLogScalarFieldEnum = (typeof TenantTimeLogScalarFieldEnum)[keyof typeof TenantTimeLogScalarFieldEnum]
+export type ResortTimeLogScalarFieldEnum = (typeof ResortTimeLogScalarFieldEnum)[keyof typeof ResortTimeLogScalarFieldEnum]
 
 
-export const TenantScheduleShiftScalarFieldEnum = {
+export const ResortScheduleShiftScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   staffProfileId: 'staffProfileId',
   shift: 'shift',
   role: 'role',
@@ -377,12 +367,12 @@ export const TenantScheduleShiftScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantScheduleShiftScalarFieldEnum = (typeof TenantScheduleShiftScalarFieldEnum)[keyof typeof TenantScheduleShiftScalarFieldEnum]
+export type ResortScheduleShiftScalarFieldEnum = (typeof ResortScheduleShiftScalarFieldEnum)[keyof typeof ResortScheduleShiftScalarFieldEnum]
 
 
-export const TenantLeaveRequestScalarFieldEnum = {
+export const ResortLeaveRequestScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   staffProfileId: 'staffProfileId',
   leaveType: 'leaveType',
   startDate: 'startDate',
@@ -395,12 +385,12 @@ export const TenantLeaveRequestScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantLeaveRequestScalarFieldEnum = (typeof TenantLeaveRequestScalarFieldEnum)[keyof typeof TenantLeaveRequestScalarFieldEnum]
+export type ResortLeaveRequestScalarFieldEnum = (typeof ResortLeaveRequestScalarFieldEnum)[keyof typeof ResortLeaveRequestScalarFieldEnum]
 
 
-export const TenantOtUndertimeEntryScalarFieldEnum = {
+export const ResortOtUndertimeEntryScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   staffProfileId: 'staffProfileId',
   type: 'type',
   hours: 'hours',
@@ -412,12 +402,12 @@ export const TenantOtUndertimeEntryScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantOtUndertimeEntryScalarFieldEnum = (typeof TenantOtUndertimeEntryScalarFieldEnum)[keyof typeof TenantOtUndertimeEntryScalarFieldEnum]
+export type ResortOtUndertimeEntryScalarFieldEnum = (typeof ResortOtUndertimeEntryScalarFieldEnum)[keyof typeof ResortOtUndertimeEntryScalarFieldEnum]
 
 
-export const TenantPayrollRunScalarFieldEnum = {
+export const ResortPayrollRunScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   name: 'name',
   payPeriod: 'payPeriod',
@@ -454,13 +444,13 @@ export const TenantPayrollRunScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantPayrollRunScalarFieldEnum = (typeof TenantPayrollRunScalarFieldEnum)[keyof typeof TenantPayrollRunScalarFieldEnum]
+export type ResortPayrollRunScalarFieldEnum = (typeof ResortPayrollRunScalarFieldEnum)[keyof typeof ResortPayrollRunScalarFieldEnum]
 
 
-export const TenantPayrollItemScalarFieldEnum = {
+export const ResortPayrollItemScalarFieldEnum = {
   id: 'id',
   payrollRunId: 'payrollRunId',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   staffProfileId: 'staffProfileId',
   employeeName: 'employeeName',
   employeeCode: 'employeeCode',
@@ -493,12 +483,12 @@ export const TenantPayrollItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantPayrollItemScalarFieldEnum = (typeof TenantPayrollItemScalarFieldEnum)[keyof typeof TenantPayrollItemScalarFieldEnum]
+export type ResortPayrollItemScalarFieldEnum = (typeof ResortPayrollItemScalarFieldEnum)[keyof typeof ResortPayrollItemScalarFieldEnum]
 
 
-export const TenantDepartmentScalarFieldEnum = {
+export const ResortDepartmentScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   name: 'name',
   code: 'code',
   description: 'description',
@@ -511,12 +501,12 @@ export const TenantDepartmentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantDepartmentScalarFieldEnum = (typeof TenantDepartmentScalarFieldEnum)[keyof typeof TenantDepartmentScalarFieldEnum]
+export type ResortDepartmentScalarFieldEnum = (typeof ResortDepartmentScalarFieldEnum)[keyof typeof ResortDepartmentScalarFieldEnum]
 
 
-export const TenantStaffInvitationScalarFieldEnum = {
+export const ResortStaffInvitationScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   email: 'email',
   roleName: 'roleName',
   message: 'message',
@@ -528,12 +518,12 @@ export const TenantStaffInvitationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantStaffInvitationScalarFieldEnum = (typeof TenantStaffInvitationScalarFieldEnum)[keyof typeof TenantStaffInvitationScalarFieldEnum]
+export type ResortStaffInvitationScalarFieldEnum = (typeof ResortStaffInvitationScalarFieldEnum)[keyof typeof ResortStaffInvitationScalarFieldEnum]
 
 
-export const TenantAmenityScalarFieldEnum = {
+export const ResortAmenityScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   name: 'name',
   category: 'category',
@@ -552,12 +542,12 @@ export const TenantAmenityScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantAmenityScalarFieldEnum = (typeof TenantAmenityScalarFieldEnum)[keyof typeof TenantAmenityScalarFieldEnum]
+export type ResortAmenityScalarFieldEnum = (typeof ResortAmenityScalarFieldEnum)[keyof typeof ResortAmenityScalarFieldEnum]
 
 
-export const TenantRoomScalarFieldEnum = {
+export const ResortRoomScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   name: 'name',
   type: 'type',
@@ -582,10 +572,10 @@ export const TenantRoomScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantRoomScalarFieldEnum = (typeof TenantRoomScalarFieldEnum)[keyof typeof TenantRoomScalarFieldEnum]
+export type ResortRoomScalarFieldEnum = (typeof ResortRoomScalarFieldEnum)[keyof typeof ResortRoomScalarFieldEnum]
 
 
-export const TenantRoomPhotoScalarFieldEnum = {
+export const ResortRoomPhotoScalarFieldEnum = {
   id: 'id',
   roomId: 'roomId',
   key: 'key',
@@ -596,12 +586,12 @@ export const TenantRoomPhotoScalarFieldEnum = {
   createdAt: 'createdAt'
 } as const
 
-export type TenantRoomPhotoScalarFieldEnum = (typeof TenantRoomPhotoScalarFieldEnum)[keyof typeof TenantRoomPhotoScalarFieldEnum]
+export type ResortRoomPhotoScalarFieldEnum = (typeof ResortRoomPhotoScalarFieldEnum)[keyof typeof ResortRoomPhotoScalarFieldEnum]
 
 
-export const TenantHousekeepingRoomScalarFieldEnum = {
+export const ResortHousekeepingRoomScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   roomId: 'roomId',
   attendantStaffProfileId: 'attendantStaffProfileId',
   status: 'status',
@@ -615,12 +605,12 @@ export const TenantHousekeepingRoomScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantHousekeepingRoomScalarFieldEnum = (typeof TenantHousekeepingRoomScalarFieldEnum)[keyof typeof TenantHousekeepingRoomScalarFieldEnum]
+export type ResortHousekeepingRoomScalarFieldEnum = (typeof ResortHousekeepingRoomScalarFieldEnum)[keyof typeof ResortHousekeepingRoomScalarFieldEnum]
 
 
-export const TenantHousekeepingDamageReportScalarFieldEnum = {
+export const ResortHousekeepingDamageReportScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   roomId: 'roomId',
   title: 'title',
   details: 'details',
@@ -634,12 +624,12 @@ export const TenantHousekeepingDamageReportScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantHousekeepingDamageReportScalarFieldEnum = (typeof TenantHousekeepingDamageReportScalarFieldEnum)[keyof typeof TenantHousekeepingDamageReportScalarFieldEnum]
+export type ResortHousekeepingDamageReportScalarFieldEnum = (typeof ResortHousekeepingDamageReportScalarFieldEnum)[keyof typeof ResortHousekeepingDamageReportScalarFieldEnum]
 
 
-export const TenantLaundryJobScalarFieldEnum = {
+export const ResortLaundryJobScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   guestOrRoom: 'guestOrRoom',
   category: 'category',
@@ -653,13 +643,14 @@ export const TenantLaundryJobScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantLaundryJobScalarFieldEnum = (typeof TenantLaundryJobScalarFieldEnum)[keyof typeof TenantLaundryJobScalarFieldEnum]
+export type ResortLaundryJobScalarFieldEnum = (typeof ResortLaundryJobScalarFieldEnum)[keyof typeof ResortLaundryJobScalarFieldEnum]
 
 
-export const TenantReservationScalarFieldEnum = {
+export const ResortReservationScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   roomId: 'roomId',
+  guestAccountId: 'guestAccountId',
   guestName: 'guestName',
   guestEmail: 'guestEmail',
   guestPhone: 'guestPhone',
@@ -682,12 +673,12 @@ export const TenantReservationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantReservationScalarFieldEnum = (typeof TenantReservationScalarFieldEnum)[keyof typeof TenantReservationScalarFieldEnum]
+export type ResortReservationScalarFieldEnum = (typeof ResortReservationScalarFieldEnum)[keyof typeof ResortReservationScalarFieldEnum]
 
 
-export const TenantReceptionRequestScalarFieldEnum = {
+export const ResortReceptionRequestScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   reservationId: 'reservationId',
   department: 'department',
   roomOrArea: 'roomOrArea',
@@ -698,24 +689,24 @@ export const TenantReceptionRequestScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantReceptionRequestScalarFieldEnum = (typeof TenantReceptionRequestScalarFieldEnum)[keyof typeof TenantReceptionRequestScalarFieldEnum]
+export type ResortReceptionRequestScalarFieldEnum = (typeof ResortReceptionRequestScalarFieldEnum)[keyof typeof ResortReceptionRequestScalarFieldEnum]
 
 
-export const TenantReceptionShiftNoteScalarFieldEnum = {
+export const ResortReceptionShiftNoteScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   title: 'title',
   note: 'note',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantReceptionShiftNoteScalarFieldEnum = (typeof TenantReceptionShiftNoteScalarFieldEnum)[keyof typeof TenantReceptionShiftNoteScalarFieldEnum]
+export type ResortReceptionShiftNoteScalarFieldEnum = (typeof ResortReceptionShiftNoteScalarFieldEnum)[keyof typeof ResortReceptionShiftNoteScalarFieldEnum]
 
 
-export const TenantMaintenanceRequestScalarFieldEnum = {
+export const ResortMaintenanceRequestScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   roomId: 'roomId',
   code: 'code',
   area: 'area',
@@ -730,12 +721,12 @@ export const TenantMaintenanceRequestScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantMaintenanceRequestScalarFieldEnum = (typeof TenantMaintenanceRequestScalarFieldEnum)[keyof typeof TenantMaintenanceRequestScalarFieldEnum]
+export type ResortMaintenanceRequestScalarFieldEnum = (typeof ResortMaintenanceRequestScalarFieldEnum)[keyof typeof ResortMaintenanceRequestScalarFieldEnum]
 
 
-export const TenantInventoryItemScalarFieldEnum = {
+export const ResortInventoryItemScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   name: 'name',
   category: 'category',
@@ -749,12 +740,12 @@ export const TenantInventoryItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantInventoryItemScalarFieldEnum = (typeof TenantInventoryItemScalarFieldEnum)[keyof typeof TenantInventoryItemScalarFieldEnum]
+export type ResortInventoryItemScalarFieldEnum = (typeof ResortInventoryItemScalarFieldEnum)[keyof typeof ResortInventoryItemScalarFieldEnum]
 
 
-export const TenantInventoryMovementScalarFieldEnum = {
+export const ResortInventoryMovementScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   itemId: 'itemId',
   code: 'code',
   type: 'type',
@@ -763,12 +754,12 @@ export const TenantInventoryMovementScalarFieldEnum = {
   createdAt: 'createdAt'
 } as const
 
-export type TenantInventoryMovementScalarFieldEnum = (typeof TenantInventoryMovementScalarFieldEnum)[keyof typeof TenantInventoryMovementScalarFieldEnum]
+export type ResortInventoryMovementScalarFieldEnum = (typeof ResortInventoryMovementScalarFieldEnum)[keyof typeof ResortInventoryMovementScalarFieldEnum]
 
 
-export const TenantServiceScalarFieldEnum = {
+export const ResortServiceScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   title: 'title',
   category: 'category',
@@ -786,12 +777,12 @@ export const TenantServiceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantServiceScalarFieldEnum = (typeof TenantServiceScalarFieldEnum)[keyof typeof TenantServiceScalarFieldEnum]
+export type ResortServiceScalarFieldEnum = (typeof ResortServiceScalarFieldEnum)[keyof typeof ResortServiceScalarFieldEnum]
 
 
-export const TenantPackageScalarFieldEnum = {
+export const ResortPackageScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   name: 'name',
   category: 'category',
@@ -809,12 +800,13 @@ export const TenantPackageScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantPackageScalarFieldEnum = (typeof TenantPackageScalarFieldEnum)[keyof typeof TenantPackageScalarFieldEnum]
+export type ResortPackageScalarFieldEnum = (typeof ResortPackageScalarFieldEnum)[keyof typeof ResortPackageScalarFieldEnum]
 
 
-export const TenantInvoiceScalarFieldEnum = {
+export const ResortInvoiceScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  publicToken: 'publicToken',
+  resortProfileId: 'resortProfileId',
   reservationId: 'reservationId',
   code: 'code',
   guestName: 'guestName',
@@ -840,10 +832,10 @@ export const TenantInvoiceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantInvoiceScalarFieldEnum = (typeof TenantInvoiceScalarFieldEnum)[keyof typeof TenantInvoiceScalarFieldEnum]
+export type ResortInvoiceScalarFieldEnum = (typeof ResortInvoiceScalarFieldEnum)[keyof typeof ResortInvoiceScalarFieldEnum]
 
 
-export const TenantInvoiceLineItemScalarFieldEnum = {
+export const ResortInvoiceLineItemScalarFieldEnum = {
   id: 'id',
   invoiceId: 'invoiceId',
   description: 'description',
@@ -853,12 +845,12 @@ export const TenantInvoiceLineItemScalarFieldEnum = {
   sortOrder: 'sortOrder'
 } as const
 
-export type TenantInvoiceLineItemScalarFieldEnum = (typeof TenantInvoiceLineItemScalarFieldEnum)[keyof typeof TenantInvoiceLineItemScalarFieldEnum]
+export type ResortInvoiceLineItemScalarFieldEnum = (typeof ResortInvoiceLineItemScalarFieldEnum)[keyof typeof ResortInvoiceLineItemScalarFieldEnum]
 
 
-export const TenantFolioChargeScalarFieldEnum = {
+export const ResortFolioChargeScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   reservationId: 'reservationId',
   invoiceId: 'invoiceId',
   code: 'code',
@@ -872,12 +864,12 @@ export const TenantFolioChargeScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantFolioChargeScalarFieldEnum = (typeof TenantFolioChargeScalarFieldEnum)[keyof typeof TenantFolioChargeScalarFieldEnum]
+export type ResortFolioChargeScalarFieldEnum = (typeof ResortFolioChargeScalarFieldEnum)[keyof typeof ResortFolioChargeScalarFieldEnum]
 
 
-export const TenantPaymentLogScalarFieldEnum = {
+export const ResortPaymentLogScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   reservationId: 'reservationId',
   invoiceId: 'invoiceId',
   code: 'code',
@@ -890,12 +882,33 @@ export const TenantPaymentLogScalarFieldEnum = {
   createdAt: 'createdAt'
 } as const
 
-export type TenantPaymentLogScalarFieldEnum = (typeof TenantPaymentLogScalarFieldEnum)[keyof typeof TenantPaymentLogScalarFieldEnum]
+export type ResortPaymentLogScalarFieldEnum = (typeof ResortPaymentLogScalarFieldEnum)[keyof typeof ResortPaymentLogScalarFieldEnum]
 
 
-export const TenantFinanceEntryScalarFieldEnum = {
+export const ResortPaymentCheckoutScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
+  reservationId: 'reservationId',
+  invoiceId: 'invoiceId',
+  paymongoSessionId: 'paymongoSessionId',
+  referenceNumber: 'referenceNumber',
+  checkoutUrl: 'checkoutUrl',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  paymentId: 'paymentId',
+  paymentMethod: 'paymentMethod',
+  paidAt: 'paidAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortPaymentCheckoutScalarFieldEnum = (typeof ResortPaymentCheckoutScalarFieldEnum)[keyof typeof ResortPaymentCheckoutScalarFieldEnum]
+
+
+export const ResortFinanceEntryScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   type: 'type',
   source: 'source',
@@ -915,12 +928,12 @@ export const TenantFinanceEntryScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantFinanceEntryScalarFieldEnum = (typeof TenantFinanceEntryScalarFieldEnum)[keyof typeof TenantFinanceEntryScalarFieldEnum]
+export type ResortFinanceEntryScalarFieldEnum = (typeof ResortFinanceEntryScalarFieldEnum)[keyof typeof ResortFinanceEntryScalarFieldEnum]
 
 
-export const TenantTransactionExportScalarFieldEnum = {
+export const ResortTransactionExportScalarFieldEnum = {
   id: 'id',
-  tenantProfileId: 'tenantProfileId',
+  resortProfileId: 'resortProfileId',
   code: 'code',
   name: 'name',
   period: 'period',
@@ -933,7 +946,7 @@ export const TenantTransactionExportScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type TenantTransactionExportScalarFieldEnum = (typeof TenantTransactionExportScalarFieldEnum)[keyof typeof TenantTransactionExportScalarFieldEnum]
+export type ResortTransactionExportScalarFieldEnum = (typeof ResortTransactionExportScalarFieldEnum)[keyof typeof ResortTransactionExportScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -942,6 +955,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullableJsonNullValueInput = {

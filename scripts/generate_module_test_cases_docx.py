@@ -39,7 +39,7 @@ def parse_cases() -> list[dict[str, str]]:
         if cells[0] in {"Module", "---"} or cells[0].startswith("---"):
             continue
         module, route, status, test_cases = cells[:4]
-        if not route.startswith("/tenant") and route != "/accept-invitation":
+        if not route.startswith("/resort") and route != "/accept-invitation":
             continue
         cases.append(
             {
@@ -178,7 +178,7 @@ def build_docx() -> None:
         purpose = doc.add_paragraph()
         if case["status"] == "Passed":
             purpose.add_run(
-                f"To verify that the {case['module']} module opens correctly, performs its expected workflow, and remains stable for authorized tenant users."
+                f"To verify that the {case['module']} module opens correctly, performs its expected workflow, and remains stable for authorized resort users."
             )
         else:
             purpose.add_run(
@@ -261,7 +261,7 @@ def build_docx() -> None:
             add_numbered_steps(
                 doc,
                 [
-                    "Open the tenant sidebar or navigation menu.",
+                    "Open the resort sidebar or navigation menu.",
                     f"Locate {case['module']}.",
                     "Confirm the item is locked, marked coming soon, or not exposed as a finished workflow.",
                     "Confirm no broken page is reachable from the navigation.",

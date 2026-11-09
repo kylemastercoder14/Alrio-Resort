@@ -3,7 +3,11 @@ import { TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { FULL_PERMISSION, hasTenantPermission } from "@/lib/tenant-permissions";
+import { FULL_PERMISSION, hasAnyResortPermission, hasResortPermission } from "@/lib/resort-permissions";
+import {
+  safelyRecordStaffActivityForAuthUser,
+  STAFF_ACTIVITY_ACTIONS,
+} from "@/lib/staff-activity";
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
@@ -21,11 +25,9 @@ const t = initTRPC
   });
 
 const permissionMiddleware = t.middleware(async ({ ctx, path, type, next }) => {
-  const permission = getTenantProcedurePermission(path, type);
+  const permission = getResortProcedurePermission(path, type);
 
-  if (!permission) {
-    return next();
-  }
+  if (!permission) return next();
 
   const authUser = ctx.session?.user;
 
@@ -41,6 +43,11 @@ const permissionMiddleware = t.middleware(async ({ ctx, path, type, next }) => {
       authUserId: authUser.id,
     },
     include: {
+      resortProfile: {
+        select: {
+          id: true,
+        },
+      },
       staffProfile: {
         include: {
           accessRole: true,
@@ -49,15 +56,18 @@ const permissionMiddleware = t.middleware(async ({ ctx, path, type, next }) => {
     },
   });
   const permissions =
-    appUser?.role === "TENANT"
+    appUser?.resortProfile
       ? [FULL_PERMISSION]
-      : appUser?.role === "TENANT_STAFF"
+      : appUser?.staffProfile
         ? appUser.staffProfile?.accessRole?.permissions ??
-          appUser.staffProfile?.permissions ??
           []
         : [];
 
-  if (!hasTenantPermission(permissions, permission)) {
+  const permitted = Array.isArray(permission)
+    ? hasAnyResortPermission(permissions, permission)
+    : hasResortPermission(permissions, permission);
+
+  if (!permitted) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "You do not have permission to perform this action.",
@@ -67,66 +77,138 @@ const permissionMiddleware = t.middleware(async ({ ctx, path, type, next }) => {
   return next();
 });
 
+const activityMiddleware = t.middleware(async ({ ctx, path, type, next }) => {
+  const result = await next();
+  const authUserId = ctx.session?.user?.id;
+
+  if (
+    result.ok &&
+    authUserId &&
+    type === "mutation" &&
+    path.startsWith("resort.") &&
+    !path.startsWith("resort.usersRoles.")
+  ) {
+    const activity = describeResortMutation(path);
+
+    await safelyRecordStaffActivityForAuthUser(authUserId, {
+      action: STAFF_ACTIVITY_ACTIONS.workspaceAction,
+      title: activity.title,
+      detail: activity.detail,
+      actorAuthUserId: authUserId,
+      metadata: { procedure: path },
+    });
+  }
+
+  return result;
+});
+
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
-export const baseProcedure = t.procedure.use(permissionMiddleware);
+export const baseProcedure = t.procedure
+  .use(permissionMiddleware)
+  .use(activityMiddleware);
 
-function getTenantProcedurePermission(path: string, type: "query" | "mutation" | "subscription") {
-  if (!path.startsWith("tenant.")) return null;
+function describeResortMutation(path: string) {
+  const parts = path.split(".");
+  const area = parts.at(-2) ?? "workspace";
+  const action = parts.at(-1) ?? "update";
+  const areaLabel = area
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (character) => character.toUpperCase());
+
+  const knownActions: Record<string, string> = {
+    clockIn: "Clocked in",
+    clockOut: "Clocked out",
+    create: `Created ${areaLabel.toLowerCase()} record`,
+    delete: `Deleted ${areaLabel.toLowerCase()} record`,
+    save: `Updated ${areaLabel.toLowerCase()}`,
+    send: `Sent ${areaLabel.toLowerCase()}`,
+    update: `Updated ${areaLabel.toLowerCase()}`,
+    updateFlag: `Updated ${areaLabel.toLowerCase()} flag`,
+    updateStatus: `Updated ${areaLabel.toLowerCase()} status`,
+  };
+  const title = knownActions[action] ?? `${areaLabel} action completed`;
+
+  return {
+    title,
+    detail: `${title} in the Alrio staff workspace.`,
+  };
+}
+
+function getResortProcedurePermission(path: string, type: "query" | "mutation" | "subscription") {
+  if (!path.startsWith("resort.")) return null;
 
   const action = path.split(".").at(-1) ?? "";
   const isWrite = type === "mutation";
 
-  if (path.startsWith("tenant.notifications.")) return null;
-  if (path.startsWith("tenant.analytics.")) return "analytics.reports.view";
-  if (path.startsWith("tenant.accessRoles.")) {
+  if (path.startsWith("resort.notifications.")) return null;
+  if (path.startsWith("resort.analytics.")) return "analytics.reports.view";
+  if (path.startsWith("resort.accessRoles.")) {
     return isWrite ? "usersRoles.permissions.manage" : "usersRoles.view";
   }
-  if (path.startsWith("tenant.usersRoles.")) {
+  if (path.startsWith("resort.usersRoles.")) {
     if (action === "invite") return "usersRoles.create";
     if (action === "delete") return "usersRoles.delete";
     if (action === "suspend") return "usersRoles.update";
     if (action === "save") return "usersRoles.update";
     return "usersRoles.view";
   }
-  if (path.startsWith("tenant.departments.")) {
+  if (path.startsWith("resort.departments.")) {
     return isWrite ? "departments.manage" : "departments.view";
   }
-  if (path.startsWith("tenant.staffRecords.")) return "hr.staffRecords.view";
-  if (path.startsWith("tenant.timekeeping.")) return "hr.timekeeping.view";
-  if (path.startsWith("tenant.scheduling.")) return "hr.scheduling.manage";
-  if (path.startsWith("tenant.leaveRequests.")) {
+  if (path.startsWith("resort.guests.")) {
+    return "guestExperience.profiles.manage";
+  }
+  if (path.startsWith("resort.staffRecords.")) return "hr.staffRecords.view";
+  if (path.startsWith("resort.timekeeping.")) return "hr.timekeeping.view";
+  if (path.startsWith("resort.scheduling.")) return "hr.scheduling.manage";
+  if (path.startsWith("resort.leaveRequests.")) {
     return isWrite ? "hr.leaveRequests.manage" : "hr.leaveRequests.view";
   }
-  if (path.startsWith("tenant.otUndertime.")) {
+  if (path.startsWith("resort.otUndertime.")) {
     return isWrite ? "hr.otUndertime.manage" : "hr.otUndertime.view";
   }
-  if (path.startsWith("tenant.payroll.")) {
+  if (path.startsWith("resort.payroll.")) {
     if (action === "myHistory") return null;
     return isWrite || action === "preview" ? "payroll.manage" : "payroll.view";
   }
-  if (path.startsWith("tenant.rooms.")) return isWrite ? "rooms.manage" : "rooms.view";
-  if (path.startsWith("tenant.amenities.")) return isWrite ? "amenities.manage" : "amenities.view";
-  if (path.startsWith("tenant.services.")) return isWrite ? "services.manage" : "services.view";
-  if (path.startsWith("tenant.packages.")) return isWrite ? "services.manage" : "services.view";
-  if (path.startsWith("tenant.invoices.")) return isWrite ? "invoices.create" : "invoices.view";
-  if (path.startsWith("tenant.financeEntries.")) {
-    return isWrite ? "finance.receipts.manage" : "finance.revenueExpenses.view";
+  if (path.startsWith("resort.rooms.")) return isWrite ? "rooms.manage" : "rooms.view";
+  if (path.startsWith("resort.amenities.")) return isWrite ? "amenities.manage" : "amenities.view";
+  if (path.startsWith("resort.services.")) return isWrite ? "services.manage" : "services.view";
+  if (path.startsWith("resort.packages.")) return isWrite ? "services.manage" : "services.view";
+  if (path.startsWith("resort.invoices.")) {
+    return isWrite
+      ? "invoices.create"
+      : [
+          "invoices.view",
+          "finance.revenueExpenses.view",
+          "finance.cashFlow.view",
+          "finance.moneyStatus.view",
+        ];
   }
-  if (path.startsWith("tenant.transactionExports.")) return "finance.export";
-  if (path.startsWith("tenant.reservations.")) {
-    if (action === "save") return "reservations.create";
+  if (path.startsWith("resort.financeEntries.")) {
+    return isWrite
+      ? "finance.receipts.manage"
+      : [
+          "finance.revenueExpenses.view",
+          "finance.cashFlow.view",
+          "finance.moneyStatus.view",
+          "finance.receipts.manage",
+        ];
+  }
+  if (path.startsWith("resort.transactionExports.")) return "finance.export";
+  if (path.startsWith("resort.reservations.")) {
+    if (action === "create" || action === "save") return "reservations.create";
     return "reservations.view";
   }
-  if (path.startsWith("tenant.reception.")) return "operations.reception.manage";
-  if (path.startsWith("tenant.maintenance.")) return "operations.maintenance.manage";
-  if (path.startsWith("tenant.laundry.")) return "operations.laundry.manage";
-  if (path.startsWith("tenant.inventory.")) return "operations.inventory.manage";
-  if (path.startsWith("tenant.housekeeping.")) return "operations.housekeeping.manage";
-  if (path.startsWith("tenant.leads.")) {
+  if (path.startsWith("resort.reception.")) return "operations.reception.manage";
+  if (path.startsWith("resort.maintenance.")) return "operations.maintenance.manage";
+  if (path.startsWith("resort.laundry.")) return "operations.laundry.manage";
+  if (path.startsWith("resort.inventory.")) return "operations.inventory.manage";
+  if (path.startsWith("resort.housekeeping.")) return "operations.housekeeping.manage";
+  if (path.startsWith("resort.leads.")) {
     return isWrite ? "leads.assign" : "leads.view";
   }
-  if (path.startsWith("tenant.onboarding.")) return null;
 
   return null;
 }

@@ -63,7 +63,7 @@ export function AcceptInvitationView({ token }: AcceptInvitationViewProps) {
         ) : null}
       </div>
       <Button asChild size="sm">
-        <Link href={`/auth/sign-up?invitationToken=${encodeURIComponent(token)}`}>
+        <Link href={`/auth/sign-up/staff/${encodeURIComponent(token)}`}>
           Continue to sign up
         </Link>
       </Button>

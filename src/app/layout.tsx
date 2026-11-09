@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TRPCReactProvider } from "@/trpc/client";
-import { Toaster } from "sonner";
+import { AuthToaster } from "@/app/auth/_components/auth-toaster";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -18,23 +18,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ResortCloud - SaaS Resort Management System",
+  title: "Alrio Private Resort",
   description:
-    "ResortCloud is a SaaS-based resort management platform that streamlines reservations, guest experience, staff coordination, and property operations — all in one place.",
+    "Alrio Private Resort offers a unique luxury experience with world-class amenities and personalized service.",
   icons: {
-    icon: [
-      {
-        url: "/main/logo-light.png?v=2",
-        media: "(prefers-color-scheme: light)",
-        type: "image/png",
-      },
-      {
-        url: "/main/logo-dark.png?v=2",
-        media: "(prefers-color-scheme: dark)",
-        type: "image/png",
-      },
-    ],
-    shortcut: "/main/logo-dark.png?v=2",
+    icon: "/favicon.png",
   },
 };
 
@@ -50,7 +38,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <TRPCReactProvider>{children}</TRPCReactProvider>
-        <Toaster closeButton position="bottom-center" />
+        <AuthToaster />
       </body>
     </html>
   );

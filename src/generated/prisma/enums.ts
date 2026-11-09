@@ -9,227 +9,157 @@
 * 🟢 You can import this file directly.
 */
 
-export const UserRole = {
-  ADMIN: 'ADMIN',
-  ADMIN_STAFF: 'ADMIN_STAFF',
-  TENANT: 'TENANT',
-  TENANT_STAFF: 'TENANT_STAFF',
-  CUSTOMER: 'CUSTOMER'
-} as const
-
-export type UserRole = (typeof UserRole)[keyof typeof UserRole]
-
-
-export const TenantOnboardingStatus = {
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  COMPLETED: 'COMPLETED'
-} as const
-
-export type TenantOnboardingStatus = (typeof TenantOnboardingStatus)[keyof typeof TenantOnboardingStatus]
-
-
-export const TenantSubscriptionPlan = {
-  FREE_TRIAL: 'FREE_TRIAL',
-  STARTER: 'STARTER',
-  GROWTH: 'GROWTH',
-  ENTERPRISE: 'ENTERPRISE'
-} as const
-
-export type TenantSubscriptionPlan = (typeof TenantSubscriptionPlan)[keyof typeof TenantSubscriptionPlan]
-
-
-export const TenantBillingCycle = {
-  MONTHLY: 'MONTHLY',
-  YEARLY: 'YEARLY'
-} as const
-
-export type TenantBillingCycle = (typeof TenantBillingCycle)[keyof typeof TenantBillingCycle]
-
-
-export const TenantSubscriptionStatus = {
-  PENDING: 'PENDING',
-  TRIALING: 'TRIALING',
-  ACTIVE: 'ACTIVE',
-  PAST_DUE: 'PAST_DUE',
-  CANCELED: 'CANCELED',
-  REVOKED: 'REVOKED',
-  SUSPENDED: 'SUSPENDED'
-} as const
-
-export type TenantSubscriptionStatus = (typeof TenantSubscriptionStatus)[keyof typeof TenantSubscriptionStatus]
-
-
-export const TenantPaymentMethod = {
-  CREDIT_CARD: 'CREDIT_CARD',
-  BANK_TRANSFER: 'BANK_TRANSFER',
-  E_WALLET: 'E_WALLET',
-  CASH_DEPOSIT: 'CASH_DEPOSIT'
-} as const
-
-export type TenantPaymentMethod = (typeof TenantPaymentMethod)[keyof typeof TenantPaymentMethod]
-
-
-export const TenantPaymentAccountType = {
-  CREDIT_CARD: 'CREDIT_CARD',
-  BANK_ACCOUNT: 'BANK_ACCOUNT',
-  E_WALLET: 'E_WALLET'
-} as const
-
-export type TenantPaymentAccountType = (typeof TenantPaymentAccountType)[keyof typeof TenantPaymentAccountType]
-
-
-export const TenantStaffStatus = {
+export const ResortStaffStatus = {
   ACTIVE: 'ACTIVE',
   INVITED: 'INVITED',
   SUSPENDED: 'SUSPENDED'
 } as const
 
-export type TenantStaffStatus = (typeof TenantStaffStatus)[keyof typeof TenantStaffStatus]
+export type ResortStaffStatus = (typeof ResortStaffStatus)[keyof typeof ResortStaffStatus]
 
 
-export const TenantTimeLogFlag = {
+export const ResortTimeLogFlag = {
   ON_TIME: 'ON_TIME',
   LATE: 'LATE',
   ABSENT: 'ABSENT'
 } as const
 
-export type TenantTimeLogFlag = (typeof TenantTimeLogFlag)[keyof typeof TenantTimeLogFlag]
+export type ResortTimeLogFlag = (typeof ResortTimeLogFlag)[keyof typeof ResortTimeLogFlag]
 
 
-export const TenantScheduleShiftStatus = {
+export const ResortScheduleShiftStatus = {
   ASSIGNED: 'ASSIGNED',
   OPEN: 'OPEN',
   CHANGED: 'CHANGED'
 } as const
 
-export type TenantScheduleShiftStatus = (typeof TenantScheduleShiftStatus)[keyof typeof TenantScheduleShiftStatus]
+export type ResortScheduleShiftStatus = (typeof ResortScheduleShiftStatus)[keyof typeof ResortScheduleShiftStatus]
 
 
-export const TenantLeaveRequestStatus = {
+export const ResortLeaveRequestStatus = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED'
 } as const
 
-export type TenantLeaveRequestStatus = (typeof TenantLeaveRequestStatus)[keyof typeof TenantLeaveRequestStatus]
+export type ResortLeaveRequestStatus = (typeof ResortLeaveRequestStatus)[keyof typeof ResortLeaveRequestStatus]
 
 
-export const TenantOtUndertimeType = {
+export const ResortOtUndertimeType = {
   OVERTIME: 'OVERTIME',
   UNDERTIME: 'UNDERTIME'
 } as const
 
-export type TenantOtUndertimeType = (typeof TenantOtUndertimeType)[keyof typeof TenantOtUndertimeType]
+export type ResortOtUndertimeType = (typeof ResortOtUndertimeType)[keyof typeof ResortOtUndertimeType]
 
 
-export const TenantOtUndertimeStatus = {
+export const ResortOtUndertimeStatus = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED'
 } as const
 
-export type TenantOtUndertimeStatus = (typeof TenantOtUndertimeStatus)[keyof typeof TenantOtUndertimeStatus]
+export type ResortOtUndertimeStatus = (typeof ResortOtUndertimeStatus)[keyof typeof ResortOtUndertimeStatus]
 
 
-export const TenantPayrollRunStatus = {
+export const ResortPayrollRunStatus = {
   DRAFT: 'DRAFT',
   COMPLETED: 'COMPLETED',
   VOIDED: 'VOIDED'
 } as const
 
-export type TenantPayrollRunStatus = (typeof TenantPayrollRunStatus)[keyof typeof TenantPayrollRunStatus]
+export type ResortPayrollRunStatus = (typeof ResortPayrollRunStatus)[keyof typeof ResortPayrollRunStatus]
 
 
-export const TenantPayrollPayType = {
+export const ResortPayrollPayType = {
   REGULAR: 'REGULAR',
   FINAL: 'FINAL'
 } as const
 
-export type TenantPayrollPayType = (typeof TenantPayrollPayType)[keyof typeof TenantPayrollPayType]
+export type ResortPayrollPayType = (typeof ResortPayrollPayType)[keyof typeof ResortPayrollPayType]
 
 
-export const TenantPayrollFrequency = {
+export const ResortPayrollFrequency = {
   MONTHLY: 'MONTHLY',
   BI_WEEKLY: 'BI_WEEKLY'
 } as const
 
-export type TenantPayrollFrequency = (typeof TenantPayrollFrequency)[keyof typeof TenantPayrollFrequency]
+export type ResortPayrollFrequency = (typeof ResortPayrollFrequency)[keyof typeof ResortPayrollFrequency]
 
 
-export const TenantStaffInvitationStatus = {
+export const ResortStaffInvitationStatus = {
   PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED',
   EXPIRED: 'EXPIRED',
   REVOKED: 'REVOKED'
 } as const
 
-export type TenantStaffInvitationStatus = (typeof TenantStaffInvitationStatus)[keyof typeof TenantStaffInvitationStatus]
+export type ResortStaffInvitationStatus = (typeof ResortStaffInvitationStatus)[keyof typeof ResortStaffInvitationStatus]
 
 
-export const TenantDepartmentStatus = {
+export const ResortDepartmentStatus = {
   ACTIVE: 'ACTIVE',
   PAUSED: 'PAUSED',
   ARCHIVED: 'ARCHIVED'
 } as const
 
-export type TenantDepartmentStatus = (typeof TenantDepartmentStatus)[keyof typeof TenantDepartmentStatus]
+export type ResortDepartmentStatus = (typeof ResortDepartmentStatus)[keyof typeof ResortDepartmentStatus]
 
 
-export const TenantAmenityStatus = {
+export const ResortAmenityStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE'
 } as const
 
-export type TenantAmenityStatus = (typeof TenantAmenityStatus)[keyof typeof TenantAmenityStatus]
+export type ResortAmenityStatus = (typeof ResortAmenityStatus)[keyof typeof ResortAmenityStatus]
 
 
-export const TenantAmenityScope = {
+export const ResortAmenityScope = {
   ROOM_LEVEL: 'ROOM_LEVEL',
   PROPERTY_LEVEL: 'PROPERTY_LEVEL'
 } as const
 
-export type TenantAmenityScope = (typeof TenantAmenityScope)[keyof typeof TenantAmenityScope]
+export type ResortAmenityScope = (typeof ResortAmenityScope)[keyof typeof ResortAmenityScope]
 
 
-export const TenantAmenityFeeUnit = {
+export const ResortAmenityFeeUnit = {
   PER_STAY: 'PER_STAY',
   PER_DAY: 'PER_DAY',
   PER_USE: 'PER_USE'
 } as const
 
-export type TenantAmenityFeeUnit = (typeof TenantAmenityFeeUnit)[keyof typeof TenantAmenityFeeUnit]
+export type ResortAmenityFeeUnit = (typeof ResortAmenityFeeUnit)[keyof typeof ResortAmenityFeeUnit]
 
 
-export const TenantRoomStatus = {
+export const ResortRoomStatus = {
   AVAILABLE: 'AVAILABLE',
   OCCUPIED: 'OCCUPIED',
   MAINTENANCE: 'MAINTENANCE',
   OUT_OF_SERVICE: 'OUT_OF_SERVICE'
 } as const
 
-export type TenantRoomStatus = (typeof TenantRoomStatus)[keyof typeof TenantRoomStatus]
+export type ResortRoomStatus = (typeof ResortRoomStatus)[keyof typeof ResortRoomStatus]
 
 
-export const TenantHousekeepingStatus = {
+export const ResortHousekeepingStatus = {
   CLEAN: 'CLEAN',
   DIRTY: 'DIRTY',
   OCCUPIED: 'OCCUPIED',
   VACANT: 'VACANT'
 } as const
 
-export type TenantHousekeepingStatus = (typeof TenantHousekeepingStatus)[keyof typeof TenantHousekeepingStatus]
+export type ResortHousekeepingStatus = (typeof ResortHousekeepingStatus)[keyof typeof ResortHousekeepingStatus]
 
 
-export const TenantHousekeepingDamageStatus = {
+export const ResortHousekeepingDamageStatus = {
   OPEN: 'OPEN',
   RESOLVED: 'RESOLVED'
 } as const
 
-export type TenantHousekeepingDamageStatus = (typeof TenantHousekeepingDamageStatus)[keyof typeof TenantHousekeepingDamageStatus]
+export type ResortHousekeepingDamageStatus = (typeof ResortHousekeepingDamageStatus)[keyof typeof ResortHousekeepingDamageStatus]
 
 
-export const TenantLaundryStatus = {
+export const ResortLaundryStatus = {
   RECEIVED: 'RECEIVED',
   WASHING: 'WASHING',
   DRYING: 'DRYING',
@@ -237,26 +167,26 @@ export const TenantLaundryStatus = {
   RETURNED: 'RETURNED'
 } as const
 
-export type TenantLaundryStatus = (typeof TenantLaundryStatus)[keyof typeof TenantLaundryStatus]
+export type ResortLaundryStatus = (typeof ResortLaundryStatus)[keyof typeof ResortLaundryStatus]
 
 
-export const TenantLaundryPriority = {
+export const ResortLaundryPriority = {
   NORMAL: 'NORMAL',
   URGENT: 'URGENT'
 } as const
 
-export type TenantLaundryPriority = (typeof TenantLaundryPriority)[keyof typeof TenantLaundryPriority]
+export type ResortLaundryPriority = (typeof ResortLaundryPriority)[keyof typeof ResortLaundryPriority]
 
 
-export const TenantRoomSmokingPolicy = {
+export const ResortRoomSmokingPolicy = {
   NON_SMOKING: 'NON_SMOKING',
   SMOKING: 'SMOKING'
 } as const
 
-export type TenantRoomSmokingPolicy = (typeof TenantRoomSmokingPolicy)[keyof typeof TenantRoomSmokingPolicy]
+export type ResortRoomSmokingPolicy = (typeof ResortRoomSmokingPolicy)[keyof typeof ResortRoomSmokingPolicy]
 
 
-export const TenantReservationStatus = {
+export const ResortReservationStatus = {
   PENDING: 'PENDING',
   CONFIRMED: 'CONFIRMED',
   CHECKED_IN: 'CHECKED_IN',
@@ -264,88 +194,88 @@ export const TenantReservationStatus = {
   CANCELED: 'CANCELED'
 } as const
 
-export type TenantReservationStatus = (typeof TenantReservationStatus)[keyof typeof TenantReservationStatus]
+export type ResortReservationStatus = (typeof ResortReservationStatus)[keyof typeof ResortReservationStatus]
 
 
-export const TenantReceptionQueueStatus = {
+export const ResortReceptionQueueStatus = {
   ARRIVING: 'ARRIVING',
   IN_HOUSE: 'IN_HOUSE',
   CHECKING_OUT: 'CHECKING_OUT',
   COMPLETED: 'COMPLETED'
 } as const
 
-export type TenantReceptionQueueStatus = (typeof TenantReceptionQueueStatus)[keyof typeof TenantReceptionQueueStatus]
+export type ResortReceptionQueueStatus = (typeof ResortReceptionQueueStatus)[keyof typeof ResortReceptionQueueStatus]
 
 
-export const TenantReceptionRequestPriority = {
+export const ResortReceptionRequestPriority = {
   NORMAL: 'NORMAL',
   URGENT: 'URGENT'
 } as const
 
-export type TenantReceptionRequestPriority = (typeof TenantReceptionRequestPriority)[keyof typeof TenantReceptionRequestPriority]
+export type ResortReceptionRequestPriority = (typeof ResortReceptionRequestPriority)[keyof typeof ResortReceptionRequestPriority]
 
 
-export const TenantReceptionRequestStatus = {
+export const ResortReceptionRequestStatus = {
   OPEN: 'OPEN',
   SENT: 'SENT',
   RESOLVED: 'RESOLVED'
 } as const
 
-export type TenantReceptionRequestStatus = (typeof TenantReceptionRequestStatus)[keyof typeof TenantReceptionRequestStatus]
+export type ResortReceptionRequestStatus = (typeof ResortReceptionRequestStatus)[keyof typeof ResortReceptionRequestStatus]
 
 
-export const TenantMaintenancePriority = {
+export const ResortMaintenancePriority = {
   NORMAL: 'NORMAL',
   URGENT: 'URGENT'
 } as const
 
-export type TenantMaintenancePriority = (typeof TenantMaintenancePriority)[keyof typeof TenantMaintenancePriority]
+export type ResortMaintenancePriority = (typeof ResortMaintenancePriority)[keyof typeof ResortMaintenancePriority]
 
 
-export const TenantMaintenanceRequestStatus = {
+export const ResortMaintenanceRequestStatus = {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED'
 } as const
 
-export type TenantMaintenanceRequestStatus = (typeof TenantMaintenanceRequestStatus)[keyof typeof TenantMaintenanceRequestStatus]
+export type ResortMaintenanceRequestStatus = (typeof ResortMaintenanceRequestStatus)[keyof typeof ResortMaintenanceRequestStatus]
 
 
-export const TenantInventoryMovementType = {
+export const ResortInventoryMovementType = {
   IN: 'IN',
   OUT: 'OUT'
 } as const
 
-export type TenantInventoryMovementType = (typeof TenantInventoryMovementType)[keyof typeof TenantInventoryMovementType]
+export type ResortInventoryMovementType = (typeof ResortInventoryMovementType)[keyof typeof ResortInventoryMovementType]
 
 
-export const TenantServiceStatus = {
+export const ResortServiceStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE'
 } as const
 
-export type TenantServiceStatus = (typeof TenantServiceStatus)[keyof typeof TenantServiceStatus]
+export type ResortServiceStatus = (typeof ResortServiceStatus)[keyof typeof ResortServiceStatus]
 
 
-export const TenantPackageStatus = {
+export const ResortPackageStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
   ARCHIVED: 'ARCHIVED'
 } as const
 
-export type TenantPackageStatus = (typeof TenantPackageStatus)[keyof typeof TenantPackageStatus]
+export type ResortPackageStatus = (typeof ResortPackageStatus)[keyof typeof ResortPackageStatus]
 
 
-export const TenantServiceBillingType = {
+export const ResortServiceBillingType = {
   FIXED_PRICE: 'FIXED_PRICE',
   PER_HOUR: 'PER_HOUR',
   PER_GUEST: 'PER_GUEST',
   CUSTOM_QUOTE: 'CUSTOM_QUOTE'
 } as const
 
-export type TenantServiceBillingType = (typeof TenantServiceBillingType)[keyof typeof TenantServiceBillingType]
+export type ResortServiceBillingType = (typeof ResortServiceBillingType)[keyof typeof ResortServiceBillingType]
 
 
-export const TenantInvoiceStatus = {
+export const ResortInvoiceStatus = {
   DRAFT: 'DRAFT',
   SENT: 'SENT',
   PAID: 'PAID',
@@ -353,111 +283,111 @@ export const TenantInvoiceStatus = {
   VOID: 'VOID'
 } as const
 
-export type TenantInvoiceStatus = (typeof TenantInvoiceStatus)[keyof typeof TenantInvoiceStatus]
+export type ResortInvoiceStatus = (typeof ResortInvoiceStatus)[keyof typeof ResortInvoiceStatus]
 
 
-export const TenantFolioChargeStatus = {
+export const ResortFolioChargeStatus = {
   UNBILLED: 'UNBILLED',
   INVOICED: 'INVOICED',
   VOIDED: 'VOIDED',
   ADJUSTED: 'ADJUSTED'
 } as const
 
-export type TenantFolioChargeStatus = (typeof TenantFolioChargeStatus)[keyof typeof TenantFolioChargeStatus]
+export type ResortFolioChargeStatus = (typeof ResortFolioChargeStatus)[keyof typeof ResortFolioChargeStatus]
 
 
-export const TenantFolioChargeType = {
+export const ResortFolioChargeType = {
   STAY: 'STAY',
   ADDITIONAL: 'ADDITIONAL',
   FEE: 'FEE',
   ADJUSTMENT: 'ADJUSTMENT'
 } as const
 
-export type TenantFolioChargeType = (typeof TenantFolioChargeType)[keyof typeof TenantFolioChargeType]
+export type ResortFolioChargeType = (typeof ResortFolioChargeType)[keyof typeof ResortFolioChargeType]
 
 
-export const TenantPaymentLogStatus = {
+export const ResortPaymentLogStatus = {
   RECORDED: 'RECORDED',
   VOIDED: 'VOIDED'
 } as const
 
-export type TenantPaymentLogStatus = (typeof TenantPaymentLogStatus)[keyof typeof TenantPaymentLogStatus]
+export type ResortPaymentLogStatus = (typeof ResortPaymentLogStatus)[keyof typeof ResortPaymentLogStatus]
 
 
-export const TenantInvoiceReminderCadence = {
+export const ResortInvoiceReminderCadence = {
   STANDARD: 'STANDARD',
   LIGHT: 'LIGHT',
   STRICT: 'STRICT',
   PAUSED: 'PAUSED'
 } as const
 
-export type TenantInvoiceReminderCadence = (typeof TenantInvoiceReminderCadence)[keyof typeof TenantInvoiceReminderCadence]
+export type ResortInvoiceReminderCadence = (typeof ResortInvoiceReminderCadence)[keyof typeof ResortInvoiceReminderCadence]
 
 
-export const TenantFinanceEntryType = {
+export const ResortFinanceEntryType = {
   REVENUE: 'REVENUE',
   EXPENSE: 'EXPENSE'
 } as const
 
-export type TenantFinanceEntryType = (typeof TenantFinanceEntryType)[keyof typeof TenantFinanceEntryType]
+export type ResortFinanceEntryType = (typeof ResortFinanceEntryType)[keyof typeof ResortFinanceEntryType]
 
 
-export const TenantFinanceEntrySource = {
+export const ResortFinanceEntrySource = {
   MANUAL: 'MANUAL',
   AUTO_BOOKING: 'AUTO_BOOKING',
   INVOICE_PAYMENT: 'INVOICE_PAYMENT'
 } as const
 
-export type TenantFinanceEntrySource = (typeof TenantFinanceEntrySource)[keyof typeof TenantFinanceEntrySource]
+export type ResortFinanceEntrySource = (typeof ResortFinanceEntrySource)[keyof typeof ResortFinanceEntrySource]
 
 
-export const TenantFinanceEntryStatus = {
+export const ResortFinanceEntryStatus = {
   CLEARED: 'CLEARED',
   PENDING: 'PENDING'
 } as const
 
-export type TenantFinanceEntryStatus = (typeof TenantFinanceEntryStatus)[keyof typeof TenantFinanceEntryStatus]
+export type ResortFinanceEntryStatus = (typeof ResortFinanceEntryStatus)[keyof typeof ResortFinanceEntryStatus]
 
 
-export const TenantTransactionExportFormat = {
+export const ResortTransactionExportFormat = {
   CSV: 'CSV',
   PDF: 'PDF',
   TXT: 'TXT',
   XLSX: 'XLSX'
 } as const
 
-export type TenantTransactionExportFormat = (typeof TenantTransactionExportFormat)[keyof typeof TenantTransactionExportFormat]
+export type ResortTransactionExportFormat = (typeof ResortTransactionExportFormat)[keyof typeof ResortTransactionExportFormat]
 
 
-export const TenantTransactionExportStatus = {
+export const ResortTransactionExportStatus = {
   READY: 'READY',
   SCHEDULED: 'SCHEDULED',
   FAILED: 'FAILED'
 } as const
 
-export type TenantTransactionExportStatus = (typeof TenantTransactionExportStatus)[keyof typeof TenantTransactionExportStatus]
+export type ResortTransactionExportStatus = (typeof ResortTransactionExportStatus)[keyof typeof ResortTransactionExportStatus]
 
 
-export const TenantLeadStage = {
+export const ResortLeadStage = {
   INTAKE: 'INTAKE',
   QUALIFIED: 'QUALIFIED',
   PAYMENT_DONE: 'PAYMENT_DONE',
   CONVERTED: 'CONVERTED'
 } as const
 
-export type TenantLeadStage = (typeof TenantLeadStage)[keyof typeof TenantLeadStage]
+export type ResortLeadStage = (typeof ResortLeadStage)[keyof typeof ResortLeadStage]
 
 
-export const TenantLeadChannel = {
+export const ResortLeadChannel = {
   MESSENGER: 'MESSENGER'
 } as const
 
-export type TenantLeadChannel = (typeof TenantLeadChannel)[keyof typeof TenantLeadChannel]
+export type ResortLeadChannel = (typeof ResortLeadChannel)[keyof typeof ResortLeadChannel]
 
 
-export const TenantLeadMessageDirection = {
+export const ResortLeadMessageDirection = {
   INBOUND: 'INBOUND',
   OUTBOUND: 'OUTBOUND'
 } as const
 
-export type TenantLeadMessageDirection = (typeof TenantLeadMessageDirection)[keyof typeof TenantLeadMessageDirection]
+export type ResortLeadMessageDirection = (typeof ResortLeadMessageDirection)[keyof typeof ResortLeadMessageDirection]

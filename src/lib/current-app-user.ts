@@ -21,10 +21,10 @@ export async function getCurrentAppUser() {
       authUserId: session.user.id,
     },
     include: {
-      tenantProfile: true,
+      resortProfile: true,
       staffProfile: {
         include: {
-          tenantProfile: true,
+          resortProfile: true,
         },
       },
     },
