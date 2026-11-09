@@ -1429,17 +1429,11 @@ async function requireInvoiceCreator(authUserId: string) {
 
   if (appUser?.resortProfile) return;
 
-  const roleName = [
-    appUser?.staffProfile?.roleName,
-    appUser?.staffProfile?.accessRole?.name,
-  ]
+  const roleName = [appUser?.staffProfile?.accessRole?.name]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
-  const permissions =
-    appUser?.staffProfile?.accessRole?.permissions ??
-    appUser?.staffProfile?.permissions ??
-    [];
+  const permissions = appUser?.staffProfile?.accessRole?.permissions ?? [];
   const accountingRole =
     roleName.includes("acctg") ||
     roleName.includes("account") ||
@@ -1646,10 +1640,10 @@ function toResortStaffOutput(
     departmentName: staffProfile.department?.name ?? "",
     isDepartmentHead: staffProfile.isDepartmentHead,
     accessRoleId: staffProfile.accessRoleId ?? "",
-    roleName: staffProfile.accessRole?.name ?? staffProfile.roleName,
+    roleName: staffProfile.accessRole?.name ?? "Staff",
     status: fromResortStaffStatus(staffProfile.status),
     permissions:
-      staffProfile.accessRole?.permissions ?? staffProfile.permissions,
+      staffProfile.accessRole?.permissions ?? [],
     employmentType: staffProfile.employmentType,
     workLocation: staffProfile.workLocation,
     basicSalary,
@@ -1758,7 +1752,9 @@ function toResortTimeLogOutput(timeLog: {
   updatedAt: Date;
   staffProfile: {
     id: string;
-    roleName: string;
+    accessRole?: {
+      name: string;
+    } | null;
     department?: {
       name: string;
     } | null;
@@ -1771,7 +1767,7 @@ function toResortTimeLogOutput(timeLog: {
     id: timeLog.id,
     staffProfileId: timeLog.staffProfile.id,
     name: timeLog.staffProfile.appUser.displayName,
-    role: timeLog.staffProfile.roleName,
+    role: timeLog.staffProfile.accessRole?.name ?? "Staff",
     department: timeLog.staffProfile.department?.name ?? "",
     date: timeLog.date,
     clockIn: timeLog.clockIn,
@@ -1831,7 +1827,9 @@ function toResortLeaveRequestOutput(request: {
   updatedAt: Date;
   staffProfile: {
     id: string;
-    roleName: string;
+    accessRole?: {
+      name: string;
+    } | null;
     appUser: {
       displayName: string;
     };
@@ -1841,7 +1839,7 @@ function toResortLeaveRequestOutput(request: {
     id: request.id,
     staffProfileId: request.staffProfile.id,
     name: request.staffProfile.appUser.displayName,
-    role: request.staffProfile.roleName,
+    role: request.staffProfile.accessRole?.name ?? "Staff",
     type: request.leaveType,
     startDate: request.startDate,
     endDate: request.endDate,
@@ -1867,7 +1865,9 @@ function toResortOtUndertimeOutput(entry: {
   updatedAt: Date;
   staffProfile: {
     id: string;
-    roleName: string;
+    accessRole?: {
+      name: string;
+    } | null;
     appUser: {
       displayName: string;
     };
@@ -1877,7 +1877,7 @@ function toResortOtUndertimeOutput(entry: {
     id: entry.id,
     staffProfileId: entry.staffProfile.id,
     name: entry.staffProfile.appUser.displayName,
-    role: entry.staffProfile.roleName,
+    role: entry.staffProfile.accessRole?.name ?? "Staff",
     type: fromResortOtUndertimeType(entry.type),
     hours: entry.hours,
     payPeriod: entry.payPeriod,
@@ -2037,6 +2037,7 @@ async function buildResortPayrollPreview(
     },
     include: {
       appUser: true,
+      accessRole: true,
       department: true,
       leaveRequests: {
         where: {
@@ -2195,7 +2196,7 @@ async function buildResortPayrollPreview(
       philHealthContribution: decimalNumber(
         staffProfile.philHealthContribution,
       ),
-      position: staffProfile.roleName,
+      position: staffProfile.accessRole?.name ?? "Staff",
       regularHours,
       sssContribution: decimalNumber(staffProfile.sssContribution),
       staffProfileId: staffProfile.id,
@@ -5071,23 +5072,14 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        if (!appUser) {
+        if (!appUser?.staffProfile) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "Only staff can clock in.",
           });
         }
 
-        const staffProfile =
-          appUser.staffProfile ??
-          (await prisma.resortStaffProfile.create({
-            data: {
-              appUserId: appUser.authUserId,
-              roleName: "Resort owner",
-              status: "ACTIVE",
-              resortProfileId: resortProfile.id,
-            },
-          }));
+        const staffProfile = appUser.staffProfile;
 
         const now = new Date();
         const today = getWorkdayStart(now);
@@ -5232,6 +5224,9 @@ export const appRouter = createTRPCRouter({
             where: {
               authUserId: authUser.id,
             },
+            include: {
+              staffProfile: true,
+            },
           });
 
           if (appUser?.staffProfile) {
@@ -5351,6 +5346,9 @@ export const appRouter = createTRPCRouter({
             where: {
               authUserId: authUser.id,
             },
+            include: {
+              staffProfile: true,
+            },
           });
 
           if (appUser?.staffProfile) {
@@ -5462,6 +5460,9 @@ export const appRouter = createTRPCRouter({
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
+            },
+            include: {
+              staffProfile: true,
             },
           });
 
@@ -5675,6 +5676,9 @@ export const appRouter = createTRPCRouter({
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
+            },
+            include: {
+              staffProfile: true,
             },
           });
 
@@ -5939,6 +5943,9 @@ export const appRouter = createTRPCRouter({
             where: {
               authUserId: authUser.id,
             },
+            include: {
+              staffProfile: true,
+            },
           });
 
           if (appUser?.staffProfile) {
@@ -6187,6 +6194,9 @@ export const appRouter = createTRPCRouter({
           const appUser = await prisma.appUser.findUnique({
             where: {
               authUserId: authUser.id,
+            },
+            include: {
+              staffProfile: true,
             },
           });
 
@@ -6992,7 +7002,6 @@ export const appRouter = createTRPCRouter({
                   firstName,
                   lastName,
                   displayName,
-                  role: "RESORT_STAFF",
                 },
               });
 
@@ -7025,9 +7034,7 @@ export const appRouter = createTRPCRouter({
                   phoneNumber: input.phoneNumber,
                   accessRoleId: accessRole.id,
                   departmentId,
-                  roleName: accessRole.name,
                   status,
-                  permissions: [],
                   ...payrollData,
                   notes: input.notes,
                   tags: input.tags,
@@ -7139,7 +7146,6 @@ export const appRouter = createTRPCRouter({
                 firstName,
                 lastName,
                 displayName,
-                role: "RESORT_STAFF",
               },
             });
 
@@ -7151,9 +7157,7 @@ export const appRouter = createTRPCRouter({
                 phoneNumber: input.phoneNumber,
                 accessRoleId: accessRole.id,
                 departmentId,
-                roleName: accessRole.name,
                 status,
-                permissions: [],
                 ...payrollData,
                 notes: input.notes,
                 tags: input.tags,
