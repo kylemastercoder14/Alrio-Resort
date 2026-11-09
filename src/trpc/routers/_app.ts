@@ -1418,6 +1418,7 @@ async function requireInvoiceCreator(authUserId: string) {
       authUserId,
     },
     include: {
+      resortProfile: true,
       staffProfile: {
         include: {
           accessRole: true,
@@ -1426,7 +1427,7 @@ async function requireInvoiceCreator(authUserId: string) {
     },
   });
 
-  if (appUser?.role === "RESORT") return;
+  if (appUser?.resortProfile) return;
 
   const roleName = [
     appUser?.staffProfile?.roleName,
@@ -4971,9 +4972,7 @@ export const appRouter = createTRPCRouter({
             },
           },
         });
-        const isStaff = ["RESORT_STAFF", "RESORT"].includes(
-          appUser?.role ?? "",
-        );
+        const isStaff = Boolean(appUser?.staffProfile);
         const today = getWorkdayStart();
         const activeLog = isStaff
           ? appUser?.staffProfile
@@ -5028,7 +5027,7 @@ export const appRouter = createTRPCRouter({
         const logs = await prisma.resortTimeLog.findMany({
           where: {
             resortProfileId: resortProfile.id,
-            ...(appUser?.role === "RESORT_STAFF" && appUser.staffProfile
+            ...(appUser?.staffProfile
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5072,7 +5071,7 @@ export const appRouter = createTRPCRouter({
           },
         });
 
-        if (!appUser || !["RESORT_STAFF", "RESORT"].includes(appUser.role)) {
+        if (!appUser) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "Only staff can clock in.",
@@ -5160,7 +5159,6 @@ export const appRouter = createTRPCRouter({
 
         if (
           !appUser ||
-          !["RESORT_STAFF", "RESORT"].includes(appUser.role) ||
           !appUser.staffProfile
         ) {
           throw new TRPCError({
@@ -5236,7 +5234,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          if (appUser?.role === "RESORT_STAFF") {
+          if (appUser?.staffProfile) {
             throw new TRPCError({
               code: "FORBIDDEN",
               message: "Only resort admin can edit time log flags.",
@@ -5301,7 +5299,7 @@ export const appRouter = createTRPCRouter({
         const shifts = await prisma.resortScheduleShift.findMany({
           where: {
             resortProfileId: resortProfile.id,
-            ...(appUser?.role === "RESORT_STAFF" && appUser.staffProfile
+            ...(appUser?.staffProfile
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5355,7 +5353,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          if (appUser?.role === "RESORT_STAFF") {
+          if (appUser?.staffProfile) {
             throw new TRPCError({
               code: "FORBIDDEN",
               message: "Only resort admin can manage schedules.",
@@ -5467,7 +5465,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          if (appUser?.role === "RESORT_STAFF") {
+          if (appUser?.staffProfile) {
             throw new TRPCError({
               code: "FORBIDDEN",
               message: "Only resort admin can delete schedules.",
@@ -5523,7 +5521,7 @@ export const appRouter = createTRPCRouter({
         const requests = await prisma.resortLeaveRequest.findMany({
           where: {
             resortProfileId: resortProfile.id,
-            ...(appUser?.role === "RESORT_STAFF" && appUser.staffProfile
+            ...(appUser?.staffProfile
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5583,7 +5581,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const staffProfileId =
-            appUser?.role === "RESORT_STAFF"
+            appUser?.staffProfile
               ? appUser.staffProfile?.id
               : input.staffProfileId;
 
@@ -5680,7 +5678,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          if (appUser?.role === "RESORT_STAFF") {
+          if (appUser?.staffProfile) {
             throw new TRPCError({
               code: "FORBIDDEN",
               message: "Only resort admin can approve or reject leave.",
@@ -5786,7 +5784,7 @@ export const appRouter = createTRPCRouter({
         const entries = await prisma.resortOtUndertimeEntry.findMany({
           where: {
             resortProfileId: resortProfile.id,
-            ...(appUser?.role === "RESORT_STAFF" && appUser.staffProfile
+            ...(appUser?.staffProfile
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5846,7 +5844,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const staffProfileId =
-            appUser?.role === "RESORT_STAFF"
+            appUser?.staffProfile
               ? appUser.staffProfile?.id
               : input.staffProfileId;
 
@@ -5943,7 +5941,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          if (appUser?.role === "RESORT_STAFF") {
+          if (appUser?.staffProfile) {
             throw new TRPCError({
               code: "FORBIDDEN",
               message: "Only resort admin can approve or reject OT/undertime.",
@@ -6192,7 +6190,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          if (appUser?.role === "RESORT_STAFF") {
+          if (appUser?.staffProfile) {
             throw new TRPCError({
               code: "FORBIDDEN",
               message: "Only resort admin can generate payroll.",
