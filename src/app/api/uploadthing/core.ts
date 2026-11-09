@@ -13,7 +13,12 @@ export const ourFileRouter = {
   avatarUploader: f({ image: { maxFileCount: 1, maxFileSize: "4MB" } }, { awaitServerData: true })
     .middleware(async ({ req }) => {
       const session = await auth.api.getSession({ headers: req.headers });
-      if (!session?.user?.id) throw new UploadThingError({ code: "UNAUTHORIZED", message: "Sign in to upload a profile photo." });
+      if (!session?.user?.id) {
+        throw new UploadThingError({
+          code: "FORBIDDEN",
+          message: "Sign in to upload a profile photo.",
+        });
+      }
       return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
