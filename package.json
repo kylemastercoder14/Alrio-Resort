@@ -10,7 +10,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "node prisma/seed.mjs",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "admin:promote": "node scripts/promote-production-admin.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
