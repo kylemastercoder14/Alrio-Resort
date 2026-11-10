@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { getRuntimeSettingForDefaultResort } from "@/lib/runtime-settings";
 
 const PAYMONGO_API_URL = "https://api.paymongo.com/v2";
 
@@ -26,8 +27,8 @@ export type PayMongoCheckoutSession = {
 
 type PayMongoResponse<T> = { data: T; errors?: Array<{ detail?: string }> };
 
-function getSecretKey() {
-  const key = process.env.PAYMONGO_SECRET_KEY;
+async function getSecretKey() {
+  const key = await getRuntimeSettingForDefaultResort("PAYMONGO_SECRET_KEY");
   if (!key) throw new Error("PAYMONGO_SECRET_KEY is not configured.");
   return key;
 }
@@ -37,7 +38,7 @@ async function request<T>(path: string, init?: RequestInit) {
     ...init,
     cache: "no-store",
     headers: {
-      Authorization: `Basic ${Buffer.from(`${getSecretKey()}:`).toString("base64")}`,
+      Authorization: `Basic ${Buffer.from(`${await getSecretKey()}:`).toString("base64")}`,
       "Content-Type": "application/json",
       ...init?.headers,
     },
@@ -93,8 +94,8 @@ export async function createPayMongoCheckout(input: {
   });
 }
 
-export function verifyPayMongoSignature(rawBody: string, signatureHeader: string) {
-  const webhookSecret = process.env.PAYMONGO_WEBHOOK_SECRET;
+export async function verifyPayMongoSignature(rawBody: string, signatureHeader: string) {
+  const webhookSecret = await getRuntimeSettingForDefaultResort("PAYMONGO_WEBHOOK_SECRET");
   if (!webhookSecret) throw new Error("PAYMONGO_WEBHOOK_SECRET is not configured.");
 
   const parts = Object.fromEntries(
@@ -104,7 +105,7 @@ export function verifyPayMongoSignature(rawBody: string, signatureHeader: string
     }),
   );
   const timestamp = parts.t;
-  const expectedKey = getSecretKey().startsWith("sk_live_") ? "li" : "te";
+  const expectedKey = (await getSecretKey()).startsWith("sk_live_") ? "li" : "te";
   const received = parts[expectedKey];
   if (!timestamp || !received) return false;
 

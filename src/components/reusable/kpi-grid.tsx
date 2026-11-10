@@ -33,7 +33,7 @@ export function KpiGrid({
               <p className="w-fit border-b border-dotted border-zinc-400 text-xs font-bold text-zinc-700">
                 {item.title}
               </p>
-              <div className="mt-2 break-words text-2xl font-bold tracking-tight text-zinc-950">
+              <div className="mt-2 wrap-break-word text-2xl font-bold tracking-tight text-zinc-950">
                 {item.value}
               </div>
               {item.note ? (

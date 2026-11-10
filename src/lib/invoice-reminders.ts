@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 
 import { prisma } from "@/lib/prisma";
+import { getRuntimeSetting } from "@/lib/runtime-settings";
 
 type ReminderCadence = "STANDARD" | "LIGHT" | "STRICT" | "PAUSED";
 type MailKind = "invoice" | "reminder";
@@ -15,21 +16,21 @@ type ReminderRunResult = {
 
 const invoiceInclude = {
   lineItems: { orderBy: { sortOrder: "asc" as const } },
-  resortProfile: { select: { resortName: true } },
+  resortProfile: { select: { id: true, resortName: true } },
 } as const;
 
-function getRequiredEnv(name: string) {
-  const value = process.env[name];
+async function getRequiredSetting(resortProfileId: string, name: "SMTP_HOST" | "SMTP_USER" | "SMTP_PASSWORD" | "SMTP_FROM") {
+  const value = await getRuntimeSetting(resortProfileId, name);
   if (!value) throw new Error(`${name} is required to send invoice email.`);
   return value;
 }
 
-function createTransporter() {
+async function createTransporter(resortProfileId: string) {
   return nodemailer.createTransport({
-    host: getRequiredEnv("SMTP_HOST"),
-    port: Number(process.env.SMTP_PORT ?? "587"),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: { user: getRequiredEnv("SMTP_USER"), pass: getRequiredEnv("SMTP_PASSWORD") },
+    host: await getRequiredSetting(resortProfileId, "SMTP_HOST"),
+    port: Number((await getRuntimeSetting(resortProfileId, "SMTP_PORT")) ?? "587"),
+    secure: (await getRuntimeSetting(resortProfileId, "SMTP_SECURE")) === "true",
+    auth: { user: await getRequiredSetting(resortProfileId, "SMTP_USER"), pass: await getRequiredSetting(resortProfileId, "SMTP_PASSWORD") },
   });
 }
 
@@ -107,21 +108,21 @@ async function deliverInvoiceEmail(
   invoice: {
     balanceDue: string; code: string; dueDate: Date; guestEmail: string | null; guestName: string;
     publicToken: string; totalAmount: string;
-    resortProfile: { resortName: string };
+    resortProfile: { id: string; resortName: string };
   },
   kind: MailKind,
 ) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
+  const appUrl = (await getRuntimeSetting(invoice.resortProfile.id, "APP_URL")) ?? "http://localhost:3000";
   const invoiceUrl = new URL(`/invoices/${invoice.publicToken}`, appUrl).toString();
   const resortName = invoice.resortProfile.resortName || "Alrio Private Resort";
   const subject = kind === "invoice" ? `Invoice ${invoice.code} from ${resortName}` : `Payment reminder - ${invoice.code}`;
   const title = kind === "invoice" ? "Your invoice is ready" : "Payment reminder";
   const intro = kind === "invoice" ? `Your invoice from ${resortName} is ready to review.` : `Invoice ${invoice.code} still has an outstanding balance.`;
 
-  await createTransporter().sendMail({
-    from: getRequiredEnv("SMTP_FROM"),
+  await (await createTransporter(invoice.resortProfile.id)).sendMail({
+    from: await getRequiredSetting(invoice.resortProfile.id, "SMTP_FROM"),
     to: invoice.guestEmail!,
-    replyTo: process.env.SMTP_REPLY_TO || undefined,
+    replyTo: (await getRuntimeSetting(invoice.resortProfile.id, "SMTP_REPLY_TO")) || undefined,
     subject,
     text: [title, "", `Hi ${invoice.guestName},`, intro, `Due date: ${formatDate(invoice.dueDate)}`, `Total: ${formatAmount(invoice.totalAmount)}`, `Balance due: ${formatAmount(invoice.balanceDue)}`, `View invoice and pay securely: ${invoiceUrl}`, "", "Card, GCash, and QR Ph payments are processed securely by PayMongo."].join("\n"),
     html: buildEmailHtml({ ...invoice, intro, invoiceUrl, resortName, title }),
@@ -129,11 +130,47 @@ async function deliverInvoiceEmail(
 }
 
 function buildEmailHtml(input: { balanceDue: string; code: string; dueDate: Date; guestName: string; intro: string; invoiceUrl: string; resortName: string; title: string; totalAmount: string }) {
-  return `<!doctype html><html><body style="margin:0;background:#f4f4f5;color:#18181b;font-family:Arial,sans-serif"><table role="presentation" width="100%"><tr><td align="center" style="padding:40px 20px"><table role="presentation" width="640" style="max-width:640px;width:100%;background:#fff;border:1px solid #e4e4e7;border-radius:18px"><tr><td style="padding:34px"><p style="margin:0 0 24px;color:#AE7B0C;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(input.resortName)}</p><h1 style="margin:0 0 18px;font-size:28px">${escapeHtml(input.title)}</h1><p style="font-size:16px;line-height:1.6">Hi ${escapeHtml(input.guestName)}, ${escapeHtml(input.intro)}</p><table width="100%" cellspacing="0" cellpadding="0" style="margin:24px 0;border-collapse:collapse">${detailRow("Invoice", input.code)}${detailRow("Due date", formatDate(input.dueDate))}${detailRow("Total", formatAmount(input.totalAmount))}${detailRow("Balance due", formatAmount(input.balanceDue))}</table><a href="${input.invoiceUrl}" style="display:inline-block;border-radius:10px;background:#18181b;color:#fff;padding:12px 18px;text-decoration:none;font-weight:700">View invoice &amp; pay</a><p style="margin:22px 0 0;color:#71717a;font-size:13px">Secure payment via PayMongo using card, GCash, or QR Ph.</p></td></tr></table></td></tr></table></body></html>`;
+  return `<!doctype html>
+<html>
+  <body style="margin:0;background:#ffffff;color:#020617;font-family:Arial,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;">
+      <tr>
+        <td align="center" style="padding:48px 24px;">
+          <table role="presentation" width="670" cellspacing="0" cellpadding="0" style="max-width:670px;width:100%;">
+            <tr>
+              <td style="padding-bottom:40px;">
+                <img src="https://q3m5xo7hmq.ufs.sh/f/cwO9cyRsC4yhcPZxvzRsC4yhxXWijpTZmVgvJrAqb9SRz7u6" width="90" alt="Alrio Private Resort" style="display:block;border:0;outline:none;text-decoration:none;" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h1 style="margin:0 0 24px;font-size:25px;line-height:1.2;font-weight:600;color:#020617;">${escapeHtml(input.title)}</h1>
+                <p style="margin:0 0 22px;font-size:15px;line-height:1.6;color:#000000;">Hi ${escapeHtml(input.guestName)}, ${escapeHtml(input.intro)}</p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 30px;border-collapse:collapse;">
+                  ${detailRow("Invoice number", input.code)}
+                  ${detailRow("Due date", formatDate(input.dueDate))}
+                  ${detailRow("Invoice total", formatAmount(input.totalAmount))}
+                  ${detailRow("Balance due", formatAmount(input.balanceDue))}
+                </table>
+                <a href="${escapeHtml(input.invoiceUrl)}" style="display:inline-block;height:32px;border:1px solid #000000;border-radius:10px;background:#171717;background-image:linear-gradient(to bottom,#4b4b4b,#171717);color:#ffffff;font-size:14px;font-weight:500;line-height:32px;text-decoration:none;padding:0 10px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.35),0 1px 1px rgba(0,0,0,0.35);">View invoice &amp; pay</a>
+                <p style="margin:22px 0 0;font-size:15px;line-height:1.6;color:#000000;">Secure payment is available through PayMongo using card, GCash, or QR Ph.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-top:70px;">
+                <div style="border-top:1px dashed #cbd5e1;padding-top:20px;color:#64748b;font-size:13px;">© 2026 ${escapeHtml(input.resortName)}</div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
 }
 
 function detailRow(label: string, value: string) {
-  return `<tr><td style="border-bottom:1px solid #e4e4e7;padding:10px 0;color:#71717a">${escapeHtml(label)}</td><td align="right" style="border-bottom:1px solid #e4e4e7;padding:10px 0;font-weight:700">${escapeHtml(value)}</td></tr>`;
+  return `<tr><td style="width:160px;padding:10px 0;border-bottom:1px solid #e5e7eb;color:#64748b;font-size:14px;">${escapeHtml(label)}</td><td align="right" style="padding:10px 0;border-bottom:1px solid #e5e7eb;color:#020617;font-size:14px;font-weight:600;">${escapeHtml(value)}</td></tr>`;
 }
 
 function shouldSendReminder(invoice: { balanceDue: string; dueDate: Date; guestEmail: string | null; lastReminderSentAt: Date | null; nextReminderAt: Date | null; reminderCadence: ReminderCadence }, now: Date) {

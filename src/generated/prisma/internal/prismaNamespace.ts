@@ -390,6 +390,8 @@ export const ModelName = {
   Verification: 'Verification',
   AppUser: 'AppUser',
   ResortProfile: 'ResortProfile',
+  ResortDeveloperSetting: 'ResortDeveloperSetting',
+  ResortLandingBranding: 'ResortLandingBranding',
   ResortContactInquiry: 'ResortContactInquiry',
   ResortMessengerIntegration: 'ResortMessengerIntegration',
   ResortLead: 'ResortLead',
@@ -400,6 +402,8 @@ export const ModelName = {
   ResortTimeLog: 'ResortTimeLog',
   ResortScheduleShift: 'ResortScheduleShift',
   ResortLeaveRequest: 'ResortLeaveRequest',
+  ResortLeavePolicy: 'ResortLeavePolicy',
+  ResortLeaveBalance: 'ResortLeaveBalance',
   ResortOtUndertimeEntry: 'ResortOtUndertimeEntry',
   ResortPayrollRun: 'ResortPayrollRun',
   ResortPayrollItem: 'ResortPayrollItem',
@@ -441,7 +445,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "appUser" | "resortProfile" | "resortContactInquiry" | "resortMessengerIntegration" | "resortLead" | "resortLeadMessage" | "resortStaffProfile" | "resortStaffActivityLog" | "resortAccessRole" | "resortTimeLog" | "resortScheduleShift" | "resortLeaveRequest" | "resortOtUndertimeEntry" | "resortPayrollRun" | "resortPayrollItem" | "resortDepartment" | "resortStaffInvitation" | "resortAmenity" | "resortRoom" | "resortRoomPhoto" | "resortHousekeepingRoom" | "resortHousekeepingDamageReport" | "resortLaundryJob" | "resortReservation" | "resortReceptionRequest" | "resortReceptionShiftNote" | "resortMaintenanceRequest" | "resortInventoryItem" | "resortInventoryMovement" | "resortService" | "resortPackage" | "resortInvoice" | "resortInvoiceLineItem" | "resortFolioCharge" | "resortPaymentLog" | "resortPaymentCheckout" | "resortFinanceEntry" | "resortTransactionExport"
+    modelProps: "user" | "session" | "account" | "verification" | "appUser" | "resortProfile" | "resortDeveloperSetting" | "resortLandingBranding" | "resortContactInquiry" | "resortMessengerIntegration" | "resortLead" | "resortLeadMessage" | "resortStaffProfile" | "resortStaffActivityLog" | "resortAccessRole" | "resortTimeLog" | "resortScheduleShift" | "resortLeaveRequest" | "resortLeavePolicy" | "resortLeaveBalance" | "resortOtUndertimeEntry" | "resortPayrollRun" | "resortPayrollItem" | "resortDepartment" | "resortStaffInvitation" | "resortAmenity" | "resortRoom" | "resortRoomPhoto" | "resortHousekeepingRoom" | "resortHousekeepingDamageReport" | "resortLaundryJob" | "resortReservation" | "resortReceptionRequest" | "resortReceptionShiftNote" | "resortMaintenanceRequest" | "resortInventoryItem" | "resortInventoryMovement" | "resortService" | "resortPackage" | "resortInvoice" | "resortInvoiceLineItem" | "resortFolioCharge" | "resortPaymentLog" | "resortPaymentCheckout" | "resortFinanceEntry" | "resortTransactionExport"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -886,6 +890,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ResortProfileCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ResortProfileCountAggregateOutputType> | number
+        }
+      }
+    }
+    ResortDeveloperSetting: {
+      payload: Prisma.$ResortDeveloperSettingPayload<ExtArgs>
+      fields: Prisma.ResortDeveloperSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResortDeveloperSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResortDeveloperSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.ResortDeveloperSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResortDeveloperSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>
+        }
+        findMany: {
+          args: Prisma.ResortDeveloperSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>[]
+        }
+        create: {
+          args: Prisma.ResortDeveloperSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>
+        }
+        createMany: {
+          args: Prisma.ResortDeveloperSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResortDeveloperSettingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>[]
+        }
+        delete: {
+          args: Prisma.ResortDeveloperSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>
+        }
+        update: {
+          args: Prisma.ResortDeveloperSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResortDeveloperSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResortDeveloperSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResortDeveloperSettingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>[]
+        }
+        upsert: {
+          args: Prisma.ResortDeveloperSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortDeveloperSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.ResortDeveloperSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResortDeveloperSetting>
+        }
+        groupBy: {
+          args: Prisma.ResortDeveloperSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResortDeveloperSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResortDeveloperSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResortDeveloperSettingCountAggregateOutputType> | number
+        }
+      }
+    }
+    ResortLandingBranding: {
+      payload: Prisma.$ResortLandingBrandingPayload<ExtArgs>
+      fields: Prisma.ResortLandingBrandingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResortLandingBrandingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResortLandingBrandingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>
+        }
+        findFirst: {
+          args: Prisma.ResortLandingBrandingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResortLandingBrandingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>
+        }
+        findMany: {
+          args: Prisma.ResortLandingBrandingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>[]
+        }
+        create: {
+          args: Prisma.ResortLandingBrandingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>
+        }
+        createMany: {
+          args: Prisma.ResortLandingBrandingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResortLandingBrandingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>[]
+        }
+        delete: {
+          args: Prisma.ResortLandingBrandingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>
+        }
+        update: {
+          args: Prisma.ResortLandingBrandingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResortLandingBrandingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResortLandingBrandingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResortLandingBrandingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>[]
+        }
+        upsert: {
+          args: Prisma.ResortLandingBrandingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLandingBrandingPayload>
+        }
+        aggregate: {
+          args: Prisma.ResortLandingBrandingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResortLandingBranding>
+        }
+        groupBy: {
+          args: Prisma.ResortLandingBrandingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResortLandingBrandingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResortLandingBrandingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResortLandingBrandingCountAggregateOutputType> | number
         }
       }
     }
@@ -1626,6 +1778,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ResortLeaveRequestCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ResortLeaveRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    ResortLeavePolicy: {
+      payload: Prisma.$ResortLeavePolicyPayload<ExtArgs>
+      fields: Prisma.ResortLeavePolicyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResortLeavePolicyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResortLeavePolicyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>
+        }
+        findFirst: {
+          args: Prisma.ResortLeavePolicyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResortLeavePolicyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>
+        }
+        findMany: {
+          args: Prisma.ResortLeavePolicyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>[]
+        }
+        create: {
+          args: Prisma.ResortLeavePolicyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>
+        }
+        createMany: {
+          args: Prisma.ResortLeavePolicyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResortLeavePolicyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>[]
+        }
+        delete: {
+          args: Prisma.ResortLeavePolicyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>
+        }
+        update: {
+          args: Prisma.ResortLeavePolicyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResortLeavePolicyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResortLeavePolicyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResortLeavePolicyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>[]
+        }
+        upsert: {
+          args: Prisma.ResortLeavePolicyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeavePolicyPayload>
+        }
+        aggregate: {
+          args: Prisma.ResortLeavePolicyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResortLeavePolicy>
+        }
+        groupBy: {
+          args: Prisma.ResortLeavePolicyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResortLeavePolicyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResortLeavePolicyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResortLeavePolicyCountAggregateOutputType> | number
+        }
+      }
+    }
+    ResortLeaveBalance: {
+      payload: Prisma.$ResortLeaveBalancePayload<ExtArgs>
+      fields: Prisma.ResortLeaveBalanceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResortLeaveBalanceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResortLeaveBalanceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>
+        }
+        findFirst: {
+          args: Prisma.ResortLeaveBalanceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResortLeaveBalanceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>
+        }
+        findMany: {
+          args: Prisma.ResortLeaveBalanceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>[]
+        }
+        create: {
+          args: Prisma.ResortLeaveBalanceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>
+        }
+        createMany: {
+          args: Prisma.ResortLeaveBalanceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResortLeaveBalanceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>[]
+        }
+        delete: {
+          args: Prisma.ResortLeaveBalanceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>
+        }
+        update: {
+          args: Prisma.ResortLeaveBalanceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>
+        }
+        deleteMany: {
+          args: Prisma.ResortLeaveBalanceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResortLeaveBalanceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResortLeaveBalanceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>[]
+        }
+        upsert: {
+          args: Prisma.ResortLeaveBalanceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResortLeaveBalancePayload>
+        }
+        aggregate: {
+          args: Prisma.ResortLeaveBalanceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResortLeaveBalance>
+        }
+        groupBy: {
+          args: Prisma.ResortLeaveBalanceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResortLeaveBalanceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResortLeaveBalanceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResortLeaveBalanceCountAggregateOutputType> | number
         }
       }
     }
@@ -3685,6 +3985,33 @@ export const ResortProfileScalarFieldEnum = {
 export type ResortProfileScalarFieldEnum = (typeof ResortProfileScalarFieldEnum)[keyof typeof ResortProfileScalarFieldEnum]
 
 
+export const ResortDeveloperSettingScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
+  key: 'key',
+  encryptedValue: 'encryptedValue',
+  initializationVector: 'initializationVector',
+  authenticationTag: 'authenticationTag',
+  updatedByAuthUserId: 'updatedByAuthUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortDeveloperSettingScalarFieldEnum = (typeof ResortDeveloperSettingScalarFieldEnum)[keyof typeof ResortDeveloperSettingScalarFieldEnum]
+
+
+export const ResortLandingBrandingScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
+  content: 'content',
+  updatedByAuthUserId: 'updatedByAuthUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortLandingBrandingScalarFieldEnum = (typeof ResortLandingBrandingScalarFieldEnum)[keyof typeof ResortLandingBrandingScalarFieldEnum]
+
+
 export const ResortContactInquiryScalarFieldEnum = {
   id: 'id',
   resortProfileId: 'resortProfileId',
@@ -3860,6 +4187,7 @@ export const ResortLeaveRequestScalarFieldEnum = {
   endDate: 'endDate',
   reason: 'reason',
   balanceDays: 'balanceDays',
+  leavePolicyId: 'leavePolicyId',
   status: 'status',
   reviewedAt: 'reviewedAt',
   createdAt: 'createdAt',
@@ -3867,6 +4195,37 @@ export const ResortLeaveRequestScalarFieldEnum = {
 } as const
 
 export type ResortLeaveRequestScalarFieldEnum = (typeof ResortLeaveRequestScalarFieldEnum)[keyof typeof ResortLeaveRequestScalarFieldEnum]
+
+
+export const ResortLeavePolicyScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
+  name: 'name',
+  annualEntitlement: 'annualEntitlement',
+  carryOverLimit: 'carryOverLimit',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortLeavePolicyScalarFieldEnum = (typeof ResortLeavePolicyScalarFieldEnum)[keyof typeof ResortLeavePolicyScalarFieldEnum]
+
+
+export const ResortLeaveBalanceScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
+  staffProfileId: 'staffProfileId',
+  leavePolicyId: 'leavePolicyId',
+  year: 'year',
+  openingDays: 'openingDays',
+  allocatedDays: 'allocatedDays',
+  adjustmentDays: 'adjustmentDays',
+  usedDays: 'usedDays',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortLeaveBalanceScalarFieldEnum = (typeof ResortLeaveBalanceScalarFieldEnum)[keyof typeof ResortLeaveBalanceScalarFieldEnum]
 
 
 export const ResortOtUndertimeEntryScalarFieldEnum = {
@@ -3919,6 +4278,18 @@ export const ResortPayrollRunScalarFieldEnum = {
   employerContributions: 'employerContributions',
   employerCost: 'employerCost',
   options: 'options',
+  backupSnapshot: 'backupSnapshot',
+  lockedAt: 'lockedAt',
+  lockedBy: 'lockedBy',
+  finalizedAt: 'finalizedAt',
+  finalizedBy: 'finalizedBy',
+  payslipNotifiedAt: 'payslipNotifiedAt',
+  paymentStatus: 'paymentStatus',
+  paidAt: 'paidAt',
+  paidBy: 'paidBy',
+  paymentMethod: 'paymentMethod',
+  paymentReference: 'paymentReference',
+  journalEntryId: 'journalEntryId',
   generatedBy: 'generatedBy',
   generatedAt: 'generatedAt',
   createdAt: 'createdAt',
@@ -4730,6 +5101,20 @@ export type ListEnumResortPayrollRunStatusFieldRefInput<$PrismaModel> = FieldRef
 
 
 /**
+ * Reference to a field of type 'ResortPayrollPaymentStatus'
+ */
+export type EnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResortPayrollPaymentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ResortPayrollPaymentStatus[]'
+ */
+export type ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResortPayrollPaymentStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'ResortDepartmentStatus'
  */
 export type EnumResortDepartmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResortDepartmentStatus'>
@@ -5292,6 +5677,8 @@ export type GlobalOmitConfig = {
   verification?: Prisma.VerificationOmit
   appUser?: Prisma.AppUserOmit
   resortProfile?: Prisma.ResortProfileOmit
+  resortDeveloperSetting?: Prisma.ResortDeveloperSettingOmit
+  resortLandingBranding?: Prisma.ResortLandingBrandingOmit
   resortContactInquiry?: Prisma.ResortContactInquiryOmit
   resortMessengerIntegration?: Prisma.ResortMessengerIntegrationOmit
   resortLead?: Prisma.ResortLeadOmit
@@ -5302,6 +5689,8 @@ export type GlobalOmitConfig = {
   resortTimeLog?: Prisma.ResortTimeLogOmit
   resortScheduleShift?: Prisma.ResortScheduleShiftOmit
   resortLeaveRequest?: Prisma.ResortLeaveRequestOmit
+  resortLeavePolicy?: Prisma.ResortLeavePolicyOmit
+  resortLeaveBalance?: Prisma.ResortLeaveBalanceOmit
   resortOtUndertimeEntry?: Prisma.ResortOtUndertimeEntryOmit
   resortPayrollRun?: Prisma.ResortPayrollRunOmit
   resortPayrollItem?: Prisma.ResortPayrollItemOmit

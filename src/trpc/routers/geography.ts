@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { getRuntimeSettingForDefaultResort } from "@/lib/runtime-settings";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 
 const code = z.string().regex(/^\d{9}$/);
@@ -49,8 +50,14 @@ async function locate(cityCode: string, query: string) {
     try {
       const url = new URL("https://nominatim.openstreetmap.org/search");
       url.search = new URLSearchParams({ q: query, format: "jsonv2", countrycodes: "ph", limit: "1" }).toString();
+      const appUrl =
+        (await getRuntimeSettingForDefaultResort("APP_URL")) ??
+        "http://localhost:3000";
       const response = await fetch(url, {
-        headers: { "User-Agent": `AlrioPrivateResort/1.0 (${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"})`, "Accept-Language": "en" },
+        headers: {
+          "User-Agent": `AlrioPrivateResort/1.0 (${appUrl})`,
+          "Accept-Language": "en",
+        },
         signal: AbortSignal.timeout(12000),
       });
       if (!response.ok) throw new Error("Geocoder unavailable");

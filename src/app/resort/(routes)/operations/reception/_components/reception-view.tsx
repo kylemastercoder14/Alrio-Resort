@@ -4,8 +4,10 @@ import { useMemo, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BedDouble,
+  CalendarDays,
   CheckCircle2,
   Clock3,
+  CreditCard,
   DoorClosed,
   DoorOpen,
   FileText,
@@ -17,12 +19,14 @@ import {
   ReceiptText,
   Search,
   Send,
+  UserRound,
   UserRoundCheck,
   Users,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { KpiGrid, type KpiGridItem } from "@/components/reusable/kpi-grid";
+import { PhoneNumberInput } from "@/components/reusable/phone-number-input";
 import { ResortBreadcrumb } from "@/components/resort/resort-breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +40,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -52,7 +61,13 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 
@@ -93,17 +108,6 @@ type ReceptionShiftNote = {
   id: string;
   note: string;
   title: string;
-};
-
-type ReceptionRoom = {
-  baseRate: string;
-  childrenOccupancy: number;
-  code: string;
-  id: string;
-  maxAdults: number;
-  name: string;
-  status: string;
-  type: string;
 };
 
 type ReceptionDepartment = {
@@ -186,8 +190,8 @@ export function ReceptionView() {
     ...trpc.resort.reception.list.queryOptions(),
     retry: false,
   });
-  const rooms = useQuery({
-    ...trpc.resort.rooms.list.queryOptions(),
+  const registeredGuests = useQuery({
+    ...trpc.resort.reservations.guestOptions.queryOptions(),
     retry: false,
   });
   const departments = useQuery({
@@ -200,7 +204,6 @@ export function ReceptionView() {
         await Promise.all([
           queryClient.invalidateQueries(trpc.resort.reception.list.queryFilter()),
           queryClient.invalidateQueries(trpc.resort.reservations.list.queryFilter()),
-          queryClient.invalidateQueries(trpc.resort.rooms.list.queryFilter()),
           queryClient.invalidateQueries(trpc.resort.invoices.list.queryFilter()),
         ]);
         setWalkInOpen(false);
@@ -465,8 +468,8 @@ export function ReceptionView() {
       <NewWalkInDialog
         isPending={createWalkIn.isPending}
         open={walkInOpen}
-        rooms={(rooms.data ?? []) as ReceptionRoom[]}
-        roomsLoading={rooms.isPending}
+        guests={registeredGuests.data ?? []}
+        guestsLoading={registeredGuests.isPending}
         onOpenChange={setWalkInOpen}
         onSave={(input) => createWalkIn.mutate(input)}
       />
@@ -626,56 +629,106 @@ function GuestQueueCard({
         />
       </div>
 
-      <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm font-medium text-zinc-700">
-        {guest.note}
-      </div>
+      <NotePreview className="mt-4" note={guest.note} />
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex items-center gap-2">
         {guest.status === "Arriving" ? (
-          <Button
-            className="flex-1"
-            disabled={isUpdating}
-            onClick={() => onUpdateStatus(guest.id, "In-house")}
-            size="xs"
-            type="button"
-          >
-            <UserRoundCheck className="size-4" />
-            Check in
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Check in guest"
+                disabled={isUpdating}
+                onClick={() => onUpdateStatus(guest.id, "In-house")}
+                size="icon-sm"
+                type="button"
+              >
+                <UserRoundCheck className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Check in guest</TooltipContent>
+          </Tooltip>
         ) : null}
         {guest.status === "Checking out" ? (
-          <Button
-            className="flex-1"
-            disabled={isUpdating}
-            onClick={() => onUpdateStatus(guest.id, "Completed")}
-            size="xs"
-            type="button"
-          >
-            <CheckCircle2 className="size-4" />
-            Complete
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label="Complete check-out"
+                disabled={isUpdating}
+                onClick={() => onUpdateStatus(guest.id, "Completed")}
+                size="icon-sm"
+                type="button"
+              >
+                <CheckCircle2 className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Complete check-out</TooltipContent>
+          </Tooltip>
         ) : null}
-        <Button
-          className="flex-1"
-          onClick={() => onOpenBilling(guest.id)}
-          size="xs"
-          type="button"
-          variant={guest.balance > 0 ? "default" : "outline"}
-        >
-          <ReceiptText className="size-4" />
-          Bills
-        </Button>
-        <Button
-          className="flex-1"
-          onClick={contactGuest}
-          size="xs"
-          type="button"
-          variant="outline"
-        >
-          <Phone className="size-4" />
-          Contact
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              aria-label="Open billing"
+              onClick={() => onOpenBilling(guest.id)}
+              size="icon-sm"
+              type="button"
+              variant={guest.balance > 0 ? "default" : "outline"}
+            >
+              <ReceiptText className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Payment and bills</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              aria-label="Contact guest"
+              onClick={contactGuest}
+              size="icon-sm"
+              type="button"
+              variant="outline"
+            >
+              <Phone className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Contact guest</TooltipContent>
+        </Tooltip>
       </div>
+    </div>
+  );
+}
+
+function NotePreview({
+  className,
+  note,
+}: {
+  className?: string;
+  note: string;
+}) {
+  const hasNote = Boolean(note.trim());
+
+  return (
+    <div className={cn("rounded-lg border border-zinc-200 bg-zinc-50 p-3", className)}>
+      <p className="line-clamp-3 text-sm font-medium leading-5 text-zinc-700">
+        {hasNote ? note : "No internal notes."}
+      </p>
+      {hasNote ? (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="mt-2 text-xs font-semibold text-zinc-950 underline underline-offset-4 hover:text-zinc-600"
+              type="button"
+            >
+              View full notes
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-96 max-w-[calc(100vw-2rem)] gap-2 p-4">
+            <p className="text-sm font-bold text-zinc-950">Internal notes</p>
+            <p className="max-h-72 overflow-y-auto pr-1 text-sm leading-6 whitespace-pre-wrap text-zinc-700">
+              {note}
+            </p>
+          </PopoverContent>
+        </Popover>
+      ) : null}
     </div>
   );
 }
@@ -737,7 +790,7 @@ function GuestLookupCard({ guests }: { guests: ReceptionGuest[] }) {
             className="flex items-start justify-between gap-3 rounded-xl border border-zinc-200 p-3"
             key={guest.id}
           >
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="truncate text-sm font-bold text-zinc-950">
                   {guest.guest}
@@ -749,18 +802,23 @@ function GuestLookupCard({ guests }: { guests: ReceptionGuest[] }) {
                   {guest.status}
                 </Badge>
               </div>
-              <p className="mt-1 text-xs font-medium text-zinc-500">
-                {guest.room} • {guest.note}
-              </p>
+              <p className="mt-1 text-xs font-medium text-zinc-500">{guest.room}</p>
+              <NotePreview className="mt-3" note={guest.note} />
             </div>
-            <Button
-              onClick={() => contactGuest(guest)}
-              size="icon-xs"
-              type="button"
-              variant="outline"
-            >
-              <Phone className="size-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label={`Contact ${guest.guest}`}
+                  onClick={() => contactGuest(guest)}
+                  size="icon-xs"
+                  type="button"
+                  variant="outline"
+                >
+                  <Phone className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Contact guest</TooltipContent>
+            </Tooltip>
           </div>
         ))}
         {lookupGuests.length === 0 ? (
@@ -773,14 +831,27 @@ function GuestLookupCard({ guests }: { guests: ReceptionGuest[] }) {
   );
 }
 
+type WalkInGuestMode = "manual" | "registered";
+
+type WalkInGuestOption = {
+  displayName: string;
+  email: string;
+  firstName: string;
+  id: string;
+  lastName: string;
+  phone: string;
+};
+
 function NewWalkInDialog({
+  guests,
+  guestsLoading,
   isPending,
   onOpenChange,
   onSave,
   open,
-  rooms,
-  roomsLoading,
 }: {
+  guests: WalkInGuestOption[];
+  guestsLoading: boolean;
   isPending: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (input: {
@@ -789,21 +860,20 @@ function NewWalkInDialog({
     checkOut: string;
     children: number;
     deposit?: string;
+    guestAccountId?: string;
     guestEmail?: string;
     guestName: string;
     guestPhone?: string;
     notes?: string;
     paymentMethod?: string;
     rate: string;
-    roomId: string;
     status: "Checked in";
     totalAmount: string;
   }) => void;
   open: boolean;
-  rooms: ReceptionRoom[];
-  roomsLoading: boolean;
 }) {
   const defaultDates = getDefaultDates();
+  const [guestMode, setGuestMode] = useState<WalkInGuestMode>("registered");
   const [values, setValues] = useState({
     adults: 1,
     checkIn: defaultDates.checkIn,
@@ -811,28 +881,27 @@ function NewWalkInDialog({
     children: 0,
     deposit: "",
     email: "",
-    guestName: "",
+    firstName: "",
+    guestAccountId: "",
+    lastName: "",
     notes: "",
     paymentMethod: "Cash",
     phone: "",
     rate: "",
-    roomId: "",
   });
-  const availableRooms = rooms.filter(
-    (room) => room.status !== "Out of Service" && room.status !== "Occupied",
-  );
-  const selectedRoom = availableRooms.find((room) => room.id === values.roomId);
   const nights = getNights(values.checkIn, values.checkOut);
-  const rateAmount = parseMoney(values.rate || selectedRoom?.baseRate || "0");
-  const roomTotal = Math.max(rateAmount * nights, 0);
-  const exceedsCapacity =
-    selectedRoom &&
-    (values.adults > selectedRoom.maxAdults ||
-      values.children > selectedRoom.childrenOccupancy);
+  const rateAmount = parseMoney(values.rate);
+  const resortTotal = Math.max(rateAmount * nights, 0);
+  const depositAmount = parseMoney(values.deposit);
+  const balance = Math.max(resortTotal - depositAmount, 0);
+  const guestName = [values.firstName, values.lastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const isRegisteredGuest = guestMode === "registered";
   const canSubmit =
-    Boolean(values.guestName.trim() && values.roomId) &&
+    Boolean(guestName && values.checkIn && values.checkOut && rateAmount > 0) &&
     nights > 0 &&
-    !exceedsCapacity &&
     !isPending;
 
   function updateValue<Key extends keyof typeof values>(
@@ -842,26 +911,40 @@ function NewWalkInDialog({
     setValues((current) => ({ ...current, [key]: value }));
   }
 
-  function selectRoom(roomId: string) {
-    const room = availableRooms.find((item) => item.id === roomId);
-
+  function changeGuestMode(mode: WalkInGuestMode) {
+    setGuestMode(mode);
     setValues((current) => ({
       ...current,
-      rate: room?.baseRate ?? current.rate,
-      roomId,
+      email: "",
+      firstName: "",
+      guestAccountId: "",
+      lastName: "",
+      phone: "",
+    }));
+  }
+
+  function selectRegisteredGuest(guestId: string) {
+    const guest = guests.find((item) => item.id === guestId);
+    if (!guest) return;
+
+    const displayNameParts = guest.displayName.trim().split(/\s+/);
+    setValues((current) => ({
+      ...current,
+      email: guest.email,
+      firstName: guest.firstName || displayNameParts[0] || "",
+      guestAccountId: guest.id,
+      lastName:
+        guest.lastName ||
+        (displayNameParts.length > 1 ? displayNameParts.slice(1).join(" ") : ""),
+      phone: guest.phone,
     }));
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!values.guestName.trim()) {
+    if (!guestName) {
       toast.error("Guest name is required.");
-      return;
-    }
-
-    if (!values.roomId) {
-      toast.error("Room is required.");
       return;
     }
 
@@ -870,8 +953,8 @@ function NewWalkInDialog({
       return;
     }
 
-    if (exceedsCapacity) {
-      toast.error("Guest count exceeds room capacity.");
+    if (rateAmount <= 0) {
+      toast.error("A nightly resort rate is required.");
       return;
     }
 
@@ -881,193 +964,244 @@ function NewWalkInDialog({
       checkOut: values.checkOut,
       children: values.children,
       deposit: values.deposit,
+      guestAccountId: values.guestAccountId || undefined,
       guestEmail: values.email,
-      guestName: values.guestName.trim(),
+      guestName,
       guestPhone: values.phone,
       notes: values.notes,
       paymentMethod: values.paymentMethod,
       rate: String(rateAmount),
-      roomId: values.roomId,
       status: "Checked in",
-      totalAmount: String(roomTotal),
+      totalAmount: String(resortTotal),
     });
   }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 p-0 max-w-lg!" side="right">
+      <SheetContent className="w-full gap-0 p-0 max-w-xl!" side="right">
         <SheetHeader className="border-b border-zinc-200 px-6 py-5">
           <SheetTitle>New walk-in</SheetTitle>
           <SheetDescription>
-            Create same-day booking and check guest in.
+            Create an exclusive whole-resort booking and check the guest in.
           </SheetDescription>
         </SheetHeader>
 
         <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-            <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2">
-              <Label>Guest name</Label>
-              <Input
-                className="rounded-lg"
-                onChange={(event) => updateValue("guestName", event.target.value)}
-                placeholder="Full name"
-                value={values.guestName}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Email (optional)</Label>
-              <Input
-                className="rounded-lg"
-                onChange={(event) => updateValue("email", event.target.value)}
-                placeholder="guest@email.com"
-                type="email"
-                value={values.email}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Phone (optional)</Label>
-              <Input
-                className="rounded-lg"
-                onChange={(event) => updateValue("phone", event.target.value)}
-                placeholder="0912 345 6789"
-                value={values.phone}
-              />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label>Room</Label>
-              <Select value={values.roomId} onValueChange={selectRoom}>
-                <SelectTrigger className="h-10 w-full rounded-lg">
-                  <SelectValue placeholder={roomsLoading ? "Loading rooms..." : "Select room"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableRooms.map((room) => (
-                    <SelectItem key={room.id} value={room.id}>
-                      {room.code} - {room.name} ({room.type})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Check-in</Label>
-              <Input
-                className="rounded-lg"
-                onChange={(event) => updateValue("checkIn", event.target.value)}
-                type="date"
-                value={values.checkIn}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Check-out</Label>
-              <Input
-                className="rounded-lg"
-                onChange={(event) => updateValue("checkOut", event.target.value)}
-                type="date"
-                value={values.checkOut}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Adults</Label>
-              <Input
-                className="rounded-lg"
-                min={1}
-                onChange={(event) =>
-                  updateValue("adults", Number(event.target.value))
-                }
-                type="number"
-                value={values.adults}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Children</Label>
-              <Input
-                className="rounded-lg"
-                min={0}
-                onChange={(event) =>
-                  updateValue("children", Number(event.target.value))
-                }
-                type="number"
-                value={values.children}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Rate</Label>
-              <Input
-                className="rounded-lg"
-                min={0}
-                onChange={(event) => updateValue("rate", event.target.value)}
-                type="number"
-                value={values.rate}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Deposit paid (optional)</Label>
-              <Input
-                className="rounded-lg"
-                min={0}
-                onChange={(event) => updateValue("deposit", event.target.value)}
-                type="number"
-                value={values.deposit}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Payment method</Label>
-              <Select
-                value={values.paymentMethod}
-                onValueChange={(value) => updateValue("paymentMethod", value)}
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
+            <section className="space-y-4">
+              <WalkInSectionTitle icon={<UserRound className="size-4" />} title="Guest details">
+                Select an Alrio guest account or enter a walk-in guest manually.
+              </WalkInSectionTitle>
+
+              <Tabs
+                value={guestMode}
+                onValueChange={(value) => changeGuestMode(value as WalkInGuestMode)}
               >
-                <SelectTrigger className="h-10 w-full rounded-lg">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Cash">Cash</SelectItem>
-                  <SelectItem value="Bank transfer">Bank transfer</SelectItem>
-                  <SelectItem value="E-wallet">E-wallet</SelectItem>
-                  <SelectItem value="Credit card">Credit card</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label>Notes (optional)</Label>
+                <TabsList className="grid h-10 w-full grid-cols-2">
+                  <TabsTrigger value="registered">Registered guest</TabsTrigger>
+                  <TabsTrigger value="manual">Manual entry</TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              {isRegisteredGuest ? (
+                <WalkInField label="Guest account">
+                  <Select value={values.guestAccountId} onValueChange={selectRegisteredGuest}>
+                    <SelectTrigger className="h-10 w-full rounded-lg">
+                      <SelectValue placeholder="Select a registered guest" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {guestsLoading ? (
+                        <SelectItem value="loading" disabled>
+                          Loading registered guests...
+                        </SelectItem>
+                      ) : null}
+                      {!guestsLoading && !guests.length ? (
+                        <SelectItem value="empty" disabled>
+                          No active guest accounts found
+                        </SelectItem>
+                      ) : null}
+                      {guests.map((guest) => (
+                        <SelectItem key={guest.id} value={guest.id}>
+                          {guest.displayName} · {guest.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-zinc-500">
+                    Choosing an account links this booking to the registered guest.
+                  </p>
+                </WalkInField>
+              ) : null}
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <WalkInField label="First name">
+                  <Input
+                    className="rounded-lg read-only:bg-zinc-50 read-only:text-zinc-600"
+                    onChange={(event) => updateValue("firstName", event.target.value)}
+                    placeholder="Mika"
+                    readOnly={isRegisteredGuest}
+                    value={values.firstName}
+                  />
+                </WalkInField>
+                <WalkInField label="Last name">
+                  <Input
+                    className="rounded-lg read-only:bg-zinc-50 read-only:text-zinc-600"
+                    onChange={(event) => updateValue("lastName", event.target.value)}
+                    placeholder="Santos"
+                    readOnly={isRegisteredGuest}
+                    value={values.lastName}
+                  />
+                </WalkInField>
+              </div>
+
+              <WalkInField label="Email (optional)">
+                <Input
+                  className="rounded-lg read-only:bg-zinc-50 read-only:text-zinc-600"
+                  onChange={(event) => updateValue("email", event.target.value)}
+                  placeholder="guest@email.com"
+                  readOnly={isRegisteredGuest}
+                  type="email"
+                  value={values.email}
+                />
+              </WalkInField>
+              <WalkInField label="Phone number (optional)">
+                <PhoneNumberInput
+                  groupClassName="rounded-lg"
+                  id="walkInGuestPhone"
+                  onChange={(value) => updateValue("phone", value)}
+                  value={values.phone}
+                />
+              </WalkInField>
+            </section>
+
+            <section className="space-y-4 border-t border-zinc-200 pt-6">
+              <WalkInSectionTitle icon={<CalendarDays className="size-4" />} title="Stay details">
+                Reserve Alrio exclusively for the selected dates and guest count.
+              </WalkInSectionTitle>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <WalkInField label="Check-in">
+                  <Input
+                    className="rounded-lg"
+                    onChange={(event) => updateValue("checkIn", event.target.value)}
+                    type="date"
+                    value={values.checkIn}
+                  />
+                </WalkInField>
+                <WalkInField label="Check-out">
+                  <Input
+                    className="rounded-lg"
+                    onChange={(event) => updateValue("checkOut", event.target.value)}
+                    type="date"
+                    value={values.checkOut}
+                  />
+                </WalkInField>
+                <WalkInField label="Adults">
+                  <Input
+                    className="rounded-lg"
+                    min={1}
+                    onChange={(event) => updateValue("adults", Number(event.target.value))}
+                    type="number"
+                    value={values.adults}
+                  />
+                </WalkInField>
+                <WalkInField label="Children">
+                  <Input
+                    className="rounded-lg"
+                    min={0}
+                    onChange={(event) => updateValue("children", Number(event.target.value))}
+                    type="number"
+                    value={values.children}
+                  />
+                </WalkInField>
+              </div>
+              <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-600">
+                This walk-in blocks the entire Alrio Private Resort. All guest rooms and
+                resort facilities are included; no room is assigned separately.
+              </div>
+              <p className="text-xs font-medium text-zinc-500">
+                Walk-ins are saved as <span className="font-semibold text-zinc-800">Checked in</span> immediately.
+              </p>
+            </section>
+
+            <section className="space-y-4 border-t border-zinc-200 pt-6">
+              <WalkInSectionTitle icon={<CreditCard className="size-4" />} title="Payment">
+                Track deposit, balance, and collection method.
+              </WalkInSectionTitle>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <WalkInField label="Whole-resort rate per night">
+                  <Input
+                    className="rounded-lg"
+                    inputMode="decimal"
+                    onChange={(event) => updateValue("rate", event.target.value)}
+                    placeholder="30000"
+                    value={values.rate}
+                  />
+                </WalkInField>
+                <WalkInField label="Payment method (optional)">
+                  <Select
+                    value={values.paymentMethod}
+                    onValueChange={(value) => updateValue("paymentMethod", value)}
+                  >
+                    <SelectTrigger className="h-10 w-full rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Cash">Cash</SelectItem>
+                      <SelectItem value="Bank transfer">Bank transfer</SelectItem>
+                      <SelectItem value="E-wallet">E-wallet</SelectItem>
+                      <SelectItem value="Credit card">Credit card</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </WalkInField>
+                <WalkInField label="Deposit paid (optional)">
+                  <Input
+                    className="rounded-lg"
+                    inputMode="decimal"
+                    onChange={(event) => updateValue("deposit", event.target.value)}
+                    placeholder="0"
+                    value={values.deposit}
+                  />
+                </WalkInField>
+                <div className="grid grid-cols-2 gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+                  <div>
+                    <p className="text-xs font-medium text-zinc-500">Resort total</p>
+                    <p className="mt-1 text-sm font-bold text-zinc-950">{currency.format(resortTotal)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-zinc-500">Balance due</p>
+                    <p className="mt-1 text-sm font-bold text-zinc-950">{currency.format(balance)}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-2 border-t border-zinc-200 pt-6">
+              <Label htmlFor="walkInNotes">Internal notes (optional)</Label>
               <Textarea
-                className="min-h-20 rounded-lg"
+                className="min-h-24 rounded-lg"
+                id="walkInNotes"
                 onChange={(event) => updateValue("notes", event.target.value)}
-                placeholder="ID check, guest requests, payment notes..."
+                placeholder="ID check, arrival requests, payment notes, or handoff details..."
                 value={values.notes}
               />
-            </div>
-          </div>
-
-          {exceedsCapacity ? (
-            <p className="text-sm font-medium text-red-600">
-              Guest count exceeds selected room capacity.
-            </p>
-          ) : null}
+            </section>
           </div>
 
           <SheetFooter className="border-t border-zinc-200 bg-white p-4">
             <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold uppercase text-zinc-500">
-                    Total
-                  </p>
-                  <p className="mt-1 text-2xl font-bold text-zinc-950">
-                    {currency.format(roomTotal)}
-                  </p>
+                  <p className="text-xs font-bold uppercase text-zinc-500">Resort total</p>
+                  <p className="mt-1 text-2xl font-bold text-zinc-950">{currency.format(resortTotal)}</p>
                 </div>
-                <p className="pb-1 text-sm font-medium text-zinc-500">
-                  {nights} night{nights === 1 ? "" : "s"}
-                </p>
+                <div className="pb-1 text-right text-sm text-zinc-500">
+                  <p>{Math.max(nights, 0)} night{nights === 1 ? "" : "s"}</p>
+                  <p className="font-medium text-zinc-700">Deposit: {currency.format(depositAmount)}</p>
+                </div>
               </div>
             </div>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <Button
-                onClick={() => onOpenChange(false)}
-                type="button"
-                variant="outline"
-              >
+              <Button onClick={() => onOpenChange(false)} type="button" variant="outline">
                 Cancel
               </Button>
               <Button disabled={!canSubmit} type="submit">
@@ -1077,7 +1211,7 @@ function NewWalkInDialog({
                     Saving
                   </>
                 ) : (
-                  "Save walk-in"
+                  "Save and check in"
                 )}
               </Button>
             </div>
@@ -1085,6 +1219,43 @@ function NewWalkInDialog({
         </form>
       </SheetContent>
     </Sheet>
+  );
+}
+
+function WalkInField({
+  children,
+  label,
+}: {
+  children: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+function WalkInSectionTitle({
+  children,
+  icon,
+  title,
+}: {
+  children: React.ReactNode;
+  icon: React.ReactNode;
+  title: string;
+}) {
+  return (
+    <div className="flex gap-3">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-700">
+        {icon}
+      </span>
+      <div>
+        <h3 className="font-semibold text-zinc-950">{title}</h3>
+        <p className="mt-0.5 text-sm text-zinc-500">{children}</p>
+      </div>
+    </div>
   );
 }
 
@@ -1519,11 +1690,11 @@ function RequestHandoffCard({
   const [reservationId, setReservationId] = useState("");
   const [roomOrArea, setRoomOrArea] = useState("");
   const [note, setNote] = useState("");
+  const linkedGuest = guests.find((guest) => guest.id === reservationId);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const selectedGuest = guests.find((guest) => guest.id === reservationId);
-    const targetRoomOrArea = roomOrArea || selectedGuest?.room || "";
+    const targetRoomOrArea = roomOrArea || linkedGuest?.room || "";
 
     if (!targetRoomOrArea.trim()) {
       toast.error("Room or area is required.");
@@ -1581,18 +1752,30 @@ function RequestHandoffCard({
               setRoomOrArea(selectedGuest.room);
             }
           }}>
-            <SelectTrigger className="h-10 w-full rounded-lg">
-              <SelectValue />
+            <SelectTrigger className="h-10 w-full min-w-0 overflow-hidden rounded-lg [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:truncate">
+              <SelectValue placeholder="No linked guest" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-w-[min(30rem,calc(100vw-3rem))]">
               <SelectItem value="none">No linked guest</SelectItem>
               {guests.map((guest) => (
-                <SelectItem key={guest.id} value={guest.id}>
-                  {guest.room} - {guest.guest}
+                <SelectItem
+                  key={guest.id}
+                  value={guest.id}
+                  className="max-w-full [&_[data-slot=select-item-text]]:min-w-0 [&_[data-slot=select-item-text]]:truncate"
+                >
+                  {guest.guest}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          {linkedGuest ? (
+            <p
+              className="truncate text-xs text-zinc-500"
+              title={`${linkedGuest.room} · Check-in ${formatDate(linkedGuest.checkIn)}`}
+            >
+              {linkedGuest.room} · Check-in {formatDate(linkedGuest.checkIn)}
+            </p>
+          ) : null}
         </div>
         <div className="space-y-2">
           <Label>Department</Label>

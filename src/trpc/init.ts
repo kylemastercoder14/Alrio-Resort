@@ -142,6 +142,7 @@ function getResortProcedurePermission(path: string, type: "query" | "mutation" |
   const isWrite = type === "mutation";
 
   if (path.startsWith("resort.notifications.")) return null;
+  if (path.startsWith("resort.developerSettings.")) return "settings.developer.manage";
   if (path.startsWith("resort.analytics.")) return "analytics.reports.view";
   if (path.startsWith("resort.accessRoles.")) {
     return isWrite ? "usersRoles.permissions.manage" : "usersRoles.view";
@@ -159,14 +160,24 @@ function getResortProcedurePermission(path: string, type: "query" | "mutation" |
   if (path.startsWith("resort.guests.")) {
     return "guestExperience.profiles.manage";
   }
-  if (path.startsWith("resort.staffRecords.")) return "hr.staffRecords.view";
-  if (path.startsWith("resort.timekeeping.")) return "hr.timekeeping.view";
+  if (path.startsWith("resort.staffRecords.")) {
+    return isWrite ? "hr.staffRecords.manage" : "hr.staffRecords.view";
+  }
+  if (path.startsWith("resort.timekeeping.")) {
+    return action === "updateFlag"
+      ? "hr.timekeeping.manage"
+      : "hr.timekeeping.view";
+  }
   if (path.startsWith("resort.scheduling.")) return "hr.scheduling.manage";
   if (path.startsWith("resort.leaveRequests.")) {
-    return isWrite ? "hr.leaveRequests.manage" : "hr.leaveRequests.view";
+    return action === "updateStatus"
+      ? "hr.leaveRequests.manage"
+      : "hr.leaveRequests.view";
   }
   if (path.startsWith("resort.otUndertime.")) {
-    return isWrite ? "hr.otUndertime.manage" : "hr.otUndertime.view";
+    return action === "updateStatus"
+      ? "hr.otUndertime.manage"
+      : "hr.otUndertime.view";
   }
   if (path.startsWith("resort.payroll.")) {
     if (action === "myHistory") return null;
@@ -177,6 +188,9 @@ function getResortProcedurePermission(path: string, type: "query" | "mutation" |
   if (path.startsWith("resort.services.")) return isWrite ? "services.manage" : "services.view";
   if (path.startsWith("resort.packages.")) return isWrite ? "services.manage" : "services.view";
   if (path.startsWith("resort.invoices.")) {
+    if (action === "sendReminder" || action === "updateReminderCadence") {
+      return "invoices.reminders.send";
+    }
     return isWrite
       ? "invoices.create"
       : [
@@ -199,6 +213,9 @@ function getResortProcedurePermission(path: string, type: "query" | "mutation" |
   if (path.startsWith("resort.transactionExports.")) return "finance.export";
   if (path.startsWith("resort.reservations.")) {
     if (action === "create" || action === "save") return "reservations.create";
+    if (action === "updateStatus" || action === "recordPayment") {
+      return "reservations.update";
+    }
     return "reservations.view";
   }
   if (path.startsWith("resort.reception.")) return "operations.reception.manage";
@@ -207,6 +224,7 @@ function getResortProcedurePermission(path: string, type: "query" | "mutation" |
   if (path.startsWith("resort.inventory.")) return "operations.inventory.manage";
   if (path.startsWith("resort.housekeeping.")) return "operations.housekeeping.manage";
   if (path.startsWith("resort.leads.")) {
+    if (action === "convertToReservation") return "leads.convert";
     return isWrite ? "leads.assign" : "leads.view";
   }
 

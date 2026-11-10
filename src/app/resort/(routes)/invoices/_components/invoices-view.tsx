@@ -223,21 +223,25 @@ function InvoiceRowActions({ invoice }: { invoice: InvoiceRow }) {
   const [isStartingPayment, setIsStartingPayment] = useState(false);
   const deleteInvoice = useMutation(
     trpc.resort.invoices.delete.mutationOptions({
-      onSuccess: async () => {
+      onMutate: () => ({ toastId: toast.loading("Deleting invoice...") }),
+      onSuccess: async (_data, _variables, context) => {
         await queryClient.invalidateQueries(trpc.resort.invoices.list.queryFilter());
-        toast.success("Invoice deleted.");
+        toast.success("Invoice deleted.", { id: context?.toastId });
         setConfirmDelete(false);
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error, _variables, context) =>
+        toast.error(error.message, { id: context?.toastId }),
     }),
   );
   const sendInvoice = useMutation(
     trpc.resort.invoices.send.mutationOptions({
-      onSuccess: async () => {
+      onMutate: () => ({ toastId: toast.loading("Sending invoice email...") }),
+      onSuccess: async (_data, _variables, context) => {
         await queryClient.invalidateQueries(trpc.resort.invoices.list.queryFilter());
-        toast.success("Invoice email sent to the guest.");
+        toast.success("Invoice email sent to the guest.", { id: context?.toastId });
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error, _variables, context) =>
+        toast.error(error.message, { id: context?.toastId }),
     }),
   );
 
@@ -273,6 +277,19 @@ function InvoiceRowActions({ invoice }: { invoice: InvoiceRow }) {
     }
   }
 
+  async function handlePrint() {
+    const toastId = toast.loading("Preparing invoice PDF...");
+
+    try {
+      await printInvoice(invoice);
+      toast.success("Invoice PDF downloaded.", { id: toastId });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to prepare invoice PDF.", {
+        id: toastId,
+      });
+    }
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -281,7 +298,7 @@ function InvoiceRowActions({ invoice }: { invoice: InvoiceRow }) {
             <MoreVertical className="size-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuContent align="end" className="w-50">
           <DropdownMenuItem
             disabled={!invoice.guestEmail || sendInvoice.isPending || invoice.status === "Void"}
             onClick={() => sendInvoice.mutate({ id: invoice.id })}
@@ -314,13 +331,13 @@ function InvoiceRowActions({ invoice }: { invoice: InvoiceRow }) {
               Edit details
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => void printInvoice(invoice)}>
+          <DropdownMenuItem onClick={() => void handlePrint()}>
             <Printer className="size-4" />
             Print invoice
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-red-600 focus:text-red-600"
+            variant="destructive"
             onClick={() => setConfirmDelete(true)}
           >
             <Trash2 className="size-4" />
@@ -389,191 +406,173 @@ function parseMoney(value: string) {
 
 function formatPeso(value: string) {
   const amount = parseMoney(value);
-  return `PHP ${amount.toLocaleString("en-PH", { maximumFractionDigits: 2 })}`;
+  return `₱${amount.toLocaleString("en-PH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 async function printInvoice(invoice: InvoiceRow) {
   const { jsPDF } = await import("jspdf");
   const document = new jsPDF({ format: "a4", orientation: "portrait", unit: "pt" });
   const pageWidth = document.internal.pageSize.getWidth();
-  const pageHeight = document.internal.pageSize.getHeight();
   const rows = invoice.lineItems.length
     ? invoice.lineItems
-    : [{ id: "empty", description: invoice.roomLabel || "Room charge", quantity: 1, rate: invoice.totalAmount, amount: invoice.totalAmount }];
-  const fillerRows = Math.max(0, 6 - rows.length);
-  const cream: [number, number, number] = [243, 238, 226];
-  const dark: [number, number, number] = [41, 38, 34];
-  const gold: [number, number, number] = [180, 135, 44];
-  const text: [number, number, number] = [111, 106, 98];
-  const muted: [number, number, number] = [154, 148, 137];
+    : [
+        {
+          id: "empty",
+          description: invoice.roomLabel || "Exclusive resort stay",
+          quantity: 1,
+          rate: invoice.totalAmount,
+          amount: invoice.totalAmount,
+        },
+      ];
+  const margin = 56;
+  const columns = {
+    description: margin,
+    quantity: 314,
+    unitPrice: 406,
+    total: 514,
+  };
+  const black: [number, number, number] = [27, 27, 26];
+  const gray: [number, number, number] = [82, 82, 91];
 
-  document.setFillColor(...cream);
-  document.rect(0, 0, pageWidth, pageHeight, "F");
-  document.setFillColor(...dark);
-  document.rect(0, 0, pageWidth * 0.52, 126, "F");
-  document.setFillColor(...gold);
-  document.rect(pageWidth * 0.52, 0, pageWidth * 0.48, 126, "F");
-  document.triangle(pageWidth * 0.47, 126, pageWidth * 0.52, 0, pageWidth * 0.52, 126, "F");
-  document.setFillColor(...dark);
-  document.rect(0, pageHeight - 34, pageWidth * 0.52, 34, "F");
-  document.setFillColor(...gold);
-  document.rect(pageWidth * 0.52, pageHeight - 34, pageWidth * 0.48, 34, "F");
-  document.triangle(pageWidth * 0.47, pageHeight, pageWidth * 0.52, pageHeight - 34, pageWidth * 0.52, pageHeight, "F");
+  document.setFillColor(255, 255, 255);
+  document.rect(0, 0, pageWidth, document.internal.pageSize.getHeight(), "F");
 
-  document.setTextColor(199, 154, 49);
+  const logo = await loadLogoDataUrl();
+  if (logo) {
+    document.addImage(logo, "PNG", margin, 52, 42, 42);
+  } else {
+    document.setFillColor(...black);
+    document.roundedRect(margin, 52, 42, 42, 8, 8, "F");
+    document.setTextColor(255, 255, 255);
+    document.setFont("helvetica", "bold");
+    document.setFontSize(13);
+    document.text("A", margin + 21, 78, { align: "center" });
+  }
+
+  document.setTextColor(...black);
+  document.setFont("times", "normal");
+  document.setFontSize(38);
+  document.text("Invoice", pageWidth - margin, 85, { align: "right" });
+
+  document.setFont("helvetica", "bold");
+  document.setFontSize(10);
+  document.text("Billed to:", margin, 168);
   document.setFont("helvetica", "normal");
-  document.setFontSize(32);
-  document.text("Alrio Private Resort", 44, 62);
-  document.setFontSize(11);
-  document.text("R E S O R T", 77, 83);
-
-  document.setTextColor(64, 57, 47);
-  document.setFontSize(8);
-  document.text(safe(invoice.paymentMethod || "Payment method to be confirmed"), 332, 32);
-  document.text(safe(invoice.guestEmail || "guest email not provided"), 332, 54);
-  drawWrapped(document, safe(invoice.roomLabel || "Booking location"), 332, 76, 170, 9);
-
-  drawLabel(document, "BILL TO:", 44, 168, muted);
-  document.setFontSize(12);
-  document.setTextColor(139, 131, 119);
-  const billToLines = document.splitTextToSize(
-    safe(invoice.guestName).toUpperCase(),
-    170,
-  );
-  document.text(billToLines, 44, 190);
-  const billToContactY = 190 + billToLines.length * 14 + 8;
-  document.setFontSize(8.5);
-  document.setTextColor(...muted);
-  document.text("CONTACT:", 44, billToContactY);
-  document.text(`EMAIL: ${safe(invoice.guestEmail)}`, 44, billToContactY + 12);
-  drawWrapped(document, `LOCATION: ${safe(invoice.roomLabel)}`, 44, billToContactY + 24, 170, 9, 8.5);
-
-  drawLabel(document, "BOOKED BY:", 252, 168, muted);
-  document.setFontSize(14);
-  document.setTextColor(139, 131, 119);
-  const bookedByLines = document.splitTextToSize(
-    safe(invoice.guestName).toUpperCase(),
-    200,
-  );
-  document.text(bookedByLines, 252, 190);
-  const bookedByContactY = 190 + bookedByLines.length * 16 + 8;
-  document.setFontSize(8.5);
-  document.text("CONTACT: --", 252, bookedByContactY);
-  document.text(`EMAIL: ${safe(invoice.guestEmail)}`, 252, bookedByContactY + 12);
-  drawWrapped(
-    document,
-    `BOOKING: ${safe(invoice.bookingReference || invoice.reservationId)}`,
-    252,
-    bookedByContactY + 24,
-    180,
-    9,
-    8.5,
-  );
-
-  drawLabel(document, "INVOICE NO.", 448, 150, muted);
   document.setFontSize(9);
-  document.setTextColor(...text);
-  document.text(invoice.code, 448, 166);
-  drawLabel(document, "DATE:", 448, 190, muted);
-  document.setTextColor(...text);
-  document.text(formatDate(invoice.invoiceDate), 448, 206);
+  document.text(safe(invoice.guestName), margin, 185);
+  document.text(safe(invoice.guestEmail), margin, 199);
+  document.text(`Booking: ${safe(invoice.bookingReference || invoice.reservationId)}`, margin, 213);
+  drawWrapped(document, safe(invoice.roomLabel || "Alrio Private Resort"), margin, 227, 210, 12, 9, gray);
 
-  let y = 310;
-  const x = 56;
-  const widths = [205, 86, 128, 78];
-  drawInvoiceTableHeader(document, x, y, widths, gold);
-  y += 30;
-  [...rows, ...Array.from({ length: fillerRows }, (_, index) => ({
-    amount: "",
-    description: "",
-    id: `filler-${index}`,
-    quantity: 0,
-    rate: "",
-  }))].forEach((item) => {
-    drawInvoiceRow(document, x, y, widths, item);
-    y += 30;
+  const detailX = pageWidth - margin;
+  document.setTextColor(...black);
+  document.setFont("helvetica", "bold");
+  document.setFontSize(9);
+  document.text(`Invoice No. ${invoice.code}`, detailX, 168, { align: "right" });
+  document.setFont("helvetica", "normal");
+  document.text(formatDate(invoice.invoiceDate), detailX, 182, { align: "right" });
+  document.text(`Due ${formatDate(invoice.dueDate)}`, detailX, 196, { align: "right" });
+
+  let y = 282;
+  document.setDrawColor(...black);
+  document.setLineWidth(0.8);
+  document.line(margin, y, pageWidth - margin, y);
+  document.setFont("helvetica", "bold");
+  document.setFontSize(9);
+  document.text("Item", columns.description, y - 12);
+  document.text("Quantity", columns.quantity, y - 12);
+  document.text("Unit Price", columns.unitPrice, y - 12);
+  document.text("Total", columns.total, y - 12);
+
+  document.setFont("helvetica", "normal");
+  document.setFontSize(9);
+  rows.forEach((item) => {
+    y += 39;
+    document.setTextColor(...black);
+    document.text(safe(item.description), columns.description, y - 15, { maxWidth: 235 });
+    document.text(String(item.quantity), columns.quantity, y - 15);
+    document.text(formatPeso(item.rate), columns.unitPrice, y - 15);
+    document.text(formatPeso(item.amount), columns.total, y - 15);
+    document.setDrawColor(161, 161, 170);
+    document.setLineWidth(0.35);
+    document.line(margin, y, pageWidth - margin, y);
   });
 
-  y += 8;
-  const totalsX = x + widths[0] + widths[1];
-  drawTotalRow(document, totalsX, y, widths[2], widths[3], "Subtotal", formatPeso(invoice.subtotal));
-  drawTotalRow(document, totalsX, y + 30, widths[2], widths[3], "Discount", formatPeso(invoice.discount));
-  drawTotalRow(document, totalsX, y + 60, widths[2], widths[3], "Tax Sale", formatPeso(invoice.tax));
-  drawTotalRow(document, totalsX, y + 90, widths[2], widths[3], "TOTAL", formatPeso(invoice.totalAmount));
-
-  document.setTextColor(...muted);
+  const totalsX = 392;
+  y += 28;
+  drawMinimalTotal(document, totalsX, y, "Subtotal", formatPeso(invoice.subtotal), false);
+  y += 24;
+  if (parseMoney(invoice.discount) > 0) {
+    drawMinimalTotal(document, totalsX, y, "Discount", `- ${formatPeso(invoice.discount)}`, false);
+    y += 24;
+  }
+  if (parseMoney(invoice.tax) > 0) {
+    drawMinimalTotal(document, totalsX, y, "Tax", formatPeso(invoice.tax), false);
+    y += 24;
+  }
+  document.setFillColor(...black);
+  document.rect(totalsX - 12, y - 18, pageWidth - margin - totalsX + 12, 37, "F");
+  document.setTextColor(255, 255, 255);
+  document.setFont("helvetica", "bold");
   document.setFontSize(14);
-  document.text("Terms & Condition", 44, 710);
+  document.text("Total", totalsX, y + 6);
+  document.text(formatPeso(invoice.totalAmount), pageWidth - margin - 12, y + 6, { align: "right" });
+
+  const lowerY = Math.max(y + 105, 590);
+  document.setTextColor(...black);
+  document.setFont("times", "italic");
+  document.setFontSize(30);
+  document.text("Thank you!", margin, lowerY);
+
+  document.setFont("helvetica", "bold");
+  document.setFontSize(10);
+  document.text("Payment information", margin, lowerY + 55);
+  document.setFont("helvetica", "normal");
+  document.setFontSize(8.5);
+  document.setTextColor(...gray);
+  document.text(`Method: ${safe(invoice.paymentMethod || "To be confirmed")}`, margin, lowerY + 72);
+  document.text(`Deposit received: ${formatPeso(invoice.depositPaid)}`, margin, lowerY + 86);
+  document.text(`Balance due: ${formatPeso(invoice.balanceDue)}`, margin, lowerY + 100);
   drawWrapped(
     document,
-    invoice.notes || "Payment is due by the invoice due date. Please keep this invoice for your records.",
-    60,
-    732,
-    230,
-    10,
-    9,
+    safe(invoice.paymentInstructions || invoice.notes || "Please contact Alrio Private Resort for payment assistance."),
+    margin,
+    lowerY + 118,
+    250,
+    11,
+    8.5,
+    gray,
   );
 
-  document.setFontSize(14);
-  document.text("Payment Info", 358, 682);
-  document.setFontSize(9);
-  document.text(`Payment Method: ${safe(invoice.paymentMethod)}`, 358, 704);
-  drawWrapped(document, `Instructions: ${safe(invoice.paymentInstructions)}`, 358, 722, 180, 10, 9);
-  document.setFontSize(9);
-  document.text("Signature:", 358, 784);
-  document.line(422, 784, 542, 784);
+  document.setTextColor(...black);
+  document.setFont("times", "italic");
+  document.setFontSize(16);
+  document.text("Alrio Private Resort", pageWidth - margin, lowerY + 92, { align: "right" });
+  document.setFont("helvetica", "normal");
+  document.setFontSize(8.5);
+  document.setTextColor(...gray);
+  document.text("A private place for meaningful gatherings.", pageWidth - margin, lowerY + 108, { align: "right" });
+  document.text("Philippine Pesos (PHP)", pageWidth - margin, lowerY + 122, { align: "right" });
 
   document.save(`${sanitizeFileName(invoice.code)}.pdf`);
 }
 
-function drawInvoiceTableHeader(document: JsPDF, x: number, y: number, widths: number[], gold: [number, number, number]) {
-  document.setFillColor(...gold);
-  document.rect(x, y, widths.reduce((total, width) => total + width, 0), 30, "F");
-  document.setTextColor(71, 59, 35);
-  document.setFontSize(11);
-  document.text("Service Description", x + 68, y + 19);
-  document.text("Quantity", x + widths[0] + 25, y + 19);
-  document.text("Unit Price", x + widths[0] + widths[1] + 43, y + 19);
-  document.text("Total", x + widths[0] + widths[1] + widths[2] + 26, y + 19);
-}
-
-function drawInvoiceRow(
+function drawMinimalTotal(
   document: JsPDF,
   x: number,
   y: number,
-  widths: number[],
-  item: { amount: string; description: string; quantity: number; rate: string },
+  label: string,
+  value: string,
+  emphasize: boolean,
 ) {
-  document.setDrawColor(159, 153, 141);
-  document.setTextColor(111, 106, 98);
+  document.setFont("helvetica", emphasize ? "bold" : "normal");
+  document.setTextColor(39, 39, 42);
   document.setFontSize(9);
-  let currentX = x;
-  widths.forEach((width) => {
-    document.rect(currentX, y, width, 30);
-    currentX += width;
-  });
-  if (!item.description) return;
-  document.text(item.description, x + 8, y + 18, { maxWidth: widths[0] - 12 });
-  document.text(String(item.quantity), x + widths[0] + widths[1] / 2, y + 18, { align: "center" });
-  document.text(formatPeso(item.rate), x + widths[0] + widths[1] + widths[2] - 8, y + 18, { align: "right" });
-  document.text(formatPeso(item.amount), x + widths[0] + widths[1] + widths[2] + widths[3] - 8, y + 18, { align: "right" });
-}
-
-function drawTotalRow(document: JsPDF, x: number, y: number, labelWidth: number, valueWidth: number, label: string, value: string) {
-  document.setDrawColor(159, 153, 141);
-  document.rect(x, y, labelWidth, 30);
-  document.rect(x + labelWidth, y, valueWidth, 30);
-  document.setTextColor(154, 148, 137);
-  document.setFontSize(11);
-  document.text(label, x + labelWidth / 2, y + 18, { align: "center" });
-  document.setTextColor(111, 106, 98);
-  document.text(value, x + labelWidth + valueWidth - 8, y + 18, { align: "right" });
-}
-
-function drawLabel(document: JsPDF, value: string, x: number, y: number, color: [number, number, number]) {
-  document.setFontSize(10);
-  document.setTextColor(...color);
-  document.text(value, x, y);
+  document.text(label, x, y);
+  document.text(value, 539, y, { align: "right" });
 }
 
 function drawWrapped(
@@ -584,12 +583,29 @@ function drawWrapped(
   maxWidth: number,
   lineHeight: number,
   fontSize = 10,
+  color: [number, number, number] = [113, 113, 122],
 ) {
-  document.setTextColor(154, 148, 137);
+  document.setTextColor(...color);
   document.setFontSize(fontSize);
   document.splitTextToSize(value, maxWidth).forEach((line: string, index: number) => {
     document.text(line, x, y + index * lineHeight);
   });
+}
+
+async function loadLogoDataUrl() {
+  try {
+    const response = await fetch("/favicon.png");
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
 }
 
 function safe(value: string) {

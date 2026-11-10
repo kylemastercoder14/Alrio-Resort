@@ -3,6 +3,11 @@ import { TRPCError } from "@trpc/server";
 import { generateRandomString, hashPassword } from "better-auth/crypto";
 import { Prisma } from "@/generated/prisma/client";
 import { guestProfileSchema } from "@/lib/guest-profile";
+import {
+  DEFAULT_LANDING_BRANDING,
+  landingBrandingSchema,
+  parseLandingBranding,
+} from "@/lib/landing-branding";
 import { geographyRouter } from "./geography";
 import {
   sendReservationConfirmationEmail,
@@ -12,6 +17,7 @@ import {
   sendInvoiceEmailNow,
   sendInvoiceReminderNow,
 } from "@/lib/invoice-reminders";
+import { sendPayrollPayslipEmail } from "@/lib/payroll-email";
 import {
   generateInviteToken,
   getInviteExpiresAt,
@@ -25,6 +31,13 @@ import {
 } from "@/lib/messenger-leads";
 import { prisma } from "@/lib/prisma";
 import { getPublicResortLocations } from "@/lib/public-resort-locations";
+import {
+  clearRuntimeSetting,
+  getRuntimeSetting,
+  isRuntimeSettingKey,
+  RUNTIME_SETTING_DEFINITIONS,
+  saveRuntimeSetting,
+} from "@/lib/runtime-settings";
 import { getSignInRedirect } from "@/lib/sign-in-redirect";
 import {
   recordStaffActivityForProfile,
@@ -47,6 +60,41 @@ const resortOtUndertimeStatusSchema = z.enum([
   "Pending",
   "Rejected",
 ]);
+
+async function getConfiguredAppUrl(resortProfileId: string) {
+  return (
+    (await getRuntimeSetting(resortProfileId, "APP_URL")) ??
+    process.env.BETTER_AUTH_URL ??
+    "http://localhost:3000"
+  );
+}
+
+async function getMessengerSettings(resortProfileId: string) {
+  const [
+    appSecret,
+    graphVersion,
+    pageAccessToken,
+    pageId,
+    verifyToken,
+    webhookUrl,
+  ] = await Promise.all([
+    getRuntimeSetting(resortProfileId, "META_APP_SECRET"),
+    getRuntimeSetting(resortProfileId, "META_GRAPH_API_VERSION"),
+    getRuntimeSetting(resortProfileId, "META_PAGE_ACCESS_TOKEN"),
+    getRuntimeSetting(resortProfileId, "META_PAGE_ID"),
+    getRuntimeSetting(resortProfileId, "META_VERIFY_TOKEN"),
+    getRuntimeSetting(resortProfileId, "META_MESSENGER_WEBHOOK_URL"),
+  ]);
+
+  return {
+    appSecret,
+    graphVersion: graphVersion || "v25.0",
+    pageAccessToken,
+    pageId,
+    verifyToken,
+    webhookUrl,
+  };
+}
 const resortDepartmentStatusSchema = z.enum(["Active", "Paused", "Archived"]);
 const resortAmenityStatusSchema = z.enum(["Active", "Inactive"]);
 const resortAmenityScopeSchema = z.enum(["Room-level", "Property-level"]);
@@ -254,6 +302,7 @@ const resortPayrollEmployeeOverrideSchema = z.object({
 });
 const resortPayrollInputSchema = z.object({
   action: z.enum(["create", "update"]).optional(),
+  mode: z.enum(["draft", "finalize"]).default("finalize"),
   backupPayrollData: z.boolean().default(false),
   createJournalEntry: z.boolean().default(true),
   department: optionalTrimmedString,
@@ -1348,7 +1397,9 @@ async function createInvoiceForFolioCharges(input: {
         paymentMethod: input.paymentMethod ?? "Reservation payment",
         reminderCadence: "STANDARD",
         reservationId: reservation.id,
-        status: shouldMarkPaid ? "PAID" : "SENT",
+        // Creating an invoice is not the same as delivering it. Keep unpaid
+        // invoices in Draft until a staff member explicitly selects Send invoice.
+        status: shouldMarkPaid ? "PAID" : "DRAFT",
         subtotal,
         tax,
         resortProfileId: input.resortProfileId,
@@ -1825,6 +1876,7 @@ function toResortLeaveRequestOutput(request: {
   reviewedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+  leavePolicyId?: string | null;
   staffProfile: {
     id: string;
     accessRole?: {
@@ -1834,7 +1886,7 @@ function toResortLeaveRequestOutput(request: {
       displayName: string;
     };
   };
-}) {
+}, availableDays?: number) {
   return {
     id: request.id,
     staffProfileId: request.staffProfile.id,
@@ -1844,13 +1896,29 @@ function toResortLeaveRequestOutput(request: {
     startDate: request.startDate,
     endDate: request.endDate,
     reason: request.reason,
-    balance: `${request.balanceDays} days`,
-    balanceDays: request.balanceDays,
+    balance: `${availableDays ?? request.balanceDays} days`,
+    balanceDays: availableDays ?? request.balanceDays,
+    leavePolicyId: request.leavePolicyId ?? null,
     status: fromResortLeaveRequestStatus(request.status),
     reviewedAt: request.reviewedAt,
     createdAt: request.createdAt,
     updatedAt: request.updatedAt,
   };
+}
+
+function getLeaveDays(startDate: Date, endDate: Date) {
+  const start = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  const end = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+  return Math.floor((end - start) / 86_400_000) + 1;
+}
+
+function getLeaveBalanceAvailable(balance: {
+  openingDays: number;
+  allocatedDays: number;
+  adjustmentDays: number;
+  usedDays: number;
+}) {
+  return balance.openingDays + balance.allocatedDays + balance.adjustmentDays - balance.usedDays;
 }
 
 function toResortOtUndertimeOutput(entry: {
@@ -2036,7 +2104,15 @@ async function buildResortPayrollPreview(
         : {}),
     },
     include: {
-      appUser: true,
+      appUser: {
+        include: {
+          authUser: {
+            select: {
+              image: true,
+            },
+          },
+        },
+      },
       accessRole: true,
       department: true,
       leaveRequests: {
@@ -2048,6 +2124,11 @@ async function buildResortPayrollPreview(
             lte: periodEnd,
           },
           status: "APPROVED",
+        },
+      },
+      leaveBalances: {
+        where: {
+          year: periodEnd.getFullYear(),
         },
       },
       otUndertimeEntries: {
@@ -2128,6 +2209,24 @@ async function buildResortPayrollPreview(
     const bonus =
       override?.bonus ??
       (input.includeBonus ? decimalNumber(staffProfile.bonus) : 0);
+    const leaveEncashment = input.includeLeaveEncashment
+      ? roundPayrollAmount(
+          staffProfile.leaveBalances.reduce(
+            (total, balance) =>
+              total +
+              Math.max(
+                0,
+                balance.openingDays +
+                  balance.allocatedDays +
+                  balance.adjustmentDays -
+                  balance.usedDays,
+              ),
+            0,
+          ) *
+            (decimalNumber(staffProfile.basicSalary) / 22),
+          input.roundingOption,
+        )
+      : 0;
     const overtimePay = input.includeOtPay
       ? roundPayrollAmount(
           overtimeHours * baseHourlyRate * 1.25,
@@ -2155,7 +2254,7 @@ async function buildResortPayrollPreview(
     const otherDeductions =
       override?.otherDeductions ?? decimalNumber(staffProfile.otherDeductions);
     const grossPay =
-      basicSalary + allowance + incentives + commission + bonus + overtimePay;
+      basicSalary + allowance + incentives + commission + bonus + leaveEncashment + overtimePay;
     const totalDeductions =
       leaveDeduction +
       undertimeDeduction +
@@ -2167,7 +2266,7 @@ async function buildResortPayrollPreview(
       absentCount,
       allowances: allowance,
       basicSalary,
-      bonus,
+      bonus: bonus + leaveEncashment,
       commission,
       deductions: totalDeductions,
       daysWorked,
@@ -2177,6 +2276,7 @@ async function buildResortPayrollPreview(
       governmentDeductions,
       grossPay,
       id: staffProfile.id,
+      image: staffProfile.appUser.authUser.image,
       included,
       incentives,
       lateCount,
@@ -2286,6 +2386,27 @@ function sumPayrollItems<T>(items: T[], selector: (item: T) => number) {
   return items.reduce((total, item) => total + selector(item), 0);
 }
 
+const payrollItemsWithProfileImage = {
+  orderBy: {
+    employeeName: "asc",
+  },
+  include: {
+    staffProfile: {
+      select: {
+        appUser: {
+          select: {
+            authUser: {
+              select: {
+                image: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+} as const;
+
 function toResortPayrollOutput(payrollRun: {
   id: string;
   code: string;
@@ -2318,6 +2439,18 @@ function toResortPayrollOutput(payrollRun: {
   employerContributions: Prisma.Decimal | number;
   employerCost: Prisma.Decimal | number;
   options: Prisma.JsonValue | null;
+  backupSnapshot: Prisma.JsonValue | null;
+  lockedAt: Date | null;
+  lockedBy: string | null;
+  finalizedAt: Date | null;
+  finalizedBy: string | null;
+  payslipNotifiedAt: Date | null;
+  paymentStatus: "UNPAID" | "PAID";
+  paidAt: Date | null;
+  paidBy: string | null;
+  paymentMethod: string | null;
+  paymentReference: string | null;
+  journalEntryId: string | null;
   generatedBy: string | null;
   generatedAt: Date | null;
   createdAt: Date;
@@ -2352,6 +2485,13 @@ function toResortPayrollOutput(payrollRun: {
     totalDeductions: Prisma.Decimal | number;
     netPay: Prisma.Decimal | number;
     included: boolean;
+    staffProfile?: {
+      appUser: {
+        authUser: {
+          image: string | null;
+        };
+      };
+    };
   }>;
 }) {
   return {
@@ -2361,6 +2501,9 @@ function toResortPayrollOutput(payrollRun: {
     frequency: fromResortPayrollFrequency(payrollRun.frequency),
     generatedAt: payrollRun.generatedAt,
     generatedBy: payrollRun.generatedBy ?? "",
+    finalizedAt: payrollRun.finalizedAt,
+    finalizedBy: payrollRun.finalizedBy ?? "",
+    journalEntryId: payrollRun.journalEntryId,
     id: payrollRun.id,
     items: (payrollRun.items ?? []).map((item) => ({
       absentCount: item.absentCount,
@@ -2376,6 +2519,7 @@ function toResortPayrollOutput(payrollRun: {
       governmentDeductions: decimalNumber(item.governmentDeductions),
       grossPay: decimalNumber(item.grossPay),
       id: item.staffProfileId,
+      image: item.staffProfile?.appUser.authUser.image ?? null,
       included: item.included,
       incentives: decimalNumber(item.incentives),
       lateCount: item.lateCount,
@@ -2402,6 +2546,14 @@ function toResortPayrollOutput(payrollRun: {
     name: payrollRun.name,
     notes: payrollRun.notes ?? "",
     options: payrollRun.options,
+    lockedAt: payrollRun.lockedAt,
+    lockedBy: payrollRun.lockedBy ?? "",
+    paidAt: payrollRun.paidAt,
+    paidBy: payrollRun.paidBy ?? "",
+    paymentMethod: payrollRun.paymentMethod ?? "",
+    paymentReference: payrollRun.paymentReference ?? "",
+    paymentStatus: payrollRun.paymentStatus === "PAID" ? "Paid" : "Unpaid",
+    payslipNotifiedAt: payrollRun.payslipNotifiedAt,
     payDate: payrollRun.payDate,
     payPeriod: payrollRun.payPeriod,
     payType: fromResortPayrollPayType(payrollRun.payType),
@@ -3782,6 +3934,14 @@ export const appRouter = createTRPCRouter({
 
       return { locations };
     }),
+    branding: baseProcedure.query(async () => {
+      const resort = await prisma.resortProfile.findFirst({
+        where: { resortName: { equals: "Alrio Private Resort", mode: "insensitive" } },
+        orderBy: { createdAt: "asc" },
+        select: { landingBranding: { select: { content: true } } },
+      });
+      return parseLandingBranding(resort?.landingBranding?.content ?? DEFAULT_LANDING_BRANDING);
+    }),
   }),
   hello: baseProcedure
     .input(
@@ -4290,6 +4450,76 @@ export const appRouter = createTRPCRouter({
       }),
   }),
   resort: createTRPCRouter({
+    branding: createTRPCRouter({
+      get: baseProcedure.query(async ({ ctx }) => {
+        const authUserId = ctx.session?.user?.id;
+        if (!authUserId) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+        await requireResortPermission(authUserId, "settings.branding.manage");
+        const resortProfile = await getResortProfileForSession(authUserId);
+        const setting = await prisma.resortLandingBranding.findUnique({
+          where: { resortProfileId: resortProfile.id }, select: { content: true, updatedAt: true },
+        });
+        return { content: parseLandingBranding(setting?.content ?? DEFAULT_LANDING_BRANDING), updatedAt: setting?.updatedAt ?? null };
+      }),
+      save: baseProcedure.input(landingBrandingSchema).mutation(async ({ ctx, input }) => {
+        const authUserId = ctx.session?.user?.id;
+        if (!authUserId) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+        await requireResortPermission(authUserId, "settings.branding.manage");
+        const resortProfile = await getResortProfileForSession(authUserId);
+        const setting = await prisma.resortLandingBranding.upsert({
+          where: { resortProfileId: resortProfile.id },
+          create: { resortProfileId: resortProfile.id, content: input, updatedByAuthUserId: authUserId },
+          update: { content: input, updatedByAuthUserId: authUserId },
+          select: { updatedAt: true },
+        });
+        await safelyRecordStaffActivityForAuthUser(authUserId, {
+          action: STAFF_ACTIVITY_ACTIONS.workspaceAction,
+          title: "Updated landing page branding",
+          detail: "Updated public landing-page copy, imagery, or guest feedback.",
+          actorAuthUserId: authUserId,
+        });
+        return { updatedAt: setting.updatedAt };
+      }),
+    }),
+    developerSettings: createTRPCRouter({
+      list: baseProcedure.query(async ({ ctx }) => {
+        const authUserId = ctx.session?.user?.id;
+        if (!authUserId) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+        const resortProfile = await getResortProfileForSession(authUserId);
+        const saved = await prisma.resortDeveloperSetting.findMany({
+          where: { resortProfileId: resortProfile.id },
+          select: { key: true, updatedAt: true },
+        });
+        const savedByKey = new Map(saved.map((setting) => [setting.key, setting]));
+        return RUNTIME_SETTING_DEFINITIONS.map((definition) => {
+          const setting = savedByKey.get(definition.key);
+          return {
+            ...definition,
+            configured: Boolean(setting || process.env[definition.fallbackEnv]),
+            source: setting ? "database" : process.env[definition.fallbackEnv] ? "environment" : "missing",
+            updatedAt: setting?.updatedAt ?? null,
+          };
+        });
+      }),
+      save: baseProcedure
+        .input(z.object({ settings: z.array(z.object({ key: z.string(), value: z.string().max(10_000) })) }))
+        .mutation(async ({ ctx, input }) => {
+          const authUserId = ctx.session?.user?.id;
+          if (!authUserId) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+          const resortProfile = await getResortProfileForSession(authUserId);
+          for (const setting of input.settings) {
+            if (!isRuntimeSettingKey(setting.key)) {
+              throw new TRPCError({ code: "BAD_REQUEST", message: `Unknown developer setting: ${setting.key}.` });
+            }
+            if (setting.value.trim()) {
+              await saveRuntimeSetting({ resortProfileId: resortProfile.id, key: setting.key, value: setting.value.trim(), updatedByAuthUserId: authUserId });
+            } else {
+              await clearRuntimeSetting(resortProfile.id, setting.key);
+            }
+          }
+          return { updated: input.settings.length };
+        }),
+    }),
     notifications: createTRPCRouter({
       list: baseProcedure.query(async ({ ctx }) => {
         const authUser = ctx.session?.user;
@@ -5024,11 +5254,15 @@ export const appRouter = createTRPCRouter({
             staffProfile: true,
           },
         });
+        const canManageTimekeeping = hasResortPermission(
+          await getResortPermissionsForSession(authUser.id),
+          "hr.timekeeping.manage",
+        );
 
         const logs = await prisma.resortTimeLog.findMany({
           where: {
             resortProfileId: resortProfile.id,
-            ...(appUser?.staffProfile
+            ...(appUser?.staffProfile && !canManageTimekeeping
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5220,21 +5454,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const resortProfile = await getResortProfileForSession(authUser.id);
-          const appUser = await prisma.appUser.findUnique({
-            where: {
-              authUserId: authUser.id,
-            },
-            include: {
-              staffProfile: true,
-            },
-          });
-
-          if (appUser?.staffProfile) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "Only resort admin can edit time log flags.",
-            });
-          }
+          await requireResortPermission(authUser.id, "hr.timekeeping.manage");
 
           const existingLog = await prisma.resortTimeLog.findFirst({
             where: {
@@ -5342,21 +5562,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const resortProfile = await getResortProfileForSession(authUser.id);
-          const appUser = await prisma.appUser.findUnique({
-            where: {
-              authUserId: authUser.id,
-            },
-            include: {
-              staffProfile: true,
-            },
-          });
-
-          if (appUser?.staffProfile) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "Only resort admin can manage schedules.",
-            });
-          }
+          await requireResortPermission(authUser.id, "hr.scheduling.manage");
 
           if (input.endAt <= input.startAt) {
             throw new TRPCError({
@@ -5457,21 +5663,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const resortProfile = await getResortProfileForSession(authUser.id);
-          const appUser = await prisma.appUser.findUnique({
-            where: {
-              authUserId: authUser.id,
-            },
-            include: {
-              staffProfile: true,
-            },
-          });
-
-          if (appUser?.staffProfile) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "Only resort admin can delete schedules.",
-            });
-          }
+          await requireResortPermission(authUser.id, "hr.scheduling.manage");
 
           const existingShift = await prisma.resortScheduleShift.findFirst({
             where: {
@@ -5498,6 +5690,116 @@ export const appRouter = createTRPCRouter({
           };
         }),
     }),
+    leaveBalances: createTRPCRouter({
+      policies: baseProcedure.query(async ({ ctx }) => {
+        const authUser = ctx.session?.user;
+        if (!authUser?.id) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const canManage = hasResortPermission(
+          await getResortPermissionsForSession(authUser.id),
+          "hr.leaveRequests.manage",
+        );
+        const policies = await prisma.resortLeavePolicy.findMany({
+          where: { resortProfileId: resortProfile.id, ...(canManage ? {} : { isActive: true }) },
+          orderBy: [{ isActive: "desc" }, { name: "asc" }],
+        });
+        return policies;
+      }),
+      list: baseProcedure
+        .input(z.object({ year: z.number().int().min(2020).max(2100).optional() }).optional())
+        .query(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+          if (!authUser?.id) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const appUser = await prisma.appUser.findUnique({
+            where: { authUserId: authUser.id },
+            include: { staffProfile: true },
+          });
+          const canManage = hasResortPermission(
+            await getResortPermissionsForSession(authUser.id),
+            "hr.leaveRequests.manage",
+          );
+          const balances = await prisma.resortLeaveBalance.findMany({
+            where: {
+              resortProfileId: resortProfile.id,
+              year: input?.year ?? new Date().getFullYear(),
+              ...(appUser?.staffProfile && !canManage ? { staffProfileId: appUser.staffProfile.id } : {}),
+            },
+            include: {
+              leavePolicy: true,
+              staffProfile: { include: { appUser: true } },
+            },
+            orderBy: [{ staffProfile: { appUser: { displayName: "asc" } } }, { leavePolicy: { name: "asc" } }],
+          });
+          return balances.map((balance) => ({
+            id: balance.id,
+            staffProfileId: balance.staffProfileId,
+            staffName: balance.staffProfile.appUser.displayName,
+            leavePolicyId: balance.leavePolicyId,
+            policyName: balance.leavePolicy.name,
+            year: balance.year,
+            openingDays: balance.openingDays,
+            allocatedDays: balance.allocatedDays,
+            adjustmentDays: balance.adjustmentDays,
+            usedDays: balance.usedDays,
+            availableDays: getLeaveBalanceAvailable(balance),
+            updatedAt: balance.updatedAt,
+          }));
+        }),
+      savePolicy: baseProcedure
+        .input(z.object({
+          id: z.string().optional(),
+          name: z.string().trim().min(2, "Policy name is required."),
+          annualEntitlement: z.coerce.number().int().min(0).max(365),
+          carryOverLimit: z.coerce.number().int().min(0).max(365).default(0),
+          isActive: z.boolean().default(true),
+        }))
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+          if (!authUser?.id) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          await requireResortPermission(authUser.id, "hr.leaveRequests.manage");
+
+          const duplicate = await prisma.resortLeavePolicy.findFirst({
+            where: { resortProfileId: resortProfile.id, name: input.name, ...(input.id ? { id: { not: input.id } } : {}) },
+          });
+          if (duplicate) throw new TRPCError({ code: "CONFLICT", message: "A leave policy with this name already exists." });
+
+          if (input.id) {
+            const policy = await prisma.resortLeavePolicy.findFirst({ where: { id: input.id, resortProfileId: resortProfile.id } });
+            if (!policy) throw new TRPCError({ code: "NOT_FOUND", message: "Leave policy not found." });
+            return prisma.resortLeavePolicy.update({ where: { id: policy.id }, data: { name: input.name, annualEntitlement: input.annualEntitlement, carryOverLimit: input.carryOverLimit, isActive: input.isActive } });
+          }
+          return prisma.resortLeavePolicy.create({ data: { resortProfileId: resortProfile.id, name: input.name, annualEntitlement: input.annualEntitlement, carryOverLimit: input.carryOverLimit, isActive: input.isActive } });
+        }),
+      saveAllocation: baseProcedure
+        .input(z.object({
+          staffProfileId: z.string().min(1),
+          leavePolicyId: z.string().min(1),
+          year: z.coerce.number().int().min(2020).max(2100),
+          openingDays: z.coerce.number().int().min(0).max(365).default(0),
+          allocatedDays: z.coerce.number().int().min(0).max(365),
+          adjustmentDays: z.coerce.number().int().min(-365).max(365).default(0),
+        }))
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+          if (!authUser?.id) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          await requireResortPermission(authUser.id, "hr.leaveRequests.manage");
+          const [staff, policy] = await Promise.all([
+            prisma.resortStaffProfile.findFirst({ where: { id: input.staffProfileId, resortProfileId: resortProfile.id } }),
+            prisma.resortLeavePolicy.findFirst({ where: { id: input.leavePolicyId, resortProfileId: resortProfile.id } }),
+          ]);
+          if (!staff || !policy) throw new TRPCError({ code: "NOT_FOUND", message: "Staff member or leave policy not found." });
+          return prisma.resortLeaveBalance.upsert({
+            where: { staffProfileId_leavePolicyId_year: { staffProfileId: staff.id, leavePolicyId: policy.id, year: input.year } },
+            create: { resortProfileId: resortProfile.id, staffProfileId: staff.id, leavePolicyId: policy.id, year: input.year, openingDays: input.openingDays, allocatedDays: input.allocatedDays, adjustmentDays: input.adjustmentDays },
+            update: { openingDays: input.openingDays, allocatedDays: input.allocatedDays, adjustmentDays: input.adjustmentDays },
+          });
+        }),
+    }),
     leaveRequests: createTRPCRouter({
       list: baseProcedure.query(async ({ ctx }) => {
         const authUser = ctx.session?.user;
@@ -5518,11 +5820,15 @@ export const appRouter = createTRPCRouter({
             staffProfile: true,
           },
         });
+        const canManageLeaveRequests = hasResortPermission(
+          await getResortPermissionsForSession(authUser.id),
+          "hr.leaveRequests.manage",
+        );
 
         const requests = await prisma.resortLeaveRequest.findMany({
           where: {
             resortProfileId: resortProfile.id,
-            ...(appUser?.staffProfile
+            ...(appUser?.staffProfile && !canManageLeaveRequests
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5539,8 +5845,38 @@ export const appRouter = createTRPCRouter({
             },
           ],
         });
+        const balanceKeys = requests
+          .filter((request) => request.leavePolicyId)
+          .map((request) => ({
+            staffProfileId: request.staffProfileId,
+            leavePolicyId: request.leavePolicyId as string,
+            year: request.startDate.getFullYear(),
+          }));
+        const balances = balanceKeys.length
+          ? await prisma.resortLeaveBalance.findMany({
+              where: {
+                resortProfileId: resortProfile.id,
+                OR: balanceKeys,
+              },
+            })
+          : [];
+        const balanceByKey = new Map(
+          balances.map((balance) => [
+            `${balance.staffProfileId}:${balance.leavePolicyId}:${balance.year}`,
+            getLeaveBalanceAvailable(balance),
+          ]),
+        );
 
-        return requests.map(toResortLeaveRequestOutput);
+        return requests.map((request) =>
+          toResortLeaveRequestOutput(
+            request,
+            request.leavePolicyId
+              ? balanceByKey.get(
+                  `${request.staffProfileId}:${request.leavePolicyId}:${request.startDate.getFullYear()}`,
+                )
+              : undefined,
+          ),
+        );
       }),
       save: baseProcedure
         .input(
@@ -5548,6 +5884,7 @@ export const appRouter = createTRPCRouter({
             id: z.string().optional(),
             staffProfileId: optionalTrimmedString,
             type: z.string().trim().min(1, "Leave type is required."),
+            leavePolicyId: optionalTrimmedString,
             startDate: z.coerce.date(),
             endDate: z.coerce.date(),
             reason: z.string().trim().min(1, "Reason is required."),
@@ -5573,6 +5910,10 @@ export const appRouter = createTRPCRouter({
               staffProfile: true,
             },
           });
+          const canManageLeaveRequests = hasResortPermission(
+            await getResortPermissionsForSession(authUser.id),
+            "hr.leaveRequests.manage",
+          );
 
           if (input.endDate < input.startDate) {
             throw new TRPCError({
@@ -5580,11 +5921,16 @@ export const appRouter = createTRPCRouter({
               message: "Leave end date must be after start date.",
             });
           }
+          if (input.startDate.getFullYear() !== input.endDate.getFullYear()) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Leave requests must fall within one calendar year.",
+            });
+          }
 
-          const staffProfileId =
-            appUser?.staffProfile
-              ? appUser.staffProfile?.id
-              : input.staffProfileId;
+          const staffProfileId = canManageLeaveRequests
+            ? input.staffProfileId ?? appUser?.staffProfile?.id
+            : appUser?.staffProfile?.id;
 
           if (!staffProfileId) {
             throw new TRPCError({
@@ -5607,6 +5953,45 @@ export const appRouter = createTRPCRouter({
             });
           }
 
+          let policy: { id: string; name: string } | null = null;
+          let balanceDays = input.balanceDays;
+          if (input.leavePolicyId) {
+            policy = await prisma.resortLeavePolicy.findFirst({
+              where: {
+                id: input.leavePolicyId,
+                resortProfileId: resortProfile.id,
+                isActive: true,
+              },
+              select: { id: true, name: true },
+            });
+            if (!policy) {
+              throw new TRPCError({ code: "NOT_FOUND", message: "Leave policy not found or inactive." });
+            }
+            const balance = await prisma.resortLeaveBalance.findUnique({
+              where: {
+                staffProfileId_leavePolicyId_year: {
+                  staffProfileId: staffProfile.id,
+                  leavePolicyId: policy.id,
+                  year: input.startDate.getFullYear(),
+                },
+              },
+            });
+            if (!balance) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "No leave balance has been allocated for this staff member and policy.",
+              });
+            }
+            balanceDays = getLeaveBalanceAvailable(balance);
+            const requestedDays = getLeaveDays(input.startDate, input.endDate);
+            if (requestedDays > balanceDays) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: `Only ${balanceDays} leave day${balanceDays === 1 ? "" : "s"} remain for this policy.`,
+              });
+            }
+          }
+
           if (input.id) {
             const existingRequest = await prisma.resortLeaveRequest.findFirst({
               where: {
@@ -5621,6 +6006,23 @@ export const appRouter = createTRPCRouter({
                 message: "Leave request not found.",
               });
             }
+
+            if (
+              appUser?.staffProfile &&
+              !canManageLeaveRequests &&
+              existingRequest.staffProfileId !== appUser.staffProfile.id
+            ) {
+              throw new TRPCError({
+                code: "FORBIDDEN",
+                message: "You can only edit your own leave requests.",
+              });
+            }
+            if (existingRequest.status === "APPROVED") {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "Approved leave cannot be edited. Change its status first to restore the balance.",
+              });
+            }
           }
 
           const request = await prisma.resortLeaveRequest.upsert({
@@ -5630,19 +6032,21 @@ export const appRouter = createTRPCRouter({
             create: {
               resortProfileId: resortProfile.id,
               staffProfileId: staffProfile.id,
-              leaveType: input.type,
+              leaveType: policy?.name ?? input.type,
               startDate: input.startDate,
               endDate: input.endDate,
               reason: input.reason,
-              balanceDays: input.balanceDays,
+              balanceDays,
+              leavePolicyId: policy?.id ?? null,
             },
             update: {
               staffProfileId: staffProfile.id,
-              leaveType: input.type,
+              leaveType: policy?.name ?? input.type,
               startDate: input.startDate,
               endDate: input.endDate,
               reason: input.reason,
-              balanceDays: input.balanceDays,
+              balanceDays,
+              leavePolicyId: policy?.id ?? null,
             },
             include: {
               staffProfile: {
@@ -5673,21 +6077,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const resortProfile = await getResortProfileForSession(authUser.id);
-          const appUser = await prisma.appUser.findUnique({
-            where: {
-              authUserId: authUser.id,
-            },
-            include: {
-              staffProfile: true,
-            },
-          });
-
-          if (appUser?.staffProfile) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "Only resort admin can approve or reject leave.",
-            });
-          }
+          await requireResortPermission(authUser.id, "hr.leaveRequests.manage");
 
           const existingRequest = await prisma.resortLeaveRequest.findFirst({
             where: {
@@ -5703,21 +6093,56 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const request = await prisma.resortLeaveRequest.update({
-            where: {
-              id: existingRequest.id,
-            },
-            data: {
-              reviewedAt: new Date(),
-              status: toResortLeaveRequestStatus(input.status),
-            },
-            include: {
-              staffProfile: {
-                include: {
-                  appUser: true,
+          const nextStatus = toResortLeaveRequestStatus(input.status);
+          const request = await prisma.$transaction(async (transaction) => {
+            if (
+              existingRequest.leavePolicyId &&
+              existingRequest.status !== nextStatus
+            ) {
+              const balance = await transaction.resortLeaveBalance.findUnique({
+                where: {
+                  staffProfileId_leavePolicyId_year: {
+                    staffProfileId: existingRequest.staffProfileId,
+                    leavePolicyId: existingRequest.leavePolicyId,
+                    year: existingRequest.startDate.getFullYear(),
+                  },
                 },
-              },
-            },
+              });
+              if (!balance) {
+                throw new TRPCError({
+                  code: "BAD_REQUEST",
+                  message: "No leave balance is available for this request.",
+                });
+              }
+              const requestedDays = getLeaveDays(existingRequest.startDate, existingRequest.endDate);
+              const shouldDeduct = nextStatus === "APPROVED" && existingRequest.status !== "APPROVED";
+              const shouldRestore = existingRequest.status === "APPROVED" && nextStatus !== "APPROVED";
+              if (shouldDeduct) {
+                const available = getLeaveBalanceAvailable(balance);
+                if (requestedDays > available) {
+                  throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: `Only ${available} leave day${available === 1 ? "" : "s"} remain for this request.`,
+                  });
+                }
+                await transaction.resortLeaveBalance.update({
+                  where: { id: balance.id },
+                  data: { usedDays: { increment: requestedDays } },
+                });
+              }
+              if (shouldRestore) {
+                await transaction.resortLeaveBalance.update({
+                  where: { id: balance.id },
+                  data: { usedDays: { decrement: requestedDays } },
+                });
+              }
+            }
+
+            return transaction.resortLeaveRequest.update({
+              where: { id: existingRequest.id },
+              data: { reviewedAt: new Date(), status: nextStatus },
+              include: { staffProfile: { include: { appUser: true } } },
+            });
           });
 
           return toResortLeaveRequestOutput(request);
@@ -5739,6 +6164,14 @@ export const appRouter = createTRPCRouter({
           }
 
           const resortProfile = await getResortProfileForSession(authUser.id);
+          const appUser = await prisma.appUser.findUnique({
+            where: { authUserId: authUser.id },
+            include: { staffProfile: true },
+          });
+          const canManageLeaveRequests = hasResortPermission(
+            await getResortPermissionsForSession(authUser.id),
+            "hr.leaveRequests.manage",
+          );
           const existingRequest = await prisma.resortLeaveRequest.findFirst({
             where: {
               id: input.id,
@@ -5753,10 +6186,39 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          await prisma.resortLeaveRequest.delete({
-            where: {
-              id: existingRequest.id,
-            },
+          if (
+            appUser?.staffProfile &&
+            !canManageLeaveRequests &&
+            existingRequest.staffProfileId !== appUser.staffProfile.id
+          ) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "You can only delete your own leave requests.",
+            });
+          }
+
+          await prisma.$transaction(async (transaction) => {
+            if (
+              existingRequest.status === "APPROVED" &&
+              existingRequest.leavePolicyId
+            ) {
+              const balance = await transaction.resortLeaveBalance.findUnique({
+                where: {
+                  staffProfileId_leavePolicyId_year: {
+                    staffProfileId: existingRequest.staffProfileId,
+                    leavePolicyId: existingRequest.leavePolicyId,
+                    year: existingRequest.startDate.getFullYear(),
+                  },
+                },
+              });
+              if (balance) {
+                await transaction.resortLeaveBalance.update({
+                  where: { id: balance.id },
+                  data: { usedDays: { decrement: getLeaveDays(existingRequest.startDate, existingRequest.endDate) } },
+                });
+              }
+            }
+            await transaction.resortLeaveRequest.delete({ where: { id: existingRequest.id } });
           });
 
           return {
@@ -5784,11 +6246,15 @@ export const appRouter = createTRPCRouter({
             staffProfile: true,
           },
         });
+        const canManageOtUndertime = hasResortPermission(
+          await getResortPermissionsForSession(authUser.id),
+          "hr.otUndertime.manage",
+        );
 
         const entries = await prisma.resortOtUndertimeEntry.findMany({
           where: {
             resortProfileId: resortProfile.id,
-            ...(appUser?.staffProfile
+            ...(appUser?.staffProfile && !canManageOtUndertime
               ? { staffProfileId: appUser.staffProfile.id }
               : {}),
           },
@@ -5838,6 +6304,10 @@ export const appRouter = createTRPCRouter({
               staffProfile: true,
             },
           });
+          const canManageOtUndertime = hasResortPermission(
+            await getResortPermissionsForSession(authUser.id),
+            "hr.otUndertime.manage",
+          );
           const hoursValue = Number.parseFloat(input.hours);
 
           if (!Number.isFinite(hoursValue) || hoursValue <= 0) {
@@ -5847,10 +6317,9 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const staffProfileId =
-            appUser?.staffProfile
-              ? appUser.staffProfile?.id
-              : input.staffProfileId;
+          const staffProfileId = canManageOtUndertime
+            ? input.staffProfileId ?? appUser?.staffProfile?.id
+            : appUser?.staffProfile?.id;
 
           if (!staffProfileId) {
             throw new TRPCError({
@@ -5887,6 +6356,17 @@ export const appRouter = createTRPCRouter({
               throw new TRPCError({
                 code: "NOT_FOUND",
                 message: "OT/undertime entry not found.",
+              });
+            }
+
+            if (
+              appUser?.staffProfile &&
+              !canManageOtUndertime &&
+              existingEntry.staffProfileId !== appUser.staffProfile.id
+            ) {
+              throw new TRPCError({
+                code: "FORBIDDEN",
+                message: "You can only edit your own OT or undertime entries.",
               });
             }
           }
@@ -5939,21 +6419,7 @@ export const appRouter = createTRPCRouter({
           }
 
           const resortProfile = await getResortProfileForSession(authUser.id);
-          const appUser = await prisma.appUser.findUnique({
-            where: {
-              authUserId: authUser.id,
-            },
-            include: {
-              staffProfile: true,
-            },
-          });
-
-          if (appUser?.staffProfile) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "Only resort admin can approve or reject OT/undertime.",
-            });
-          }
+          await requireResortPermission(authUser.id, "hr.otUndertime.manage");
 
           const existingEntry = await prisma.resortOtUndertimeEntry.findFirst({
             where: {
@@ -6005,6 +6471,14 @@ export const appRouter = createTRPCRouter({
           }
 
           const resortProfile = await getResortProfileForSession(authUser.id);
+          const appUser = await prisma.appUser.findUnique({
+            where: { authUserId: authUser.id },
+            include: { staffProfile: true },
+          });
+          const canManageOtUndertime = hasResortPermission(
+            await getResortPermissionsForSession(authUser.id),
+            "hr.otUndertime.manage",
+          );
           const existingEntry = await prisma.resortOtUndertimeEntry.findFirst({
             where: {
               id: input.id,
@@ -6016,6 +6490,17 @@ export const appRouter = createTRPCRouter({
             throw new TRPCError({
               code: "NOT_FOUND",
               message: "OT/undertime entry not found.",
+            });
+          }
+
+          if (
+            appUser?.staffProfile &&
+            !canManageOtUndertime &&
+            existingEntry.staffProfileId !== appUser.staffProfile.id
+          ) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: "You can only delete your own OT or undertime entries.",
             });
           }
 
@@ -6125,11 +6610,7 @@ export const appRouter = createTRPCRouter({
               resortProfileId: resortProfile.id,
             },
             include: {
-              items: {
-                orderBy: {
-                  employeeName: "asc",
-                },
-              },
+              items: payrollItemsWithProfileImage,
             },
           });
 
@@ -6159,11 +6640,7 @@ export const appRouter = createTRPCRouter({
             resortProfileId: resortProfile.id,
           },
           include: {
-            items: {
-              orderBy: {
-                employeeName: "asc",
-              },
-            },
+            items: payrollItemsWithProfileImage,
           },
           orderBy: [
             {
@@ -6195,17 +6672,7 @@ export const appRouter = createTRPCRouter({
             where: {
               authUserId: authUser.id,
             },
-            include: {
-              staffProfile: true,
-            },
           });
-
-          if (appUser?.staffProfile) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "Only resort admin can generate payroll.",
-            });
-          }
 
           if (input.action === "update" && !input.id) {
             throw new TRPCError({
@@ -6229,6 +6696,17 @@ export const appRouter = createTRPCRouter({
               message: "Payroll run not found.",
             });
           }
+
+          if (existingPayrollRun?.lockedAt) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message:
+                "This payroll run is locked after finalization and can no longer be edited. Void it and create a corrected run instead.",
+            });
+          }
+
+          const shouldFinalize = input.mode === "finalize";
+          const now = new Date();
 
           const preview = await buildResortPayrollPreview(
             resortProfile.id,
@@ -6279,6 +6757,7 @@ export const appRouter = createTRPCRouter({
             lockPayrollAfterGeneration: input.lockPayrollAfterGeneration,
             roundingOption: input.roundingOption,
             sendPayslipNotification: input.sendPayslipNotification,
+            mode: input.mode,
           };
 
           const payrollRun = await prisma.$transaction(async (tx) => {
@@ -6296,18 +6775,32 @@ export const appRouter = createTRPCRouter({
                     employerCost: preview.totals.employerCost,
                     excludedEmployees: preview.totals.excludedEmployees,
                     frequency: toResortPayrollFrequency(input.frequency),
-                    generatedAt: new Date(),
+                    generatedAt: now,
                     generatedBy,
                     includedEmployees: preview.totals.includedEmployees,
                     name: input.name,
                     notes: input.notes,
                     options,
+                    backupSnapshot:
+                      shouldFinalize && input.backupPayrollData
+                        ? JSON.parse(JSON.stringify(preview))
+                        : null,
+                    finalizedAt: shouldFinalize ? now : null,
+                    finalizedBy: shouldFinalize ? generatedBy : null,
+                    lockedAt:
+                      shouldFinalize && input.lockPayrollAfterGeneration
+                        ? now
+                        : null,
+                    lockedBy:
+                      shouldFinalize && input.lockPayrollAfterGeneration
+                        ? generatedBy
+                        : null,
                     payDate: input.payDate,
                     payPeriod: preview.payPeriod,
                     payType: toResortPayrollPayType(input.payType),
                     periodEnd: preview.periodEnd,
                     periodStart: preview.periodStart,
-                    status: "COMPLETED",
+                    status: shouldFinalize ? "COMPLETED" : "DRAFT",
                     totalAllowances: preview.totals.totalAllowances,
                     totalBasicSalary: preview.totals.totalBasicSalary,
                     totalBonus: preview.totals.totalBonus,
@@ -6337,18 +6830,32 @@ export const appRouter = createTRPCRouter({
                     employerCost: preview.totals.employerCost,
                     excludedEmployees: preview.totals.excludedEmployees,
                     frequency: toResortPayrollFrequency(input.frequency),
-                    generatedAt: new Date(),
+                    generatedAt: now,
                     generatedBy,
                     includedEmployees: preview.totals.includedEmployees,
                     name: input.name,
                     notes: input.notes,
                     options,
+                    backupSnapshot:
+                      shouldFinalize && input.backupPayrollData
+                        ? JSON.parse(JSON.stringify(preview))
+                        : null,
+                    finalizedAt: shouldFinalize ? now : null,
+                    finalizedBy: shouldFinalize ? generatedBy : null,
+                    lockedAt:
+                      shouldFinalize && input.lockPayrollAfterGeneration
+                        ? now
+                        : null,
+                    lockedBy:
+                      shouldFinalize && input.lockPayrollAfterGeneration
+                        ? generatedBy
+                        : null,
                     payDate: input.payDate,
                     payPeriod: preview.payPeriod,
                     payType: toResortPayrollPayType(input.payType),
                     periodEnd: preview.periodEnd,
                     periodStart: preview.periodStart,
-                    status: "COMPLETED",
+                    status: shouldFinalize ? "COMPLETED" : "DRAFT",
                     resortProfileId: resortProfile.id,
                     totalAllowances: preview.totals.totalAllowances,
                     totalBasicSalary: preview.totals.totalBasicSalary,
@@ -6417,16 +6924,166 @@ export const appRouter = createTRPCRouter({
                 id: savedRun.id,
               },
               include: {
-                items: {
-                  orderBy: {
-                    employeeName: "asc",
-                  },
-                },
+                items: payrollItemsWithProfileImage,
               },
             });
           });
 
+          if (shouldFinalize && input.createJournalEntry && !payrollRun.journalEntryId) {
+            const financeEntry = await prisma.resortFinanceEntry.create({
+              data: {
+                resortProfileId: resortProfile.id,
+                code: `PAY-${payrollRun.code}`,
+                type: "EXPENSE",
+                source: "MANUAL",
+                status: "PENDING",
+                description: `Payroll expense · ${payrollRun.name}`,
+                category: "Payroll",
+                department: payrollRun.department,
+                amount: String(preview.totals.employerCost),
+                entryDate: payrollRun.payDate,
+                notes: `Automatically created from finalized payroll ${payrollRun.code}.`,
+              },
+            });
+            await prisma.resortPayrollRun.update({
+              where: { id: payrollRun.id },
+              data: { journalEntryId: financeEntry.id },
+            });
+            payrollRun.journalEntryId = financeEntry.id;
+          }
+
+          if (shouldFinalize && input.sendPayslipNotification) {
+            const recipients = await prisma.resortPayrollItem.findMany({
+              where: { payrollRunId: payrollRun.id, included: true },
+              include: { staffProfile: { include: { appUser: true } } },
+            });
+            const deliveries = await Promise.allSettled(
+              recipients
+                .filter((item) => Boolean(item.staffProfile.appUser.email))
+                .map((item) =>
+                  sendPayrollPayslipEmail({
+                    resortProfileId: resortProfile.id,
+                    resortName: resortProfile.resortName || "Alrio Private Resort",
+                    recipientEmail: item.staffProfile.appUser.email,
+                    recipientName: item.employeeName,
+                    payrollName: payrollRun.name,
+                    payPeriod: payrollRun.payPeriod,
+                    payDate: payrollRun.payDate,
+                    netPay: decimalNumber(item.netPay),
+                  }),
+                ),
+            );
+            if (deliveries.some((delivery) => delivery.status === "fulfilled")) {
+              await prisma.resortPayrollRun.update({
+                where: { id: payrollRun.id },
+                data: { payslipNotifiedAt: now },
+              });
+              payrollRun.payslipNotifiedAt = now;
+            }
+          }
+
+          if (shouldFinalize) {
+            await safelyRecordStaffActivityForAuthUser(authUser.id, {
+              action: STAFF_ACTIVITY_ACTIONS.workspaceAction,
+              title: "Finalized payroll",
+              detail: `Finalized ${payrollRun.name} for ${payrollRun.payPeriod}.`,
+              actorAuthUserId: authUser.id,
+              metadata: {
+                payrollRunId: payrollRun.id,
+                code: payrollRun.code,
+                totalNetPay: preview.totals.totalNetPay,
+              },
+            });
+          }
+
           return toResortPayrollOutput(payrollRun);
+        }),
+      recordPayment: baseProcedure
+        .input(
+          z.object({
+            id: z.string().trim().min(1),
+            paymentMethod: z
+              .enum(["Bank transfer", "Cash", "GCash", "Other"])
+              .default("Bank transfer"),
+            paymentReference: optionalString,
+          }),
+        )
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+          if (!authUser?.id) {
+            throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+          }
+          await requireResortPermission(authUser.id, "payroll.manage");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const appUser = await prisma.appUser.findUnique({ where: { authUserId: authUser.id } });
+          const payrollRun = await prisma.resortPayrollRun.findFirst({
+            where: { id: input.id, resortProfileId: resortProfile.id },
+          });
+          if (!payrollRun) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Payroll run not found." });
+          }
+          if (payrollRun.status !== "COMPLETED") {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Finalize payroll before recording its payout." });
+          }
+          if (payrollRun.paymentStatus === "PAID") {
+            throw new TRPCError({ code: "CONFLICT", message: "This payroll payout has already been recorded." });
+          }
+          const paidBy = appUser?.displayName || appUser?.email || authUser.email || "Staff";
+          const paidAt = new Date();
+          const saved = await prisma.$transaction(async (tx) => {
+            if (payrollRun.journalEntryId) {
+              await tx.resortFinanceEntry.update({
+                where: { id: payrollRun.journalEntryId },
+                data: { status: "CLEARED", notes: `Payroll payout recorded ${paidAt.toISOString()} via ${input.paymentMethod}${input.paymentReference ? ` (${input.paymentReference})` : ""}.` },
+              });
+            }
+            return tx.resortPayrollRun.update({
+              where: { id: payrollRun.id },
+              data: {
+                paymentStatus: "PAID",
+                paidAt,
+                paidBy,
+                paymentMethod: input.paymentMethod,
+                paymentReference: input.paymentReference ?? null,
+              },
+              include: { items: payrollItemsWithProfileImage },
+            });
+          });
+          await safelyRecordStaffActivityForAuthUser(authUser.id, {
+            action: STAFF_ACTIVITY_ACTIONS.workspaceAction,
+            title: "Recorded payroll payout",
+            detail: `Recorded ${input.paymentMethod} payout for ${saved.name}.`,
+            actorAuthUserId: authUser.id,
+            metadata: { payrollRunId: saved.id, paymentReference: input.paymentReference ?? null },
+          });
+          return toResortPayrollOutput(saved);
+        }),
+      void: baseProcedure
+        .input(z.object({ id: z.string().trim().min(1), reason: z.string().trim().min(3, "Enter a void reason.") }))
+        .mutation(async ({ ctx, input }) => {
+          const authUser = ctx.session?.user;
+          if (!authUser?.id) throw new TRPCError({ code: "UNAUTHORIZED", message: "Sign in required." });
+          await requireResortPermission(authUser.id, "payroll.manage");
+          const resortProfile = await getResortProfileForSession(authUser.id);
+          const payrollRun = await prisma.resortPayrollRun.findFirst({
+            where: { id: input.id, resortProfileId: resortProfile.id },
+            include: { items: payrollItemsWithProfileImage },
+          });
+          if (!payrollRun) throw new TRPCError({ code: "NOT_FOUND", message: "Payroll run not found." });
+          if (payrollRun.paymentStatus === "PAID") {
+            throw new TRPCError({ code: "CONFLICT", message: "A paid payroll cannot be voided. Record an adjustment in Finance instead." });
+          }
+          const saved = await prisma.$transaction(async (tx) => {
+            if (payrollRun.journalEntryId) {
+              await tx.resortFinanceEntry.update({ where: { id: payrollRun.journalEntryId }, data: { status: "CLEARED", notes: `Voided payroll ${payrollRun.code}: ${input.reason}` } });
+            }
+            return tx.resortPayrollRun.update({
+              where: { id: payrollRun.id },
+              data: { status: "VOIDED", lockedAt: new Date(), notes: `${payrollRun.notes ?? ""}${payrollRun.notes ? "\n\n" : ""}Voided: ${input.reason}` },
+              include: { items: payrollItemsWithProfileImage },
+            });
+          });
+          return toResortPayrollOutput(saved);
         }),
       delete: baseProcedure
         .input(
@@ -6457,6 +7114,13 @@ export const appRouter = createTRPCRouter({
             throw new TRPCError({
               code: "NOT_FOUND",
               message: "Payroll run not found.",
+            });
+          }
+
+          if (payrollRun.status !== "DRAFT") {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Only draft payroll runs can be deleted. Void finalized payroll instead to keep an audit trail.",
             });
           }
 
@@ -7441,10 +8105,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const appUrl =
-            process.env.NEXT_PUBLIC_APP_URL ??
-            process.env.BETTER_AUTH_URL ??
-            "http://localhost:3000";
+          const appUrl = await getConfiguredAppUrl(resortProfile.id);
           const workspaceName =
             resortProfile.resortName ??
             "Alrio Private Resort";
@@ -7528,10 +8189,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const appUrl =
-            process.env.NEXT_PUBLIC_APP_URL ??
-            process.env.BETTER_AUTH_URL ??
-            "http://localhost:3000";
+          const appUrl = await getConfiguredAppUrl(resortProfile.id);
           const workspaceName =
             resortProfile.resortName ?? "Alrio Private Resort";
           const token = generateInviteToken();
@@ -10275,10 +10933,7 @@ export const appRouter = createTRPCRouter({
             },
           });
 
-          const appUrl =
-            process.env.NEXT_PUBLIC_APP_URL ??
-            process.env.BETTER_AUTH_URL ??
-            "http://localhost:3000";
+          const appUrl = await getConfiguredAppUrl(resortProfile.id);
           const workspaceName =
             resortProfile.resortName ?? "Alrio Private Resort";
           const reservation = await prisma.resortReservation.create({
@@ -12264,7 +12919,8 @@ export const appRouter = createTRPCRouter({
         }
 
         const resortProfile = await getResortProfileForSession(authUser.id);
-        const configuredPageId = process.env.META_PAGE_ID ?? "";
+        const messengerSettings = await getMessengerSettings(resortProfile.id);
+        const configuredPageId = messengerSettings.pageId ?? "";
         const integration = configuredPageId
           ? await prisma.resortMessengerIntegration.findUnique({
               where: {
@@ -12291,7 +12947,7 @@ export const appRouter = createTRPCRouter({
             ? {
                 pageId: configuredPageId,
                 pageName: integration?.pageName ?? "Alrio Private Resort",
-                webhookUrl: process.env.META_MESSENGER_WEBHOOK_URL ?? "",
+                webhookUrl: messengerSettings.webhookUrl ?? "",
               }
             : null,
         };
@@ -12307,10 +12963,11 @@ export const appRouter = createTRPCRouter({
         }
 
         const resortProfile = await getResortProfileForSession(authUser.id);
-        const pageId = process.env.META_PAGE_ID ?? "";
-        const pageAccessToken = process.env.META_PAGE_ACCESS_TOKEN ?? "";
-        const graphVersion = process.env.META_GRAPH_API_VERSION ?? "v25.0";
-        const webhookUrl = process.env.META_MESSENGER_WEBHOOK_URL ?? "";
+        const messengerSettings = await getMessengerSettings(resortProfile.id);
+        const pageId = messengerSettings.pageId ?? "";
+        const pageAccessToken = messengerSettings.pageAccessToken ?? "";
+        const graphVersion = messengerSettings.graphVersion;
+        const webhookUrl = messengerSettings.webhookUrl ?? "";
         const issues: string[] = [];
         const warnings: string[] = [];
         const checks: string[] = [];
@@ -12321,11 +12978,11 @@ export const appRouter = createTRPCRouter({
         if (!pageAccessToken) issues.push("META_PAGE_ACCESS_TOKEN missing.");
         else checks.push("Page access token configured.");
 
-        if (!process.env.META_VERIFY_TOKEN) {
+        if (!messengerSettings.verifyToken) {
           issues.push("META_VERIFY_TOKEN missing.");
         }
 
-        if (!process.env.META_APP_SECRET) {
+        if (!messengerSettings.appSecret) {
           issues.push(
             "META_APP_SECRET missing. Webhook signature check may fail in production.",
           );
@@ -12548,22 +13205,26 @@ export const appRouter = createTRPCRouter({
           });
         }
 
-        const pageId = process.env.META_PAGE_ID;
+        const resortProfile = await getResortProfileForSession(authUser.id);
+        const messengerSettings = await getMessengerSettings(resortProfile.id);
+        const pageId = messengerSettings.pageId;
+        const pageAccessToken = messengerSettings.pageAccessToken;
+        const verifyToken = messengerSettings.verifyToken;
 
-        if (!pageId) {
+        if (!pageId || !pageAccessToken || !verifyToken) {
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
-            message: "META_PAGE_ID is required.",
+            message:
+              "META_PAGE_ID, META_PAGE_ACCESS_TOKEN, and META_VERIFY_TOKEN are required.",
           });
         }
 
-        const resortProfile = await getResortProfileForSession(authUser.id);
         const integration = await prisma.resortMessengerIntegration.upsert({
           where: {
             pageId,
           },
           create: {
-            pageAccessToken: process.env.META_PAGE_ACCESS_TOKEN,
+            pageAccessToken,
             pageId,
             pageName: "Alrio Private Resort",
             subscribedFields: [
@@ -12572,11 +13233,11 @@ export const appRouter = createTRPCRouter({
               "messaging_referrals",
             ],
             resortProfileId: resortProfile.id,
-            verifyToken: process.env.META_VERIFY_TOKEN,
+            verifyToken,
           },
           update: {
             isActive: true,
-            pageAccessToken: process.env.META_PAGE_ACCESS_TOKEN,
+            pageAccessToken,
             pageName: "Alrio Private Resort",
             subscribedFields: [
               "messages",
@@ -12584,7 +13245,7 @@ export const appRouter = createTRPCRouter({
               "messaging_referrals",
             ],
             resortProfileId: resortProfile.id,
-            verifyToken: process.env.META_VERIFY_TOKEN,
+            verifyToken,
           },
         });
 
@@ -12605,14 +13266,17 @@ export const appRouter = createTRPCRouter({
         }
 
         const resortProfile = await getResortProfileForSession(authUser.id);
-        const pageId = process.env.META_PAGE_ID;
-        const pageAccessToken = process.env.META_PAGE_ACCESS_TOKEN;
-        const graphVersion = process.env.META_GRAPH_API_VERSION ?? "v25.0";
+        const messengerSettings = await getMessengerSettings(resortProfile.id);
+        const pageId = messengerSettings.pageId;
+        const pageAccessToken = messengerSettings.pageAccessToken;
+        const graphVersion = messengerSettings.graphVersion;
+        const verifyToken = messengerSettings.verifyToken;
 
-        if (!pageId || !pageAccessToken) {
+        if (!pageId || !pageAccessToken || !verifyToken) {
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
-            message: "META_PAGE_ID and META_PAGE_ACCESS_TOKEN are required.",
+            message:
+              "META_PAGE_ID, META_PAGE_ACCESS_TOKEN, and META_VERIFY_TOKEN are required.",
           });
         }
 
@@ -12630,7 +13294,7 @@ export const appRouter = createTRPCRouter({
               "messaging_referrals",
             ],
             resortProfileId: resortProfile.id,
-            verifyToken: process.env.META_VERIFY_TOKEN,
+            verifyToken,
           },
           update: {
             isActive: true,
@@ -12641,7 +13305,7 @@ export const appRouter = createTRPCRouter({
               "messaging_referrals",
             ],
             resortProfileId: resortProfile.id,
-            verifyToken: process.env.META_VERIFY_TOKEN,
+            verifyToken,
           },
         });
 
@@ -13115,11 +13779,12 @@ export const appRouter = createTRPCRouter({
             });
           }
 
+          const messengerSettings = await getMessengerSettings(resortProfile.id);
           const pageAccessToken =
             lead.messengerIntegration?.pageAccessToken ??
-            process.env.META_PAGE_ACCESS_TOKEN;
+            messengerSettings.pageAccessToken;
           const pageId =
-            lead.messengerIntegration?.pageId ?? process.env.META_PAGE_ID;
+            lead.messengerIntegration?.pageId ?? messengerSettings.pageId;
 
           if (lead.psid.startsWith("manual:")) {
             throw new TRPCError({
@@ -13135,7 +13800,7 @@ export const appRouter = createTRPCRouter({
             });
           }
 
-          const graphVersion = process.env.META_GRAPH_API_VERSION ?? "v25.0";
+          const graphVersion = messengerSettings.graphVersion;
           const response = await fetch(
             `https://graph.facebook.com/${graphVersion}/me/messages?access_token=${encodeURIComponent(pageAccessToken)}`,
             {

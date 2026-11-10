@@ -45,6 +45,21 @@ export const ourFileRouter = {
       name: file.name,
       url: file.ufsUrl,
     })),
+  landingBrandingUploader: f({ image: { maxFileCount: 1, maxFileSize: "8MB" } })
+    .middleware(async ({ req }) => {
+      const session = await auth.api.getSession({ headers: req.headers });
+      if (!session?.user?.id) throw new UploadThingError({ code: "FORBIDDEN", message: "Sign in to upload branding images." });
+      const appUser = await prisma.appUser.findUnique({
+        where: { authUserId: session.user.id },
+        include: { resortProfile: { select: { id: true } }, staffProfile: { include: { accessRole: { select: { permissions: true } } } } },
+      });
+      const permissions = appUser?.staffProfile?.accessRole.permissions ?? [];
+      if (!appUser?.resortProfile && !permissions.includes("*") && !permissions.includes("settings.branding.manage")) {
+        throw new UploadThingError({ code: "FORBIDDEN", message: "You do not have permission to update landing-page branding." });
+      }
+      return { userId: session.user.id };
+    })
+    .onUploadComplete(async ({ file }) => ({ name: file.name, url: file.ufsUrl })),
   receiptUploader: f({
     image: {
       maxFileCount: 1,

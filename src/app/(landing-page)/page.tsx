@@ -13,10 +13,11 @@ import { LandingSearchBar } from "../_components/landing-search-bar";
 import { LandingTestimonials } from "../_components/landing-testimonials";
 import { LandingContact } from "../_components/landing-contact";
 import { IconArrowRight } from "@tabler/icons-react";
+import { getQueryClient, trpc } from "@/trpc/server";
 
 export const dynamic = "force-dynamic";
 
-const amenityHighlights = [
+const amenityHighlightsFallback = [
   {
     title: "Your own space to unwind",
     description:
@@ -37,7 +38,7 @@ const amenityHighlights = [
   },
 ];
 
-const resortExperiences = [
+const resortExperiencesFallback = [
   {
     category: "Slow down",
     title: "A little poolside pause",
@@ -130,15 +131,22 @@ const guestAvatars = [
 ];
 
 export default async function Home() {
+  const branding = await getQueryClient().fetchQuery(
+    trpc.public.branding.queryOptions(),
+  );
+  const amenityHighlights = branding.amenities.highlights;
+  const resortExperiences = branding.experiences.items;
+  const gallerySources = branding.gallery.imageUrls;
 
   return (
     <main className="min-h-screen">
       <section className="relative z-30 border-b border-zinc-200 bg-zinc-950 text-white">
         <Image
-          src="/hero.jpg"
+          src={branding.hero.imageUrl}
           alt="Alrio private resort"
           fill
           priority
+          unoptimized
           className="object-cover opacity-55"
         />
         <div className="absolute inset-0 bg-linear-to-b from-black/65 via-black/45 to-black/70" />
@@ -154,7 +162,7 @@ export default async function Home() {
                   <Palmtree className="size-4" aria-hidden="true" />
                 </span>
                 <span className="border-l border-white/20 pl-3">
-                  Discover your next private resort escape
+                  {branding.hero.eyebrow}
                 </span>
                 <ChevronRight
                   className="size-4 text-white/70"
@@ -162,13 +170,10 @@ export default async function Home() {
                 />
               </Link>
               <h1 className="text-4xl font-light text-center sm:text-5xl lg:text-6xl">
-                ALRIO PRIVATE RESORT
+                {branding.hero.title}
               </h1>
               <p className="text-center text-zinc-300 mt-4">
-                Welcome to the Alrio Private Resort, your ultimate destination
-                for relaxation and rejuvenation. Nestled in a serene location,
-                our resort offers a perfect blend of luxury and comfort,
-                ensuring an unforgettable experience for every guest.
+                {branding.hero.description}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
                 <Link
@@ -178,7 +183,7 @@ export default async function Home() {
                     "rounded-full px-5",
                   )}
                 >
-                  Explore Now
+                  {branding.hero.primaryCtaLabel}
                 </Link>
                 <Link
                   href="#testimonials"
@@ -187,7 +192,7 @@ export default async function Home() {
                     "rounded-full px-5",
                   )}
                 >
-                  Check what others say
+                  {branding.hero.secondaryCtaLabel}
                 </Link>
               </div>
 
@@ -221,7 +226,7 @@ export default async function Home() {
                 </div>
               </div>
               <p className="mt-4 text-center text-sm font-medium text-white">
-                Loved by families, friends, and celebration groups
+                {branding.hero.trustLabel}
               </p>
             </div>
           </div>
@@ -247,20 +252,20 @@ export default async function Home() {
       >
         <div className="relative isolate w-full rounded-2xl bg-slate-950 px-10 py-15">
           <Image
-            src="/hero.jpg"
+            src={branding.reserve.imageUrl}
             alt=""
             fill
             sizes="(min-width: 1536px) 1440px, 100vw"
             className="-z-20 rounded-2xl object-cover opacity-65"
+            unoptimized
           />
           <div className="absolute inset-0 -z-10 rounded-2xl bg-black/45" />
           <div className="text-center">
             <h2 className="text-3xl font-normal leading-tight tracking-tight text-white lg:text-4xl">
-              Unforgettable private resort moments await.
+              {branding.reserve.title}
             </h2>
             <p className="mt-3 text-base text-white/80">
-              Choose your dates and guests to check availability at Alrio
-              Private Resort.
+              {branding.reserve.description}
             </p>
           </div>
           <LandingSearchBar />
@@ -275,23 +280,24 @@ export default async function Home() {
         <div className="mb-10 flex flex-col gap-5 md:mb-14 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs font-medium uppercase text-zinc-500">
-              The Alrio experience
+              {branding.amenities.eyebrow}
             </p>
             <h2
               id="amenities-heading"
               className="mt-4 text-3xl font-medium tracking-tighter lg:text-5xl"
             >
-              A little escape. A lot to enjoy.
+              {branding.amenities.title}
             </h2>
           </div>
         </div>
         <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
           <div className="relative aspect-4/3 overflow-hidden rounded-2xl bg-zinc-200 lg:aspect-auto lg:min-h-135">
             <Image
-              src="/amenities.jpg"
+              src={branding.amenities.imageUrl}
               alt="Outdoor spaces at Alrio Private Resort"
               fill
               className="object-cover"
+              unoptimized
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 text-white sm:bottom-8 sm:left-8">
@@ -352,11 +358,10 @@ export default async function Home() {
               id="gallery-heading"
               className="text-3xl tracking-tight text-zinc-900"
             >
-              Gallery
+              {branding.gallery.title}
             </h2>
             <p className="mt-3 max-w-md border-t border-zinc-300/70 pt-3 text-sm text-zinc-500">
-              Picture your next escape. Take a closer look at Alrio Private
-              Resort and imagine the moments you&apos;ll share here.
+              {branding.gallery.description}
             </p>
           </div>
           {galleryImages.map((photo, index) => (
@@ -368,12 +373,13 @@ export default async function Home() {
               )}
             >
               <Image
-                src="/amenities.jpg"
+                src={gallerySources[index % gallerySources.length]}
                 alt={`Alrio Private Resort gallery preview ${index + 1}`}
                 fill
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                 style={{ objectPosition: photo.position }}
                 className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-105"
+                unoptimized
               />
             </div>
           ))}
@@ -400,13 +406,13 @@ export default async function Home() {
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-16">
           <div>
             <p className="text-xs uppercase text-zinc-500">
-              Activities & experiences
+              {branding.experiences.eyebrow}
             </p>
             <h2
               id="experiences-heading"
               className="mt-5 text-4xl font-medium tracking-tighter lg:text-5xl"
             >
-              Less hurry. More moments together.
+              {branding.experiences.title}
             </h2>
           </div>
         </div>
@@ -424,11 +430,12 @@ export default async function Home() {
             >
               <div className="relative aspect-4/4.5 overflow-hidden rounded-xl bg-white/5">
                 <Image
-                  src={experience.image}
+                  src={experience.imageUrl}
                   alt="Alrio Private Resort and its poolside surroundings"
                   fill
-                  style={{ objectPosition: experience.position }}
+                  style={{ objectPosition: index === 1 ? "30% 50%" : "50% 60%" }}
                   className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-105"
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-black/10" />
                 <span className="absolute left-5 top-5 text-xs tabular-nums tracking-tight text-white/80">
@@ -470,7 +477,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <LandingTestimonials />
+      <LandingTestimonials content={branding.testimonials} />
       <LandingContact />
     </main>
   );

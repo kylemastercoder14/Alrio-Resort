@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentAppUser } from "@/lib/current-app-user";
 import { createPayMongoCheckout, parseMoney, pesosToCentavos } from "@/lib/paymongo";
 import { prisma } from "@/lib/prisma";
-
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+import { getRuntimeSetting } from "@/lib/runtime-settings";
 
 export async function POST(request: Request) {
   try {
@@ -94,6 +93,7 @@ export async function POST(request: Request) {
     }
 
     const referenceNumber = `ALRIO-${reservation.id.slice(-8).toUpperCase()}-${Date.now()}`;
+    const appUrl = (await getRuntimeSetting(reservation.resortProfileId, "APP_URL")) ?? "http://localhost:3000";
     const successUrl = new URL("/payments/success", appUrl);
     const cancelUrl = new URL(publicInvoice ? `/invoices/${publicInvoice.publicToken}` : "/payments/canceled", appUrl);
     successUrl.searchParams.set("reference", referenceNumber);

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTRPC } from "@/trpc/client";
+import { CURRENT_PERMISSION_IDS } from "../../users-roles/_components/data";
 import { PermissionSheet } from "../../users-roles/_components/user-role-form";
 
 type RoleFormProps = {
@@ -106,7 +107,13 @@ function RoleEditor({
 }) {
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
-  const [selectedIds, setSelectedIds] = useState(initialPermissions);
+  const [selectedIds, setSelectedIds] = useState(() =>
+    initialPermissions.includes("*")
+      ? CURRENT_PERMISSION_IDS
+      : initialPermissions.filter((permission) =>
+          CURRENT_PERMISSION_IDS.includes(permission),
+        ),
+  );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

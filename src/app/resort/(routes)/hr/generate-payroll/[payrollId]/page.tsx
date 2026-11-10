@@ -33,7 +33,7 @@ import {
   StepperTrigger,
 } from "@/components/reusable/stepper";
 import { ResortBreadcrumb } from "@/components/resort/resort-breadcrumb";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -73,6 +73,7 @@ type Employee = {
   id: string;
   included: boolean;
   incentives: number;
+  image: string | null;
   lateCount: number;
   leaveDays: number;
   leaveDeduction: number;
@@ -383,6 +384,13 @@ function getEmployeeColumns({
         return (
           <div className="flex min-w-52 items-center gap-3">
             <Avatar className="size-9 border border-zinc-200">
+              {employee.image ? (
+                <AvatarImage
+                  alt={`${employee.name}'s profile photo`}
+                  className="object-cover"
+                  src={employee.image}
+                />
+              ) : null}
               <AvatarFallback className="bg-blue-50 text-blue-700">
                 {getInitials(employee.name)}
               </AvatarFallback>
@@ -720,12 +728,14 @@ export default function PayrollWizardPage() {
       },
       onSuccess: async (run) => {
         await queryClient.invalidateQueries();
-        toast.success(isCreateMode ? "Payroll generated." : "Payroll updated.");
-        router.push(
-          isCreateMode
-            ? `/resort/hr/generate-payroll/${run.id}`
-            : "/resort/hr/generate-payroll",
+        toast.success(
+          run.status === "DRAFT"
+            ? "Payroll draft saved."
+            : isCreateMode
+              ? "Payroll finalized."
+              : "Payroll updated.",
         );
+        router.push("/resort/hr/generate-payroll");
       },
     }),
   );
@@ -873,7 +883,7 @@ export default function PayrollWizardPage() {
     payrollPreview.isPending ||
     (!isCreateMode && payrollRun.isPending);
 
-  function handleNext() {
+  function handleNext(mode: "draft" | "finalize" = "finalize") {
     if (isViewMode) {
       return;
     }
@@ -888,7 +898,7 @@ export default function PayrollWizardPage() {
       return;
     }
 
-    savePayroll.mutate(payrollInput);
+    savePayroll.mutate({ ...payrollInput, mode });
   }
 
   return (
@@ -917,7 +927,7 @@ export default function PayrollWizardPage() {
               Back
             </Button>
           ) : null}
-          {isViewMode ? (
+          {isViewMode && payrollRun.data?.status === "DRAFT" ? (
             <Button
               size="xs"
               type="button"
@@ -931,11 +941,22 @@ export default function PayrollWizardPage() {
               <Button asChild size="xs" variant="secondary">
                 <Link href="/resort/hr/generate-payroll">Cancel</Link>
               </Button>
+              {step === 4 ? (
+                <Button
+                  size="xs"
+                  type="button"
+                  variant="secondary"
+                  disabled={isSavingDisabled}
+                  onClick={() => handleNext("draft")}
+                >
+                  {savePayroll.isPending ? "Saving..." : "Save draft"}
+                </Button>
+              ) : null}
               <Button
                 size="xs"
                 type="button"
                 disabled={isSavingDisabled}
-                onClick={handleNext}
+                onClick={() => handleNext("finalize")}
               >
                 {savePayroll.isPending ? "Saving..." : nextLabel}
                 <ArrowRight className="size-4" />
@@ -953,7 +974,8 @@ export default function PayrollWizardPage() {
             View payroll
           </h1>
           <p className="mt-1 text-sm text-zinc-500">
-            Read-only payroll details. Use Edit payroll to make changes.
+            Read-only payroll details. Finalized payrolls are locked to preserve
+            the audit trail.
           </p>
         </Card>
       ) : (

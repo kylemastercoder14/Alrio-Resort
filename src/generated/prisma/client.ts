@@ -72,6 +72,16 @@ export type AppUser = Prisma.AppUserModel
  */
 export type ResortProfile = Prisma.ResortProfileModel
 /**
+ * Model ResortDeveloperSetting
+ * 
+ */
+export type ResortDeveloperSetting = Prisma.ResortDeveloperSettingModel
+/**
+ * Model ResortLandingBranding
+ * 
+ */
+export type ResortLandingBranding = Prisma.ResortLandingBrandingModel
+/**
  * Model ResortContactInquiry
  * 
  */
@@ -121,6 +131,16 @@ export type ResortScheduleShift = Prisma.ResortScheduleShiftModel
  * 
  */
 export type ResortLeaveRequest = Prisma.ResortLeaveRequestModel
+/**
+ * Model ResortLeavePolicy
+ * 
+ */
+export type ResortLeavePolicy = Prisma.ResortLeavePolicyModel
+/**
+ * Model ResortLeaveBalance
+ * 
+ */
+export type ResortLeaveBalance = Prisma.ResortLeaveBalanceModel
 /**
  * Model ResortOtUndertimeEntry
  * 

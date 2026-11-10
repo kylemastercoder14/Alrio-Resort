@@ -100,6 +100,17 @@ export type ResortPayrollRunMinAggregateOutputType = {
   totalNetPay: runtime.Decimal | null
   employerContributions: runtime.Decimal | null
   employerCost: runtime.Decimal | null
+  lockedAt: Date | null
+  lockedBy: string | null
+  finalizedAt: Date | null
+  finalizedBy: string | null
+  payslipNotifiedAt: Date | null
+  paymentStatus: $Enums.ResortPayrollPaymentStatus | null
+  paidAt: Date | null
+  paidBy: string | null
+  paymentMethod: string | null
+  paymentReference: string | null
+  journalEntryId: string | null
   generatedBy: string | null
   generatedAt: Date | null
   createdAt: Date | null
@@ -138,6 +149,17 @@ export type ResortPayrollRunMaxAggregateOutputType = {
   totalNetPay: runtime.Decimal | null
   employerContributions: runtime.Decimal | null
   employerCost: runtime.Decimal | null
+  lockedAt: Date | null
+  lockedBy: string | null
+  finalizedAt: Date | null
+  finalizedBy: string | null
+  payslipNotifiedAt: Date | null
+  paymentStatus: $Enums.ResortPayrollPaymentStatus | null
+  paidAt: Date | null
+  paidBy: string | null
+  paymentMethod: string | null
+  paymentReference: string | null
+  journalEntryId: string | null
   generatedBy: string | null
   generatedAt: Date | null
   createdAt: Date | null
@@ -177,6 +199,18 @@ export type ResortPayrollRunCountAggregateOutputType = {
   employerContributions: number
   employerCost: number
   options: number
+  backupSnapshot: number
+  lockedAt: number
+  lockedBy: number
+  finalizedAt: number
+  finalizedBy: number
+  payslipNotifiedAt: number
+  paymentStatus: number
+  paidAt: number
+  paidBy: number
+  paymentMethod: number
+  paymentReference: number
+  journalEntryId: number
   generatedBy: number
   generatedAt: number
   createdAt: number
@@ -259,6 +293,17 @@ export type ResortPayrollRunMinAggregateInputType = {
   totalNetPay?: true
   employerContributions?: true
   employerCost?: true
+  lockedAt?: true
+  lockedBy?: true
+  finalizedAt?: true
+  finalizedBy?: true
+  payslipNotifiedAt?: true
+  paymentStatus?: true
+  paidAt?: true
+  paidBy?: true
+  paymentMethod?: true
+  paymentReference?: true
+  journalEntryId?: true
   generatedBy?: true
   generatedAt?: true
   createdAt?: true
@@ -297,6 +342,17 @@ export type ResortPayrollRunMaxAggregateInputType = {
   totalNetPay?: true
   employerContributions?: true
   employerCost?: true
+  lockedAt?: true
+  lockedBy?: true
+  finalizedAt?: true
+  finalizedBy?: true
+  payslipNotifiedAt?: true
+  paymentStatus?: true
+  paidAt?: true
+  paidBy?: true
+  paymentMethod?: true
+  paymentReference?: true
+  journalEntryId?: true
   generatedBy?: true
   generatedAt?: true
   createdAt?: true
@@ -336,6 +392,18 @@ export type ResortPayrollRunCountAggregateInputType = {
   employerContributions?: true
   employerCost?: true
   options?: true
+  backupSnapshot?: true
+  lockedAt?: true
+  lockedBy?: true
+  finalizedAt?: true
+  finalizedBy?: true
+  payslipNotifiedAt?: true
+  paymentStatus?: true
+  paidAt?: true
+  paidBy?: true
+  paymentMethod?: true
+  paymentReference?: true
+  journalEntryId?: true
   generatedBy?: true
   generatedAt?: true
   createdAt?: true
@@ -462,6 +530,18 @@ export type ResortPayrollRunGroupByOutputType = {
   employerContributions: runtime.Decimal
   employerCost: runtime.Decimal
   options: runtime.JsonValue | null
+  backupSnapshot: runtime.JsonValue | null
+  lockedAt: Date | null
+  lockedBy: string | null
+  finalizedAt: Date | null
+  finalizedBy: string | null
+  payslipNotifiedAt: Date | null
+  paymentStatus: $Enums.ResortPayrollPaymentStatus
+  paidAt: Date | null
+  paidBy: string | null
+  paymentMethod: string | null
+  paymentReference: string | null
+  journalEntryId: string | null
   generatedBy: string | null
   generatedAt: Date | null
   createdAt: Date
@@ -524,6 +604,18 @@ export type ResortPayrollRunWhereInput = {
   employerContributions?: Prisma.DecimalFilter<"ResortPayrollRun"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFilter<"ResortPayrollRun"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.JsonNullableFilter<"ResortPayrollRun">
+  backupSnapshot?: Prisma.JsonNullableFilter<"ResortPayrollRun">
+  lockedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  lockedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  finalizedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  finalizedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  payslipNotifiedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFilter<"ResortPayrollRun"> | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  paidBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  paymentMethod?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  paymentReference?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  journalEntryId?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
   generatedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
   generatedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ResortPayrollRun"> | Date | string
@@ -565,6 +657,18 @@ export type ResortPayrollRunOrderByWithRelationInput = {
   employerContributions?: Prisma.SortOrder
   employerCost?: Prisma.SortOrder
   options?: Prisma.SortOrderInput | Prisma.SortOrder
+  backupSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  lockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lockedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  finalizedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  finalizedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  payslipNotifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paidBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  journalEntryId?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -610,6 +714,18 @@ export type ResortPayrollRunWhereUniqueInput = Prisma.AtLeast<{
   employerContributions?: Prisma.DecimalFilter<"ResortPayrollRun"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFilter<"ResortPayrollRun"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.JsonNullableFilter<"ResortPayrollRun">
+  backupSnapshot?: Prisma.JsonNullableFilter<"ResortPayrollRun">
+  lockedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  lockedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  finalizedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  finalizedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  payslipNotifiedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFilter<"ResortPayrollRun"> | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  paidBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  paymentMethod?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  paymentReference?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  journalEntryId?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
   generatedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
   generatedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ResortPayrollRun"> | Date | string
@@ -651,6 +767,18 @@ export type ResortPayrollRunOrderByWithAggregationInput = {
   employerContributions?: Prisma.SortOrder
   employerCost?: Prisma.SortOrder
   options?: Prisma.SortOrderInput | Prisma.SortOrder
+  backupSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  lockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lockedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  finalizedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  finalizedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  payslipNotifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paidBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  journalEntryId?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -698,6 +826,18 @@ export type ResortPayrollRunScalarWhereWithAggregatesInput = {
   employerContributions?: Prisma.DecimalWithAggregatesFilter<"ResortPayrollRun"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalWithAggregatesFilter<"ResortPayrollRun"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.JsonNullableWithAggregatesFilter<"ResortPayrollRun">
+  backupSnapshot?: Prisma.JsonNullableWithAggregatesFilter<"ResortPayrollRun">
+  lockedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ResortPayrollRun"> | Date | string | null
+  lockedBy?: Prisma.StringNullableWithAggregatesFilter<"ResortPayrollRun"> | string | null
+  finalizedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ResortPayrollRun"> | Date | string | null
+  finalizedBy?: Prisma.StringNullableWithAggregatesFilter<"ResortPayrollRun"> | string | null
+  payslipNotifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ResortPayrollRun"> | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusWithAggregatesFilter<"ResortPayrollRun"> | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ResortPayrollRun"> | Date | string | null
+  paidBy?: Prisma.StringNullableWithAggregatesFilter<"ResortPayrollRun"> | string | null
+  paymentMethod?: Prisma.StringNullableWithAggregatesFilter<"ResortPayrollRun"> | string | null
+  paymentReference?: Prisma.StringNullableWithAggregatesFilter<"ResortPayrollRun"> | string | null
+  journalEntryId?: Prisma.StringNullableWithAggregatesFilter<"ResortPayrollRun"> | string | null
   generatedBy?: Prisma.StringNullableWithAggregatesFilter<"ResortPayrollRun"> | string | null
   generatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ResortPayrollRun"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ResortPayrollRun"> | Date | string
@@ -736,6 +876,18 @@ export type ResortPayrollRunCreateInput = {
   employerContributions?: runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Date | string | null
+  lockedBy?: string | null
+  finalizedAt?: Date | string | null
+  finalizedBy?: string | null
+  payslipNotifiedAt?: Date | string | null
+  paymentStatus?: $Enums.ResortPayrollPaymentStatus
+  paidAt?: Date | string | null
+  paidBy?: string | null
+  paymentMethod?: string | null
+  paymentReference?: string | null
+  journalEntryId?: string | null
   generatedBy?: string | null
   generatedAt?: Date | string | null
   createdAt?: Date | string
@@ -777,6 +929,18 @@ export type ResortPayrollRunUncheckedCreateInput = {
   employerContributions?: runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Date | string | null
+  lockedBy?: string | null
+  finalizedAt?: Date | string | null
+  finalizedBy?: string | null
+  payslipNotifiedAt?: Date | string | null
+  paymentStatus?: $Enums.ResortPayrollPaymentStatus
+  paidAt?: Date | string | null
+  paidBy?: string | null
+  paymentMethod?: string | null
+  paymentReference?: string | null
+  journalEntryId?: string | null
   generatedBy?: string | null
   generatedAt?: Date | string | null
   createdAt?: Date | string
@@ -816,6 +980,18 @@ export type ResortPayrollRunUpdateInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -857,6 +1033,18 @@ export type ResortPayrollRunUncheckedUpdateInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -897,6 +1085,18 @@ export type ResortPayrollRunCreateManyInput = {
   employerContributions?: runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Date | string | null
+  lockedBy?: string | null
+  finalizedAt?: Date | string | null
+  finalizedBy?: string | null
+  payslipNotifiedAt?: Date | string | null
+  paymentStatus?: $Enums.ResortPayrollPaymentStatus
+  paidAt?: Date | string | null
+  paidBy?: string | null
+  paymentMethod?: string | null
+  paymentReference?: string | null
+  journalEntryId?: string | null
   generatedBy?: string | null
   generatedAt?: Date | string | null
   createdAt?: Date | string
@@ -935,6 +1135,18 @@ export type ResortPayrollRunUpdateManyMutationInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -974,6 +1186,18 @@ export type ResortPayrollRunUncheckedUpdateManyInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1028,6 +1252,18 @@ export type ResortPayrollRunCountOrderByAggregateInput = {
   employerContributions?: Prisma.SortOrder
   employerCost?: Prisma.SortOrder
   options?: Prisma.SortOrder
+  backupSnapshot?: Prisma.SortOrder
+  lockedAt?: Prisma.SortOrder
+  lockedBy?: Prisma.SortOrder
+  finalizedAt?: Prisma.SortOrder
+  finalizedBy?: Prisma.SortOrder
+  payslipNotifiedAt?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  paidAt?: Prisma.SortOrder
+  paidBy?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentReference?: Prisma.SortOrder
+  journalEntryId?: Prisma.SortOrder
   generatedBy?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1087,6 +1323,17 @@ export type ResortPayrollRunMaxOrderByAggregateInput = {
   totalNetPay?: Prisma.SortOrder
   employerContributions?: Prisma.SortOrder
   employerCost?: Prisma.SortOrder
+  lockedAt?: Prisma.SortOrder
+  lockedBy?: Prisma.SortOrder
+  finalizedAt?: Prisma.SortOrder
+  finalizedBy?: Prisma.SortOrder
+  payslipNotifiedAt?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  paidAt?: Prisma.SortOrder
+  paidBy?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentReference?: Prisma.SortOrder
+  journalEntryId?: Prisma.SortOrder
   generatedBy?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1125,6 +1372,17 @@ export type ResortPayrollRunMinOrderByAggregateInput = {
   totalNetPay?: Prisma.SortOrder
   employerContributions?: Prisma.SortOrder
   employerCost?: Prisma.SortOrder
+  lockedAt?: Prisma.SortOrder
+  lockedBy?: Prisma.SortOrder
+  finalizedAt?: Prisma.SortOrder
+  finalizedBy?: Prisma.SortOrder
+  payslipNotifiedAt?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  paidAt?: Prisma.SortOrder
+  paidBy?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentReference?: Prisma.SortOrder
+  journalEntryId?: Prisma.SortOrder
   generatedBy?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1211,6 +1469,10 @@ export type EnumResortPayrollRunStatusFieldUpdateOperationsInput = {
   set?: $Enums.ResortPayrollRunStatus
 }
 
+export type EnumResortPayrollPaymentStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ResortPayrollPaymentStatus
+}
+
 export type ResortPayrollRunCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.ResortPayrollRunCreateWithoutItemsInput, Prisma.ResortPayrollRunUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.ResortPayrollRunCreateOrConnectWithoutItemsInput
@@ -1257,6 +1519,18 @@ export type ResortPayrollRunCreateWithoutResortProfileInput = {
   employerContributions?: runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Date | string | null
+  lockedBy?: string | null
+  finalizedAt?: Date | string | null
+  finalizedBy?: string | null
+  payslipNotifiedAt?: Date | string | null
+  paymentStatus?: $Enums.ResortPayrollPaymentStatus
+  paidAt?: Date | string | null
+  paidBy?: string | null
+  paymentMethod?: string | null
+  paymentReference?: string | null
+  journalEntryId?: string | null
   generatedBy?: string | null
   generatedAt?: Date | string | null
   createdAt?: Date | string
@@ -1296,6 +1570,18 @@ export type ResortPayrollRunUncheckedCreateWithoutResortProfileInput = {
   employerContributions?: runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Date | string | null
+  lockedBy?: string | null
+  finalizedAt?: Date | string | null
+  finalizedBy?: string | null
+  payslipNotifiedAt?: Date | string | null
+  paymentStatus?: $Enums.ResortPayrollPaymentStatus
+  paidAt?: Date | string | null
+  paidBy?: string | null
+  paymentMethod?: string | null
+  paymentReference?: string | null
+  journalEntryId?: string | null
   generatedBy?: string | null
   generatedAt?: Date | string | null
   createdAt?: Date | string
@@ -1365,6 +1651,18 @@ export type ResortPayrollRunScalarWhereInput = {
   employerContributions?: Prisma.DecimalFilter<"ResortPayrollRun"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFilter<"ResortPayrollRun"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.JsonNullableFilter<"ResortPayrollRun">
+  backupSnapshot?: Prisma.JsonNullableFilter<"ResortPayrollRun">
+  lockedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  lockedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  finalizedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  finalizedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  payslipNotifiedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFilter<"ResortPayrollRun"> | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
+  paidBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  paymentMethod?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  paymentReference?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
+  journalEntryId?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
   generatedBy?: Prisma.StringNullableFilter<"ResortPayrollRun"> | string | null
   generatedAt?: Prisma.DateTimeNullableFilter<"ResortPayrollRun"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ResortPayrollRun"> | Date | string
@@ -1403,6 +1701,18 @@ export type ResortPayrollRunCreateWithoutItemsInput = {
   employerContributions?: runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Date | string | null
+  lockedBy?: string | null
+  finalizedAt?: Date | string | null
+  finalizedBy?: string | null
+  payslipNotifiedAt?: Date | string | null
+  paymentStatus?: $Enums.ResortPayrollPaymentStatus
+  paidAt?: Date | string | null
+  paidBy?: string | null
+  paymentMethod?: string | null
+  paymentReference?: string | null
+  journalEntryId?: string | null
   generatedBy?: string | null
   generatedAt?: Date | string | null
   createdAt?: Date | string
@@ -1443,6 +1753,18 @@ export type ResortPayrollRunUncheckedCreateWithoutItemsInput = {
   employerContributions?: runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Date | string | null
+  lockedBy?: string | null
+  finalizedAt?: Date | string | null
+  finalizedBy?: string | null
+  payslipNotifiedAt?: Date | string | null
+  paymentStatus?: $Enums.ResortPayrollPaymentStatus
+  paidAt?: Date | string | null
+  paidBy?: string | null
+  paymentMethod?: string | null
+  paymentReference?: string | null
+  journalEntryId?: string | null
   generatedBy?: string | null
   generatedAt?: Date | string | null
   createdAt?: Date | string
@@ -1497,6 +1819,18 @@ export type ResortPayrollRunUpdateWithoutItemsInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1537,6 +1871,18 @@ export type ResortPayrollRunUncheckedUpdateWithoutItemsInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1575,6 +1921,18 @@ export type ResortPayrollRunCreateManyResortProfileInput = {
   employerContributions?: runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Date | string | null
+  lockedBy?: string | null
+  finalizedAt?: Date | string | null
+  finalizedBy?: string | null
+  payslipNotifiedAt?: Date | string | null
+  paymentStatus?: $Enums.ResortPayrollPaymentStatus
+  paidAt?: Date | string | null
+  paidBy?: string | null
+  paymentMethod?: string | null
+  paymentReference?: string | null
+  journalEntryId?: string | null
   generatedBy?: string | null
   generatedAt?: Date | string | null
   createdAt?: Date | string
@@ -1613,6 +1971,18 @@ export type ResortPayrollRunUpdateWithoutResortProfileInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1652,6 +2022,18 @@ export type ResortPayrollRunUncheckedUpdateWithoutResortProfileInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1691,6 +2073,18 @@ export type ResortPayrollRunUncheckedUpdateManyWithoutResortProfileInput = {
   employerContributions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   employerCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   options?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  backupSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lockedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payslipNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentStatus?: Prisma.EnumResortPayrollPaymentStatusFieldUpdateOperationsInput | $Enums.ResortPayrollPaymentStatus
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paidBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  journalEntryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1761,6 +2155,18 @@ export type ResortPayrollRunSelect<ExtArgs extends runtime.Types.Extensions.Inte
   employerContributions?: boolean
   employerCost?: boolean
   options?: boolean
+  backupSnapshot?: boolean
+  lockedAt?: boolean
+  lockedBy?: boolean
+  finalizedAt?: boolean
+  finalizedBy?: boolean
+  payslipNotifiedAt?: boolean
+  paymentStatus?: boolean
+  paidAt?: boolean
+  paidBy?: boolean
+  paymentMethod?: boolean
+  paymentReference?: boolean
+  journalEntryId?: boolean
   generatedBy?: boolean
   generatedAt?: boolean
   createdAt?: boolean
@@ -1803,6 +2209,18 @@ export type ResortPayrollRunSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   employerContributions?: boolean
   employerCost?: boolean
   options?: boolean
+  backupSnapshot?: boolean
+  lockedAt?: boolean
+  lockedBy?: boolean
+  finalizedAt?: boolean
+  finalizedBy?: boolean
+  payslipNotifiedAt?: boolean
+  paymentStatus?: boolean
+  paidAt?: boolean
+  paidBy?: boolean
+  paymentMethod?: boolean
+  paymentReference?: boolean
+  journalEntryId?: boolean
   generatedBy?: boolean
   generatedAt?: boolean
   createdAt?: boolean
@@ -1843,6 +2261,18 @@ export type ResortPayrollRunSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   employerContributions?: boolean
   employerCost?: boolean
   options?: boolean
+  backupSnapshot?: boolean
+  lockedAt?: boolean
+  lockedBy?: boolean
+  finalizedAt?: boolean
+  finalizedBy?: boolean
+  payslipNotifiedAt?: boolean
+  paymentStatus?: boolean
+  paidAt?: boolean
+  paidBy?: boolean
+  paymentMethod?: boolean
+  paymentReference?: boolean
+  journalEntryId?: boolean
   generatedBy?: boolean
   generatedAt?: boolean
   createdAt?: boolean
@@ -1883,13 +2313,25 @@ export type ResortPayrollRunSelectScalar = {
   employerContributions?: boolean
   employerCost?: boolean
   options?: boolean
+  backupSnapshot?: boolean
+  lockedAt?: boolean
+  lockedBy?: boolean
+  finalizedAt?: boolean
+  finalizedBy?: boolean
+  payslipNotifiedAt?: boolean
+  paymentStatus?: boolean
+  paidAt?: boolean
+  paidBy?: boolean
+  paymentMethod?: boolean
+  paymentReference?: boolean
+  journalEntryId?: boolean
   generatedBy?: boolean
   generatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ResortPayrollRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "resortProfileId" | "code" | "name" | "payPeriod" | "periodStart" | "periodEnd" | "payDate" | "payType" | "frequency" | "department" | "notes" | "status" | "totalEmployees" | "includedEmployees" | "excludedEmployees" | "totalBasicSalary" | "totalAllowances" | "totalIncentives" | "totalCommission" | "totalBonus" | "totalOvertimePay" | "totalGrossPay" | "totalLeaveDeductions" | "totalUndertimeDeductions" | "totalGovernmentDeductions" | "totalOtherDeductions" | "totalDeductions" | "totalNetPay" | "employerContributions" | "employerCost" | "options" | "generatedBy" | "generatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["resortPayrollRun"]>
+export type ResortPayrollRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "resortProfileId" | "code" | "name" | "payPeriod" | "periodStart" | "periodEnd" | "payDate" | "payType" | "frequency" | "department" | "notes" | "status" | "totalEmployees" | "includedEmployees" | "excludedEmployees" | "totalBasicSalary" | "totalAllowances" | "totalIncentives" | "totalCommission" | "totalBonus" | "totalOvertimePay" | "totalGrossPay" | "totalLeaveDeductions" | "totalUndertimeDeductions" | "totalGovernmentDeductions" | "totalOtherDeductions" | "totalDeductions" | "totalNetPay" | "employerContributions" | "employerCost" | "options" | "backupSnapshot" | "lockedAt" | "lockedBy" | "finalizedAt" | "finalizedBy" | "payslipNotifiedAt" | "paymentStatus" | "paidAt" | "paidBy" | "paymentMethod" | "paymentReference" | "journalEntryId" | "generatedBy" | "generatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["resortPayrollRun"]>
 export type ResortPayrollRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resortProfile?: boolean | Prisma.ResortProfileDefaultArgs<ExtArgs>
   items?: boolean | Prisma.ResortPayrollRun$itemsArgs<ExtArgs>
@@ -1941,6 +2383,18 @@ export type $ResortPayrollRunPayload<ExtArgs extends runtime.Types.Extensions.In
     employerContributions: runtime.Decimal
     employerCost: runtime.Decimal
     options: runtime.JsonValue | null
+    backupSnapshot: runtime.JsonValue | null
+    lockedAt: Date | null
+    lockedBy: string | null
+    finalizedAt: Date | null
+    finalizedBy: string | null
+    payslipNotifiedAt: Date | null
+    paymentStatus: $Enums.ResortPayrollPaymentStatus
+    paidAt: Date | null
+    paidBy: string | null
+    paymentMethod: string | null
+    paymentReference: string | null
+    journalEntryId: string | null
     generatedBy: string | null
     generatedAt: Date | null
     createdAt: Date
@@ -2402,6 +2856,18 @@ export interface ResortPayrollRunFieldRefs {
   readonly employerContributions: Prisma.FieldRef<"ResortPayrollRun", 'Decimal'>
   readonly employerCost: Prisma.FieldRef<"ResortPayrollRun", 'Decimal'>
   readonly options: Prisma.FieldRef<"ResortPayrollRun", 'Json'>
+  readonly backupSnapshot: Prisma.FieldRef<"ResortPayrollRun", 'Json'>
+  readonly lockedAt: Prisma.FieldRef<"ResortPayrollRun", 'DateTime'>
+  readonly lockedBy: Prisma.FieldRef<"ResortPayrollRun", 'String'>
+  readonly finalizedAt: Prisma.FieldRef<"ResortPayrollRun", 'DateTime'>
+  readonly finalizedBy: Prisma.FieldRef<"ResortPayrollRun", 'String'>
+  readonly payslipNotifiedAt: Prisma.FieldRef<"ResortPayrollRun", 'DateTime'>
+  readonly paymentStatus: Prisma.FieldRef<"ResortPayrollRun", 'ResortPayrollPaymentStatus'>
+  readonly paidAt: Prisma.FieldRef<"ResortPayrollRun", 'DateTime'>
+  readonly paidBy: Prisma.FieldRef<"ResortPayrollRun", 'String'>
+  readonly paymentMethod: Prisma.FieldRef<"ResortPayrollRun", 'String'>
+  readonly paymentReference: Prisma.FieldRef<"ResortPayrollRun", 'String'>
+  readonly journalEntryId: Prisma.FieldRef<"ResortPayrollRun", 'String'>
   readonly generatedBy: Prisma.FieldRef<"ResortPayrollRun", 'String'>
   readonly generatedAt: Prisma.FieldRef<"ResortPayrollRun", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"ResortPayrollRun", 'DateTime'>

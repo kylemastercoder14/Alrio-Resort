@@ -71,6 +71,14 @@ export const ResortPayrollRunStatus = {
 export type ResortPayrollRunStatus = (typeof ResortPayrollRunStatus)[keyof typeof ResortPayrollRunStatus]
 
 
+export const ResortPayrollPaymentStatus = {
+  UNPAID: 'UNPAID',
+  PAID: 'PAID'
+} as const
+
+export type ResortPayrollPaymentStatus = (typeof ResortPayrollPaymentStatus)[keyof typeof ResortPayrollPaymentStatus]
+
+
 export const ResortPayrollPayType = {
   REGULAR: 'REGULAR',
   FINAL: 'FINAL'

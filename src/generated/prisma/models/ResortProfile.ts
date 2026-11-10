@@ -284,10 +284,14 @@ export type ResortProfileWhereInput = {
   timeLogs?: Prisma.ResortTimeLogListRelationFilter
   scheduleShifts?: Prisma.ResortScheduleShiftListRelationFilter
   leaveRequests?: Prisma.ResortLeaveRequestListRelationFilter
+  leavePolicies?: Prisma.ResortLeavePolicyListRelationFilter
+  leaveBalances?: Prisma.ResortLeaveBalanceListRelationFilter
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryListRelationFilter
   payrollRuns?: Prisma.ResortPayrollRunListRelationFilter
   payrollItems?: Prisma.ResortPayrollItemListRelationFilter
   staffActivityLogs?: Prisma.ResortStaffActivityLogListRelationFilter
+  developerSettings?: Prisma.ResortDeveloperSettingListRelationFilter
+  landingBranding?: Prisma.XOR<Prisma.ResortLandingBrandingNullableScalarRelationFilter, Prisma.ResortLandingBrandingWhereInput> | null
 }
 
 export type ResortProfileOrderByWithRelationInput = {
@@ -335,10 +339,14 @@ export type ResortProfileOrderByWithRelationInput = {
   timeLogs?: Prisma.ResortTimeLogOrderByRelationAggregateInput
   scheduleShifts?: Prisma.ResortScheduleShiftOrderByRelationAggregateInput
   leaveRequests?: Prisma.ResortLeaveRequestOrderByRelationAggregateInput
+  leavePolicies?: Prisma.ResortLeavePolicyOrderByRelationAggregateInput
+  leaveBalances?: Prisma.ResortLeaveBalanceOrderByRelationAggregateInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryOrderByRelationAggregateInput
   payrollRuns?: Prisma.ResortPayrollRunOrderByRelationAggregateInput
   payrollItems?: Prisma.ResortPayrollItemOrderByRelationAggregateInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogOrderByRelationAggregateInput
+  developerSettings?: Prisma.ResortDeveloperSettingOrderByRelationAggregateInput
+  landingBranding?: Prisma.ResortLandingBrandingOrderByWithRelationInput
 }
 
 export type ResortProfileWhereUniqueInput = Prisma.AtLeast<{
@@ -389,10 +397,14 @@ export type ResortProfileWhereUniqueInput = Prisma.AtLeast<{
   timeLogs?: Prisma.ResortTimeLogListRelationFilter
   scheduleShifts?: Prisma.ResortScheduleShiftListRelationFilter
   leaveRequests?: Prisma.ResortLeaveRequestListRelationFilter
+  leavePolicies?: Prisma.ResortLeavePolicyListRelationFilter
+  leaveBalances?: Prisma.ResortLeaveBalanceListRelationFilter
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryListRelationFilter
   payrollRuns?: Prisma.ResortPayrollRunListRelationFilter
   payrollItems?: Prisma.ResortPayrollItemListRelationFilter
   staffActivityLogs?: Prisma.ResortStaffActivityLogListRelationFilter
+  developerSettings?: Prisma.ResortDeveloperSettingListRelationFilter
+  landingBranding?: Prisma.XOR<Prisma.ResortLandingBrandingNullableScalarRelationFilter, Prisma.ResortLandingBrandingWhereInput> | null
 }, "id" | "appUserId">
 
 export type ResortProfileOrderByWithAggregationInput = {
@@ -479,10 +491,14 @@ export type ResortProfileCreateInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateInput = {
@@ -529,10 +545,14 @@ export type ResortProfileUncheckedCreateInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUpdateInput = {
@@ -579,10 +599,14 @@ export type ResortProfileUpdateInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateInput = {
@@ -629,10 +653,14 @@ export type ResortProfileUncheckedUpdateInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateManyInput = {
@@ -778,6 +806,34 @@ export type ResortProfileUncheckedUpdateOneWithoutAppUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResortProfileUpdateToOneWithWhereWithoutAppUserInput, Prisma.ResortProfileUpdateWithoutAppUserInput>, Prisma.ResortProfileUncheckedUpdateWithoutAppUserInput>
 }
 
+export type ResortProfileCreateNestedOneWithoutDeveloperSettingsInput = {
+  create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutDeveloperSettingsInput, Prisma.ResortProfileUncheckedCreateWithoutDeveloperSettingsInput>
+  connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutDeveloperSettingsInput
+  connect?: Prisma.ResortProfileWhereUniqueInput
+}
+
+export type ResortProfileUpdateOneRequiredWithoutDeveloperSettingsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutDeveloperSettingsInput, Prisma.ResortProfileUncheckedCreateWithoutDeveloperSettingsInput>
+  connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutDeveloperSettingsInput
+  upsert?: Prisma.ResortProfileUpsertWithoutDeveloperSettingsInput
+  connect?: Prisma.ResortProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResortProfileUpdateToOneWithWhereWithoutDeveloperSettingsInput, Prisma.ResortProfileUpdateWithoutDeveloperSettingsInput>, Prisma.ResortProfileUncheckedUpdateWithoutDeveloperSettingsInput>
+}
+
+export type ResortProfileCreateNestedOneWithoutLandingBrandingInput = {
+  create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutLandingBrandingInput, Prisma.ResortProfileUncheckedCreateWithoutLandingBrandingInput>
+  connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutLandingBrandingInput
+  connect?: Prisma.ResortProfileWhereUniqueInput
+}
+
+export type ResortProfileUpdateOneRequiredWithoutLandingBrandingNestedInput = {
+  create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutLandingBrandingInput, Prisma.ResortProfileUncheckedCreateWithoutLandingBrandingInput>
+  connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutLandingBrandingInput
+  upsert?: Prisma.ResortProfileUpsertWithoutLandingBrandingInput
+  connect?: Prisma.ResortProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResortProfileUpdateToOneWithWhereWithoutLandingBrandingInput, Prisma.ResortProfileUpdateWithoutLandingBrandingInput>, Prisma.ResortProfileUncheckedUpdateWithoutLandingBrandingInput>
+}
+
 export type ResortProfileCreateNestedOneWithoutContactInquiriesInput = {
   create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutContactInquiriesInput, Prisma.ResortProfileUncheckedCreateWithoutContactInquiriesInput>
   connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutContactInquiriesInput
@@ -902,6 +958,34 @@ export type ResortProfileUpdateOneRequiredWithoutLeaveRequestsNestedInput = {
   upsert?: Prisma.ResortProfileUpsertWithoutLeaveRequestsInput
   connect?: Prisma.ResortProfileWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResortProfileUpdateToOneWithWhereWithoutLeaveRequestsInput, Prisma.ResortProfileUpdateWithoutLeaveRequestsInput>, Prisma.ResortProfileUncheckedUpdateWithoutLeaveRequestsInput>
+}
+
+export type ResortProfileCreateNestedOneWithoutLeavePoliciesInput = {
+  create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutLeavePoliciesInput, Prisma.ResortProfileUncheckedCreateWithoutLeavePoliciesInput>
+  connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutLeavePoliciesInput
+  connect?: Prisma.ResortProfileWhereUniqueInput
+}
+
+export type ResortProfileUpdateOneRequiredWithoutLeavePoliciesNestedInput = {
+  create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutLeavePoliciesInput, Prisma.ResortProfileUncheckedCreateWithoutLeavePoliciesInput>
+  connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutLeavePoliciesInput
+  upsert?: Prisma.ResortProfileUpsertWithoutLeavePoliciesInput
+  connect?: Prisma.ResortProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResortProfileUpdateToOneWithWhereWithoutLeavePoliciesInput, Prisma.ResortProfileUpdateWithoutLeavePoliciesInput>, Prisma.ResortProfileUncheckedUpdateWithoutLeavePoliciesInput>
+}
+
+export type ResortProfileCreateNestedOneWithoutLeaveBalancesInput = {
+  create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutLeaveBalancesInput, Prisma.ResortProfileUncheckedCreateWithoutLeaveBalancesInput>
+  connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutLeaveBalancesInput
+  connect?: Prisma.ResortProfileWhereUniqueInput
+}
+
+export type ResortProfileUpdateOneRequiredWithoutLeaveBalancesNestedInput = {
+  create?: Prisma.XOR<Prisma.ResortProfileCreateWithoutLeaveBalancesInput, Prisma.ResortProfileUncheckedCreateWithoutLeaveBalancesInput>
+  connectOrCreate?: Prisma.ResortProfileCreateOrConnectWithoutLeaveBalancesInput
+  upsert?: Prisma.ResortProfileUpsertWithoutLeaveBalancesInput
+  connect?: Prisma.ResortProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResortProfileUpdateToOneWithWhereWithoutLeaveBalancesInput, Prisma.ResortProfileUpdateWithoutLeaveBalancesInput>, Prisma.ResortProfileUncheckedUpdateWithoutLeaveBalancesInput>
 }
 
 export type ResortProfileCreateNestedOneWithoutOtUndertimeEntriesInput = {
@@ -1283,10 +1367,14 @@ export type ResortProfileCreateWithoutAppUserInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutAppUserInput = {
@@ -1332,10 +1420,14 @@ export type ResortProfileUncheckedCreateWithoutAppUserInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutAppUserInput = {
@@ -1397,10 +1489,14 @@ export type ResortProfileUpdateWithoutAppUserInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutAppUserInput = {
@@ -1446,10 +1542,470 @@ export type ResortProfileUncheckedUpdateWithoutAppUserInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
+}
+
+export type ResortProfileCreateWithoutDeveloperSettingsInput = {
+  id?: string
+  resortName?: string
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appUser: Prisma.AppUserCreateNestedOneWithoutResortProfileInput
+  departments?: Prisma.ResortDepartmentCreateNestedManyWithoutResortProfileInput
+  amenities?: Prisma.ResortAmenityCreateNestedManyWithoutResortProfileInput
+  rooms?: Prisma.ResortRoomCreateNestedManyWithoutResortProfileInput
+  reservations?: Prisma.ResortReservationCreateNestedManyWithoutResortProfileInput
+  services?: Prisma.ResortServiceCreateNestedManyWithoutResortProfileInput
+  packages?: Prisma.ResortPackageCreateNestedManyWithoutResortProfileInput
+  invoices?: Prisma.ResortInvoiceCreateNestedManyWithoutResortProfileInput
+  financeEntries?: Prisma.ResortFinanceEntryCreateNestedManyWithoutResortProfileInput
+  transactionExports?: Prisma.ResortTransactionExportCreateNestedManyWithoutResortProfileInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationCreateNestedManyWithoutResortProfileInput
+  leads?: Prisma.ResortLeadCreateNestedManyWithoutResortProfileInput
+  contactInquiries?: Prisma.ResortContactInquiryCreateNestedManyWithoutResortProfileInput
+  folioCharges?: Prisma.ResortFolioChargeCreateNestedManyWithoutResortProfileInput
+  paymentLogs?: Prisma.ResortPaymentLogCreateNestedManyWithoutResortProfileInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutCreateNestedManyWithoutResortProfileInput
+  receptionRequests?: Prisma.ResortReceptionRequestCreateNestedManyWithoutResortProfileInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteCreateNestedManyWithoutResortProfileInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestCreateNestedManyWithoutResortProfileInput
+  inventoryItems?: Prisma.ResortInventoryItemCreateNestedManyWithoutResortProfileInput
+  inventoryMovements?: Prisma.ResortInventoryMovementCreateNestedManyWithoutResortProfileInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomCreateNestedManyWithoutResortProfileInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportCreateNestedManyWithoutResortProfileInput
+  laundryJobs?: Prisma.ResortLaundryJobCreateNestedManyWithoutResortProfileInput
+  staffProfiles?: Prisma.ResortStaffProfileCreateNestedManyWithoutResortProfileInput
+  accessRoles?: Prisma.ResortAccessRoleCreateNestedManyWithoutResortProfileInput
+  staffInvitations?: Prisma.ResortStaffInvitationCreateNestedManyWithoutResortProfileInput
+  timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
+  scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
+  leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
+  payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
+  payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
+}
+
+export type ResortProfileUncheckedCreateWithoutDeveloperSettingsInput = {
+  id?: string
+  appUserId: string
+  resortName?: string
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  departments?: Prisma.ResortDepartmentUncheckedCreateNestedManyWithoutResortProfileInput
+  amenities?: Prisma.ResortAmenityUncheckedCreateNestedManyWithoutResortProfileInput
+  rooms?: Prisma.ResortRoomUncheckedCreateNestedManyWithoutResortProfileInput
+  reservations?: Prisma.ResortReservationUncheckedCreateNestedManyWithoutResortProfileInput
+  services?: Prisma.ResortServiceUncheckedCreateNestedManyWithoutResortProfileInput
+  packages?: Prisma.ResortPackageUncheckedCreateNestedManyWithoutResortProfileInput
+  invoices?: Prisma.ResortInvoiceUncheckedCreateNestedManyWithoutResortProfileInput
+  financeEntries?: Prisma.ResortFinanceEntryUncheckedCreateNestedManyWithoutResortProfileInput
+  transactionExports?: Prisma.ResortTransactionExportUncheckedCreateNestedManyWithoutResortProfileInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUncheckedCreateNestedManyWithoutResortProfileInput
+  leads?: Prisma.ResortLeadUncheckedCreateNestedManyWithoutResortProfileInput
+  contactInquiries?: Prisma.ResortContactInquiryUncheckedCreateNestedManyWithoutResortProfileInput
+  folioCharges?: Prisma.ResortFolioChargeUncheckedCreateNestedManyWithoutResortProfileInput
+  paymentLogs?: Prisma.ResortPaymentLogUncheckedCreateNestedManyWithoutResortProfileInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUncheckedCreateNestedManyWithoutResortProfileInput
+  receptionRequests?: Prisma.ResortReceptionRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUncheckedCreateNestedManyWithoutResortProfileInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  inventoryItems?: Prisma.ResortInventoryItemUncheckedCreateNestedManyWithoutResortProfileInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUncheckedCreateNestedManyWithoutResortProfileInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUncheckedCreateNestedManyWithoutResortProfileInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUncheckedCreateNestedManyWithoutResortProfileInput
+  laundryJobs?: Prisma.ResortLaundryJobUncheckedCreateNestedManyWithoutResortProfileInput
+  staffProfiles?: Prisma.ResortStaffProfileUncheckedCreateNestedManyWithoutResortProfileInput
+  accessRoles?: Prisma.ResortAccessRoleUncheckedCreateNestedManyWithoutResortProfileInput
+  staffInvitations?: Prisma.ResortStaffInvitationUncheckedCreateNestedManyWithoutResortProfileInput
+  timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
+  payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
+  payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
+}
+
+export type ResortProfileCreateOrConnectWithoutDeveloperSettingsInput = {
+  where: Prisma.ResortProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResortProfileCreateWithoutDeveloperSettingsInput, Prisma.ResortProfileUncheckedCreateWithoutDeveloperSettingsInput>
+}
+
+export type ResortProfileUpsertWithoutDeveloperSettingsInput = {
+  update: Prisma.XOR<Prisma.ResortProfileUpdateWithoutDeveloperSettingsInput, Prisma.ResortProfileUncheckedUpdateWithoutDeveloperSettingsInput>
+  create: Prisma.XOR<Prisma.ResortProfileCreateWithoutDeveloperSettingsInput, Prisma.ResortProfileUncheckedCreateWithoutDeveloperSettingsInput>
+  where?: Prisma.ResortProfileWhereInput
+}
+
+export type ResortProfileUpdateToOneWithWhereWithoutDeveloperSettingsInput = {
+  where?: Prisma.ResortProfileWhereInput
+  data: Prisma.XOR<Prisma.ResortProfileUpdateWithoutDeveloperSettingsInput, Prisma.ResortProfileUncheckedUpdateWithoutDeveloperSettingsInput>
+}
+
+export type ResortProfileUpdateWithoutDeveloperSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.StringFieldUpdateOperationsInput | string
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appUser?: Prisma.AppUserUpdateOneRequiredWithoutResortProfileNestedInput
+  departments?: Prisma.ResortDepartmentUpdateManyWithoutResortProfileNestedInput
+  amenities?: Prisma.ResortAmenityUpdateManyWithoutResortProfileNestedInput
+  rooms?: Prisma.ResortRoomUpdateManyWithoutResortProfileNestedInput
+  reservations?: Prisma.ResortReservationUpdateManyWithoutResortProfileNestedInput
+  services?: Prisma.ResortServiceUpdateManyWithoutResortProfileNestedInput
+  packages?: Prisma.ResortPackageUpdateManyWithoutResortProfileNestedInput
+  invoices?: Prisma.ResortInvoiceUpdateManyWithoutResortProfileNestedInput
+  financeEntries?: Prisma.ResortFinanceEntryUpdateManyWithoutResortProfileNestedInput
+  transactionExports?: Prisma.ResortTransactionExportUpdateManyWithoutResortProfileNestedInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUpdateManyWithoutResortProfileNestedInput
+  leads?: Prisma.ResortLeadUpdateManyWithoutResortProfileNestedInput
+  contactInquiries?: Prisma.ResortContactInquiryUpdateManyWithoutResortProfileNestedInput
+  folioCharges?: Prisma.ResortFolioChargeUpdateManyWithoutResortProfileNestedInput
+  paymentLogs?: Prisma.ResortPaymentLogUpdateManyWithoutResortProfileNestedInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUpdateManyWithoutResortProfileNestedInput
+  receptionRequests?: Prisma.ResortReceptionRequestUpdateManyWithoutResortProfileNestedInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUpdateManyWithoutResortProfileNestedInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUpdateManyWithoutResortProfileNestedInput
+  inventoryItems?: Prisma.ResortInventoryItemUpdateManyWithoutResortProfileNestedInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUpdateManyWithoutResortProfileNestedInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUpdateManyWithoutResortProfileNestedInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUpdateManyWithoutResortProfileNestedInput
+  laundryJobs?: Prisma.ResortLaundryJobUpdateManyWithoutResortProfileNestedInput
+  staffProfiles?: Prisma.ResortStaffProfileUpdateManyWithoutResortProfileNestedInput
+  accessRoles?: Prisma.ResortAccessRoleUpdateManyWithoutResortProfileNestedInput
+  staffInvitations?: Prisma.ResortStaffInvitationUpdateManyWithoutResortProfileNestedInput
+  timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
+  leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
+  payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
+  payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
+}
+
+export type ResortProfileUncheckedUpdateWithoutDeveloperSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.StringFieldUpdateOperationsInput | string
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.ResortDepartmentUncheckedUpdateManyWithoutResortProfileNestedInput
+  amenities?: Prisma.ResortAmenityUncheckedUpdateManyWithoutResortProfileNestedInput
+  rooms?: Prisma.ResortRoomUncheckedUpdateManyWithoutResortProfileNestedInput
+  reservations?: Prisma.ResortReservationUncheckedUpdateManyWithoutResortProfileNestedInput
+  services?: Prisma.ResortServiceUncheckedUpdateManyWithoutResortProfileNestedInput
+  packages?: Prisma.ResortPackageUncheckedUpdateManyWithoutResortProfileNestedInput
+  invoices?: Prisma.ResortInvoiceUncheckedUpdateManyWithoutResortProfileNestedInput
+  financeEntries?: Prisma.ResortFinanceEntryUncheckedUpdateManyWithoutResortProfileNestedInput
+  transactionExports?: Prisma.ResortTransactionExportUncheckedUpdateManyWithoutResortProfileNestedInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUncheckedUpdateManyWithoutResortProfileNestedInput
+  leads?: Prisma.ResortLeadUncheckedUpdateManyWithoutResortProfileNestedInput
+  contactInquiries?: Prisma.ResortContactInquiryUncheckedUpdateManyWithoutResortProfileNestedInput
+  folioCharges?: Prisma.ResortFolioChargeUncheckedUpdateManyWithoutResortProfileNestedInput
+  paymentLogs?: Prisma.ResortPaymentLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUncheckedUpdateManyWithoutResortProfileNestedInput
+  receptionRequests?: Prisma.ResortReceptionRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUncheckedUpdateManyWithoutResortProfileNestedInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  inventoryItems?: Prisma.ResortInventoryItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUncheckedUpdateManyWithoutResortProfileNestedInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUncheckedUpdateManyWithoutResortProfileNestedInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUncheckedUpdateManyWithoutResortProfileNestedInput
+  laundryJobs?: Prisma.ResortLaundryJobUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffProfiles?: Prisma.ResortStaffProfileUncheckedUpdateManyWithoutResortProfileNestedInput
+  accessRoles?: Prisma.ResortAccessRoleUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffInvitations?: Prisma.ResortStaffInvitationUncheckedUpdateManyWithoutResortProfileNestedInput
+  timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
+  payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
+  payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
+}
+
+export type ResortProfileCreateWithoutLandingBrandingInput = {
+  id?: string
+  resortName?: string
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appUser: Prisma.AppUserCreateNestedOneWithoutResortProfileInput
+  departments?: Prisma.ResortDepartmentCreateNestedManyWithoutResortProfileInput
+  amenities?: Prisma.ResortAmenityCreateNestedManyWithoutResortProfileInput
+  rooms?: Prisma.ResortRoomCreateNestedManyWithoutResortProfileInput
+  reservations?: Prisma.ResortReservationCreateNestedManyWithoutResortProfileInput
+  services?: Prisma.ResortServiceCreateNestedManyWithoutResortProfileInput
+  packages?: Prisma.ResortPackageCreateNestedManyWithoutResortProfileInput
+  invoices?: Prisma.ResortInvoiceCreateNestedManyWithoutResortProfileInput
+  financeEntries?: Prisma.ResortFinanceEntryCreateNestedManyWithoutResortProfileInput
+  transactionExports?: Prisma.ResortTransactionExportCreateNestedManyWithoutResortProfileInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationCreateNestedManyWithoutResortProfileInput
+  leads?: Prisma.ResortLeadCreateNestedManyWithoutResortProfileInput
+  contactInquiries?: Prisma.ResortContactInquiryCreateNestedManyWithoutResortProfileInput
+  folioCharges?: Prisma.ResortFolioChargeCreateNestedManyWithoutResortProfileInput
+  paymentLogs?: Prisma.ResortPaymentLogCreateNestedManyWithoutResortProfileInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutCreateNestedManyWithoutResortProfileInput
+  receptionRequests?: Prisma.ResortReceptionRequestCreateNestedManyWithoutResortProfileInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteCreateNestedManyWithoutResortProfileInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestCreateNestedManyWithoutResortProfileInput
+  inventoryItems?: Prisma.ResortInventoryItemCreateNestedManyWithoutResortProfileInput
+  inventoryMovements?: Prisma.ResortInventoryMovementCreateNestedManyWithoutResortProfileInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomCreateNestedManyWithoutResortProfileInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportCreateNestedManyWithoutResortProfileInput
+  laundryJobs?: Prisma.ResortLaundryJobCreateNestedManyWithoutResortProfileInput
+  staffProfiles?: Prisma.ResortStaffProfileCreateNestedManyWithoutResortProfileInput
+  accessRoles?: Prisma.ResortAccessRoleCreateNestedManyWithoutResortProfileInput
+  staffInvitations?: Prisma.ResortStaffInvitationCreateNestedManyWithoutResortProfileInput
+  timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
+  scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
+  leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
+  payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
+  payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+}
+
+export type ResortProfileUncheckedCreateWithoutLandingBrandingInput = {
+  id?: string
+  appUserId: string
+  resortName?: string
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  departments?: Prisma.ResortDepartmentUncheckedCreateNestedManyWithoutResortProfileInput
+  amenities?: Prisma.ResortAmenityUncheckedCreateNestedManyWithoutResortProfileInput
+  rooms?: Prisma.ResortRoomUncheckedCreateNestedManyWithoutResortProfileInput
+  reservations?: Prisma.ResortReservationUncheckedCreateNestedManyWithoutResortProfileInput
+  services?: Prisma.ResortServiceUncheckedCreateNestedManyWithoutResortProfileInput
+  packages?: Prisma.ResortPackageUncheckedCreateNestedManyWithoutResortProfileInput
+  invoices?: Prisma.ResortInvoiceUncheckedCreateNestedManyWithoutResortProfileInput
+  financeEntries?: Prisma.ResortFinanceEntryUncheckedCreateNestedManyWithoutResortProfileInput
+  transactionExports?: Prisma.ResortTransactionExportUncheckedCreateNestedManyWithoutResortProfileInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUncheckedCreateNestedManyWithoutResortProfileInput
+  leads?: Prisma.ResortLeadUncheckedCreateNestedManyWithoutResortProfileInput
+  contactInquiries?: Prisma.ResortContactInquiryUncheckedCreateNestedManyWithoutResortProfileInput
+  folioCharges?: Prisma.ResortFolioChargeUncheckedCreateNestedManyWithoutResortProfileInput
+  paymentLogs?: Prisma.ResortPaymentLogUncheckedCreateNestedManyWithoutResortProfileInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUncheckedCreateNestedManyWithoutResortProfileInput
+  receptionRequests?: Prisma.ResortReceptionRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUncheckedCreateNestedManyWithoutResortProfileInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  inventoryItems?: Prisma.ResortInventoryItemUncheckedCreateNestedManyWithoutResortProfileInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUncheckedCreateNestedManyWithoutResortProfileInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUncheckedCreateNestedManyWithoutResortProfileInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUncheckedCreateNestedManyWithoutResortProfileInput
+  laundryJobs?: Prisma.ResortLaundryJobUncheckedCreateNestedManyWithoutResortProfileInput
+  staffProfiles?: Prisma.ResortStaffProfileUncheckedCreateNestedManyWithoutResortProfileInput
+  accessRoles?: Prisma.ResortAccessRoleUncheckedCreateNestedManyWithoutResortProfileInput
+  staffInvitations?: Prisma.ResortStaffInvitationUncheckedCreateNestedManyWithoutResortProfileInput
+  timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
+  payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
+  payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+}
+
+export type ResortProfileCreateOrConnectWithoutLandingBrandingInput = {
+  where: Prisma.ResortProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResortProfileCreateWithoutLandingBrandingInput, Prisma.ResortProfileUncheckedCreateWithoutLandingBrandingInput>
+}
+
+export type ResortProfileUpsertWithoutLandingBrandingInput = {
+  update: Prisma.XOR<Prisma.ResortProfileUpdateWithoutLandingBrandingInput, Prisma.ResortProfileUncheckedUpdateWithoutLandingBrandingInput>
+  create: Prisma.XOR<Prisma.ResortProfileCreateWithoutLandingBrandingInput, Prisma.ResortProfileUncheckedCreateWithoutLandingBrandingInput>
+  where?: Prisma.ResortProfileWhereInput
+}
+
+export type ResortProfileUpdateToOneWithWhereWithoutLandingBrandingInput = {
+  where?: Prisma.ResortProfileWhereInput
+  data: Prisma.XOR<Prisma.ResortProfileUpdateWithoutLandingBrandingInput, Prisma.ResortProfileUncheckedUpdateWithoutLandingBrandingInput>
+}
+
+export type ResortProfileUpdateWithoutLandingBrandingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.StringFieldUpdateOperationsInput | string
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appUser?: Prisma.AppUserUpdateOneRequiredWithoutResortProfileNestedInput
+  departments?: Prisma.ResortDepartmentUpdateManyWithoutResortProfileNestedInput
+  amenities?: Prisma.ResortAmenityUpdateManyWithoutResortProfileNestedInput
+  rooms?: Prisma.ResortRoomUpdateManyWithoutResortProfileNestedInput
+  reservations?: Prisma.ResortReservationUpdateManyWithoutResortProfileNestedInput
+  services?: Prisma.ResortServiceUpdateManyWithoutResortProfileNestedInput
+  packages?: Prisma.ResortPackageUpdateManyWithoutResortProfileNestedInput
+  invoices?: Prisma.ResortInvoiceUpdateManyWithoutResortProfileNestedInput
+  financeEntries?: Prisma.ResortFinanceEntryUpdateManyWithoutResortProfileNestedInput
+  transactionExports?: Prisma.ResortTransactionExportUpdateManyWithoutResortProfileNestedInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUpdateManyWithoutResortProfileNestedInput
+  leads?: Prisma.ResortLeadUpdateManyWithoutResortProfileNestedInput
+  contactInquiries?: Prisma.ResortContactInquiryUpdateManyWithoutResortProfileNestedInput
+  folioCharges?: Prisma.ResortFolioChargeUpdateManyWithoutResortProfileNestedInput
+  paymentLogs?: Prisma.ResortPaymentLogUpdateManyWithoutResortProfileNestedInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUpdateManyWithoutResortProfileNestedInput
+  receptionRequests?: Prisma.ResortReceptionRequestUpdateManyWithoutResortProfileNestedInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUpdateManyWithoutResortProfileNestedInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUpdateManyWithoutResortProfileNestedInput
+  inventoryItems?: Prisma.ResortInventoryItemUpdateManyWithoutResortProfileNestedInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUpdateManyWithoutResortProfileNestedInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUpdateManyWithoutResortProfileNestedInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUpdateManyWithoutResortProfileNestedInput
+  laundryJobs?: Prisma.ResortLaundryJobUpdateManyWithoutResortProfileNestedInput
+  staffProfiles?: Prisma.ResortStaffProfileUpdateManyWithoutResortProfileNestedInput
+  accessRoles?: Prisma.ResortAccessRoleUpdateManyWithoutResortProfileNestedInput
+  staffInvitations?: Prisma.ResortStaffInvitationUpdateManyWithoutResortProfileNestedInput
+  timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
+  leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
+  payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
+  payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+}
+
+export type ResortProfileUncheckedUpdateWithoutLandingBrandingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.StringFieldUpdateOperationsInput | string
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.ResortDepartmentUncheckedUpdateManyWithoutResortProfileNestedInput
+  amenities?: Prisma.ResortAmenityUncheckedUpdateManyWithoutResortProfileNestedInput
+  rooms?: Prisma.ResortRoomUncheckedUpdateManyWithoutResortProfileNestedInput
+  reservations?: Prisma.ResortReservationUncheckedUpdateManyWithoutResortProfileNestedInput
+  services?: Prisma.ResortServiceUncheckedUpdateManyWithoutResortProfileNestedInput
+  packages?: Prisma.ResortPackageUncheckedUpdateManyWithoutResortProfileNestedInput
+  invoices?: Prisma.ResortInvoiceUncheckedUpdateManyWithoutResortProfileNestedInput
+  financeEntries?: Prisma.ResortFinanceEntryUncheckedUpdateManyWithoutResortProfileNestedInput
+  transactionExports?: Prisma.ResortTransactionExportUncheckedUpdateManyWithoutResortProfileNestedInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUncheckedUpdateManyWithoutResortProfileNestedInput
+  leads?: Prisma.ResortLeadUncheckedUpdateManyWithoutResortProfileNestedInput
+  contactInquiries?: Prisma.ResortContactInquiryUncheckedUpdateManyWithoutResortProfileNestedInput
+  folioCharges?: Prisma.ResortFolioChargeUncheckedUpdateManyWithoutResortProfileNestedInput
+  paymentLogs?: Prisma.ResortPaymentLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUncheckedUpdateManyWithoutResortProfileNestedInput
+  receptionRequests?: Prisma.ResortReceptionRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUncheckedUpdateManyWithoutResortProfileNestedInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  inventoryItems?: Prisma.ResortInventoryItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUncheckedUpdateManyWithoutResortProfileNestedInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUncheckedUpdateManyWithoutResortProfileNestedInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUncheckedUpdateManyWithoutResortProfileNestedInput
+  laundryJobs?: Prisma.ResortLaundryJobUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffProfiles?: Prisma.ResortStaffProfileUncheckedUpdateManyWithoutResortProfileNestedInput
+  accessRoles?: Prisma.ResortAccessRoleUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffInvitations?: Prisma.ResortStaffInvitationUncheckedUpdateManyWithoutResortProfileNestedInput
+  timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
+  payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
+  payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutContactInquiriesInput = {
@@ -1495,10 +2051,14 @@ export type ResortProfileCreateWithoutContactInquiriesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutContactInquiriesInput = {
@@ -1544,10 +2104,14 @@ export type ResortProfileUncheckedCreateWithoutContactInquiriesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutContactInquiriesInput = {
@@ -1609,10 +2173,14 @@ export type ResortProfileUpdateWithoutContactInquiriesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutContactInquiriesInput = {
@@ -1658,10 +2226,14 @@ export type ResortProfileUncheckedUpdateWithoutContactInquiriesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutMessengerIntegrationsInput = {
@@ -1707,10 +2279,14 @@ export type ResortProfileCreateWithoutMessengerIntegrationsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutMessengerIntegrationsInput = {
@@ -1756,10 +2332,14 @@ export type ResortProfileUncheckedCreateWithoutMessengerIntegrationsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutMessengerIntegrationsInput = {
@@ -1821,10 +2401,14 @@ export type ResortProfileUpdateWithoutMessengerIntegrationsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutMessengerIntegrationsInput = {
@@ -1870,10 +2454,14 @@ export type ResortProfileUncheckedUpdateWithoutMessengerIntegrationsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutLeadsInput = {
@@ -1919,10 +2507,14 @@ export type ResortProfileCreateWithoutLeadsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutLeadsInput = {
@@ -1968,10 +2560,14 @@ export type ResortProfileUncheckedCreateWithoutLeadsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutLeadsInput = {
@@ -2033,10 +2629,14 @@ export type ResortProfileUpdateWithoutLeadsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutLeadsInput = {
@@ -2082,10 +2682,14 @@ export type ResortProfileUncheckedUpdateWithoutLeadsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutStaffProfilesInput = {
@@ -2131,10 +2735,14 @@ export type ResortProfileCreateWithoutStaffProfilesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutStaffProfilesInput = {
@@ -2180,10 +2788,14 @@ export type ResortProfileUncheckedCreateWithoutStaffProfilesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutStaffProfilesInput = {
@@ -2245,10 +2857,14 @@ export type ResortProfileUpdateWithoutStaffProfilesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutStaffProfilesInput = {
@@ -2294,10 +2910,14 @@ export type ResortProfileUncheckedUpdateWithoutStaffProfilesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutStaffActivityLogsInput = {
@@ -2344,9 +2964,13 @@ export type ResortProfileCreateWithoutStaffActivityLogsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutStaffActivityLogsInput = {
@@ -2393,9 +3017,13 @@ export type ResortProfileUncheckedCreateWithoutStaffActivityLogsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutStaffActivityLogsInput = {
@@ -2458,9 +3086,13 @@ export type ResortProfileUpdateWithoutStaffActivityLogsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutStaffActivityLogsInput = {
@@ -2507,9 +3139,13 @@ export type ResortProfileUncheckedUpdateWithoutStaffActivityLogsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutAccessRolesInput = {
@@ -2555,10 +3191,14 @@ export type ResortProfileCreateWithoutAccessRolesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutAccessRolesInput = {
@@ -2604,10 +3244,14 @@ export type ResortProfileUncheckedCreateWithoutAccessRolesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutAccessRolesInput = {
@@ -2669,10 +3313,14 @@ export type ResortProfileUpdateWithoutAccessRolesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutAccessRolesInput = {
@@ -2718,10 +3366,14 @@ export type ResortProfileUncheckedUpdateWithoutAccessRolesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutTimeLogsInput = {
@@ -2767,10 +3419,14 @@ export type ResortProfileCreateWithoutTimeLogsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutTimeLogsInput = {
@@ -2816,10 +3472,14 @@ export type ResortProfileUncheckedCreateWithoutTimeLogsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutTimeLogsInput = {
@@ -2881,10 +3541,14 @@ export type ResortProfileUpdateWithoutTimeLogsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutTimeLogsInput = {
@@ -2930,10 +3594,14 @@ export type ResortProfileUncheckedUpdateWithoutTimeLogsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutScheduleShiftsInput = {
@@ -2979,10 +3647,14 @@ export type ResortProfileCreateWithoutScheduleShiftsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationCreateNestedManyWithoutResortProfileInput
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutScheduleShiftsInput = {
@@ -3028,10 +3700,14 @@ export type ResortProfileUncheckedCreateWithoutScheduleShiftsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUncheckedCreateNestedManyWithoutResortProfileInput
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutScheduleShiftsInput = {
@@ -3093,10 +3769,14 @@ export type ResortProfileUpdateWithoutScheduleShiftsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUpdateManyWithoutResortProfileNestedInput
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutScheduleShiftsInput = {
@@ -3142,10 +3822,14 @@ export type ResortProfileUncheckedUpdateWithoutScheduleShiftsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUncheckedUpdateManyWithoutResortProfileNestedInput
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutLeaveRequestsInput = {
@@ -3191,10 +3875,14 @@ export type ResortProfileCreateWithoutLeaveRequestsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationCreateNestedManyWithoutResortProfileInput
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutLeaveRequestsInput = {
@@ -3240,10 +3928,14 @@ export type ResortProfileUncheckedCreateWithoutLeaveRequestsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUncheckedCreateNestedManyWithoutResortProfileInput
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutLeaveRequestsInput = {
@@ -3305,10 +3997,14 @@ export type ResortProfileUpdateWithoutLeaveRequestsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUpdateManyWithoutResortProfileNestedInput
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutLeaveRequestsInput = {
@@ -3354,10 +4050,470 @@ export type ResortProfileUncheckedUpdateWithoutLeaveRequestsInput = {
   staffInvitations?: Prisma.ResortStaffInvitationUncheckedUpdateManyWithoutResortProfileNestedInput
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
+}
+
+export type ResortProfileCreateWithoutLeavePoliciesInput = {
+  id?: string
+  resortName?: string
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appUser: Prisma.AppUserCreateNestedOneWithoutResortProfileInput
+  departments?: Prisma.ResortDepartmentCreateNestedManyWithoutResortProfileInput
+  amenities?: Prisma.ResortAmenityCreateNestedManyWithoutResortProfileInput
+  rooms?: Prisma.ResortRoomCreateNestedManyWithoutResortProfileInput
+  reservations?: Prisma.ResortReservationCreateNestedManyWithoutResortProfileInput
+  services?: Prisma.ResortServiceCreateNestedManyWithoutResortProfileInput
+  packages?: Prisma.ResortPackageCreateNestedManyWithoutResortProfileInput
+  invoices?: Prisma.ResortInvoiceCreateNestedManyWithoutResortProfileInput
+  financeEntries?: Prisma.ResortFinanceEntryCreateNestedManyWithoutResortProfileInput
+  transactionExports?: Prisma.ResortTransactionExportCreateNestedManyWithoutResortProfileInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationCreateNestedManyWithoutResortProfileInput
+  leads?: Prisma.ResortLeadCreateNestedManyWithoutResortProfileInput
+  contactInquiries?: Prisma.ResortContactInquiryCreateNestedManyWithoutResortProfileInput
+  folioCharges?: Prisma.ResortFolioChargeCreateNestedManyWithoutResortProfileInput
+  paymentLogs?: Prisma.ResortPaymentLogCreateNestedManyWithoutResortProfileInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutCreateNestedManyWithoutResortProfileInput
+  receptionRequests?: Prisma.ResortReceptionRequestCreateNestedManyWithoutResortProfileInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteCreateNestedManyWithoutResortProfileInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestCreateNestedManyWithoutResortProfileInput
+  inventoryItems?: Prisma.ResortInventoryItemCreateNestedManyWithoutResortProfileInput
+  inventoryMovements?: Prisma.ResortInventoryMovementCreateNestedManyWithoutResortProfileInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomCreateNestedManyWithoutResortProfileInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportCreateNestedManyWithoutResortProfileInput
+  laundryJobs?: Prisma.ResortLaundryJobCreateNestedManyWithoutResortProfileInput
+  staffProfiles?: Prisma.ResortStaffProfileCreateNestedManyWithoutResortProfileInput
+  accessRoles?: Prisma.ResortAccessRoleCreateNestedManyWithoutResortProfileInput
+  staffInvitations?: Prisma.ResortStaffInvitationCreateNestedManyWithoutResortProfileInput
+  timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
+  scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
+  leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
+  payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
+  payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
+}
+
+export type ResortProfileUncheckedCreateWithoutLeavePoliciesInput = {
+  id?: string
+  appUserId: string
+  resortName?: string
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  departments?: Prisma.ResortDepartmentUncheckedCreateNestedManyWithoutResortProfileInput
+  amenities?: Prisma.ResortAmenityUncheckedCreateNestedManyWithoutResortProfileInput
+  rooms?: Prisma.ResortRoomUncheckedCreateNestedManyWithoutResortProfileInput
+  reservations?: Prisma.ResortReservationUncheckedCreateNestedManyWithoutResortProfileInput
+  services?: Prisma.ResortServiceUncheckedCreateNestedManyWithoutResortProfileInput
+  packages?: Prisma.ResortPackageUncheckedCreateNestedManyWithoutResortProfileInput
+  invoices?: Prisma.ResortInvoiceUncheckedCreateNestedManyWithoutResortProfileInput
+  financeEntries?: Prisma.ResortFinanceEntryUncheckedCreateNestedManyWithoutResortProfileInput
+  transactionExports?: Prisma.ResortTransactionExportUncheckedCreateNestedManyWithoutResortProfileInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUncheckedCreateNestedManyWithoutResortProfileInput
+  leads?: Prisma.ResortLeadUncheckedCreateNestedManyWithoutResortProfileInput
+  contactInquiries?: Prisma.ResortContactInquiryUncheckedCreateNestedManyWithoutResortProfileInput
+  folioCharges?: Prisma.ResortFolioChargeUncheckedCreateNestedManyWithoutResortProfileInput
+  paymentLogs?: Prisma.ResortPaymentLogUncheckedCreateNestedManyWithoutResortProfileInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUncheckedCreateNestedManyWithoutResortProfileInput
+  receptionRequests?: Prisma.ResortReceptionRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUncheckedCreateNestedManyWithoutResortProfileInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  inventoryItems?: Prisma.ResortInventoryItemUncheckedCreateNestedManyWithoutResortProfileInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUncheckedCreateNestedManyWithoutResortProfileInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUncheckedCreateNestedManyWithoutResortProfileInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUncheckedCreateNestedManyWithoutResortProfileInput
+  laundryJobs?: Prisma.ResortLaundryJobUncheckedCreateNestedManyWithoutResortProfileInput
+  staffProfiles?: Prisma.ResortStaffProfileUncheckedCreateNestedManyWithoutResortProfileInput
+  accessRoles?: Prisma.ResortAccessRoleUncheckedCreateNestedManyWithoutResortProfileInput
+  staffInvitations?: Prisma.ResortStaffInvitationUncheckedCreateNestedManyWithoutResortProfileInput
+  timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
+  payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
+  payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
+}
+
+export type ResortProfileCreateOrConnectWithoutLeavePoliciesInput = {
+  where: Prisma.ResortProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResortProfileCreateWithoutLeavePoliciesInput, Prisma.ResortProfileUncheckedCreateWithoutLeavePoliciesInput>
+}
+
+export type ResortProfileUpsertWithoutLeavePoliciesInput = {
+  update: Prisma.XOR<Prisma.ResortProfileUpdateWithoutLeavePoliciesInput, Prisma.ResortProfileUncheckedUpdateWithoutLeavePoliciesInput>
+  create: Prisma.XOR<Prisma.ResortProfileCreateWithoutLeavePoliciesInput, Prisma.ResortProfileUncheckedCreateWithoutLeavePoliciesInput>
+  where?: Prisma.ResortProfileWhereInput
+}
+
+export type ResortProfileUpdateToOneWithWhereWithoutLeavePoliciesInput = {
+  where?: Prisma.ResortProfileWhereInput
+  data: Prisma.XOR<Prisma.ResortProfileUpdateWithoutLeavePoliciesInput, Prisma.ResortProfileUncheckedUpdateWithoutLeavePoliciesInput>
+}
+
+export type ResortProfileUpdateWithoutLeavePoliciesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.StringFieldUpdateOperationsInput | string
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appUser?: Prisma.AppUserUpdateOneRequiredWithoutResortProfileNestedInput
+  departments?: Prisma.ResortDepartmentUpdateManyWithoutResortProfileNestedInput
+  amenities?: Prisma.ResortAmenityUpdateManyWithoutResortProfileNestedInput
+  rooms?: Prisma.ResortRoomUpdateManyWithoutResortProfileNestedInput
+  reservations?: Prisma.ResortReservationUpdateManyWithoutResortProfileNestedInput
+  services?: Prisma.ResortServiceUpdateManyWithoutResortProfileNestedInput
+  packages?: Prisma.ResortPackageUpdateManyWithoutResortProfileNestedInput
+  invoices?: Prisma.ResortInvoiceUpdateManyWithoutResortProfileNestedInput
+  financeEntries?: Prisma.ResortFinanceEntryUpdateManyWithoutResortProfileNestedInput
+  transactionExports?: Prisma.ResortTransactionExportUpdateManyWithoutResortProfileNestedInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUpdateManyWithoutResortProfileNestedInput
+  leads?: Prisma.ResortLeadUpdateManyWithoutResortProfileNestedInput
+  contactInquiries?: Prisma.ResortContactInquiryUpdateManyWithoutResortProfileNestedInput
+  folioCharges?: Prisma.ResortFolioChargeUpdateManyWithoutResortProfileNestedInput
+  paymentLogs?: Prisma.ResortPaymentLogUpdateManyWithoutResortProfileNestedInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUpdateManyWithoutResortProfileNestedInput
+  receptionRequests?: Prisma.ResortReceptionRequestUpdateManyWithoutResortProfileNestedInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUpdateManyWithoutResortProfileNestedInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUpdateManyWithoutResortProfileNestedInput
+  inventoryItems?: Prisma.ResortInventoryItemUpdateManyWithoutResortProfileNestedInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUpdateManyWithoutResortProfileNestedInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUpdateManyWithoutResortProfileNestedInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUpdateManyWithoutResortProfileNestedInput
+  laundryJobs?: Prisma.ResortLaundryJobUpdateManyWithoutResortProfileNestedInput
+  staffProfiles?: Prisma.ResortStaffProfileUpdateManyWithoutResortProfileNestedInput
+  accessRoles?: Prisma.ResortAccessRoleUpdateManyWithoutResortProfileNestedInput
+  staffInvitations?: Prisma.ResortStaffInvitationUpdateManyWithoutResortProfileNestedInput
+  timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
+  leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
+  payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
+  payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
+}
+
+export type ResortProfileUncheckedUpdateWithoutLeavePoliciesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.StringFieldUpdateOperationsInput | string
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.ResortDepartmentUncheckedUpdateManyWithoutResortProfileNestedInput
+  amenities?: Prisma.ResortAmenityUncheckedUpdateManyWithoutResortProfileNestedInput
+  rooms?: Prisma.ResortRoomUncheckedUpdateManyWithoutResortProfileNestedInput
+  reservations?: Prisma.ResortReservationUncheckedUpdateManyWithoutResortProfileNestedInput
+  services?: Prisma.ResortServiceUncheckedUpdateManyWithoutResortProfileNestedInput
+  packages?: Prisma.ResortPackageUncheckedUpdateManyWithoutResortProfileNestedInput
+  invoices?: Prisma.ResortInvoiceUncheckedUpdateManyWithoutResortProfileNestedInput
+  financeEntries?: Prisma.ResortFinanceEntryUncheckedUpdateManyWithoutResortProfileNestedInput
+  transactionExports?: Prisma.ResortTransactionExportUncheckedUpdateManyWithoutResortProfileNestedInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUncheckedUpdateManyWithoutResortProfileNestedInput
+  leads?: Prisma.ResortLeadUncheckedUpdateManyWithoutResortProfileNestedInput
+  contactInquiries?: Prisma.ResortContactInquiryUncheckedUpdateManyWithoutResortProfileNestedInput
+  folioCharges?: Prisma.ResortFolioChargeUncheckedUpdateManyWithoutResortProfileNestedInput
+  paymentLogs?: Prisma.ResortPaymentLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUncheckedUpdateManyWithoutResortProfileNestedInput
+  receptionRequests?: Prisma.ResortReceptionRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUncheckedUpdateManyWithoutResortProfileNestedInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  inventoryItems?: Prisma.ResortInventoryItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUncheckedUpdateManyWithoutResortProfileNestedInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUncheckedUpdateManyWithoutResortProfileNestedInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUncheckedUpdateManyWithoutResortProfileNestedInput
+  laundryJobs?: Prisma.ResortLaundryJobUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffProfiles?: Prisma.ResortStaffProfileUncheckedUpdateManyWithoutResortProfileNestedInput
+  accessRoles?: Prisma.ResortAccessRoleUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffInvitations?: Prisma.ResortStaffInvitationUncheckedUpdateManyWithoutResortProfileNestedInput
+  timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
+  payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
+  payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
+}
+
+export type ResortProfileCreateWithoutLeaveBalancesInput = {
+  id?: string
+  resortName?: string
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appUser: Prisma.AppUserCreateNestedOneWithoutResortProfileInput
+  departments?: Prisma.ResortDepartmentCreateNestedManyWithoutResortProfileInput
+  amenities?: Prisma.ResortAmenityCreateNestedManyWithoutResortProfileInput
+  rooms?: Prisma.ResortRoomCreateNestedManyWithoutResortProfileInput
+  reservations?: Prisma.ResortReservationCreateNestedManyWithoutResortProfileInput
+  services?: Prisma.ResortServiceCreateNestedManyWithoutResortProfileInput
+  packages?: Prisma.ResortPackageCreateNestedManyWithoutResortProfileInput
+  invoices?: Prisma.ResortInvoiceCreateNestedManyWithoutResortProfileInput
+  financeEntries?: Prisma.ResortFinanceEntryCreateNestedManyWithoutResortProfileInput
+  transactionExports?: Prisma.ResortTransactionExportCreateNestedManyWithoutResortProfileInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationCreateNestedManyWithoutResortProfileInput
+  leads?: Prisma.ResortLeadCreateNestedManyWithoutResortProfileInput
+  contactInquiries?: Prisma.ResortContactInquiryCreateNestedManyWithoutResortProfileInput
+  folioCharges?: Prisma.ResortFolioChargeCreateNestedManyWithoutResortProfileInput
+  paymentLogs?: Prisma.ResortPaymentLogCreateNestedManyWithoutResortProfileInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutCreateNestedManyWithoutResortProfileInput
+  receptionRequests?: Prisma.ResortReceptionRequestCreateNestedManyWithoutResortProfileInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteCreateNestedManyWithoutResortProfileInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestCreateNestedManyWithoutResortProfileInput
+  inventoryItems?: Prisma.ResortInventoryItemCreateNestedManyWithoutResortProfileInput
+  inventoryMovements?: Prisma.ResortInventoryMovementCreateNestedManyWithoutResortProfileInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomCreateNestedManyWithoutResortProfileInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportCreateNestedManyWithoutResortProfileInput
+  laundryJobs?: Prisma.ResortLaundryJobCreateNestedManyWithoutResortProfileInput
+  staffProfiles?: Prisma.ResortStaffProfileCreateNestedManyWithoutResortProfileInput
+  accessRoles?: Prisma.ResortAccessRoleCreateNestedManyWithoutResortProfileInput
+  staffInvitations?: Prisma.ResortStaffInvitationCreateNestedManyWithoutResortProfileInput
+  timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
+  scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
+  leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
+  payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
+  payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
+}
+
+export type ResortProfileUncheckedCreateWithoutLeaveBalancesInput = {
+  id?: string
+  appUserId: string
+  resortName?: string
+  propertyType?: string | null
+  fullAddress?: string | null
+  region?: string | null
+  province?: string | null
+  municipality?: string | null
+  barangay?: string | null
+  phoneNumber?: string | null
+  website?: string | null
+  shortDescription?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  departments?: Prisma.ResortDepartmentUncheckedCreateNestedManyWithoutResortProfileInput
+  amenities?: Prisma.ResortAmenityUncheckedCreateNestedManyWithoutResortProfileInput
+  rooms?: Prisma.ResortRoomUncheckedCreateNestedManyWithoutResortProfileInput
+  reservations?: Prisma.ResortReservationUncheckedCreateNestedManyWithoutResortProfileInput
+  services?: Prisma.ResortServiceUncheckedCreateNestedManyWithoutResortProfileInput
+  packages?: Prisma.ResortPackageUncheckedCreateNestedManyWithoutResortProfileInput
+  invoices?: Prisma.ResortInvoiceUncheckedCreateNestedManyWithoutResortProfileInput
+  financeEntries?: Prisma.ResortFinanceEntryUncheckedCreateNestedManyWithoutResortProfileInput
+  transactionExports?: Prisma.ResortTransactionExportUncheckedCreateNestedManyWithoutResortProfileInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUncheckedCreateNestedManyWithoutResortProfileInput
+  leads?: Prisma.ResortLeadUncheckedCreateNestedManyWithoutResortProfileInput
+  contactInquiries?: Prisma.ResortContactInquiryUncheckedCreateNestedManyWithoutResortProfileInput
+  folioCharges?: Prisma.ResortFolioChargeUncheckedCreateNestedManyWithoutResortProfileInput
+  paymentLogs?: Prisma.ResortPaymentLogUncheckedCreateNestedManyWithoutResortProfileInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUncheckedCreateNestedManyWithoutResortProfileInput
+  receptionRequests?: Prisma.ResortReceptionRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUncheckedCreateNestedManyWithoutResortProfileInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  inventoryItems?: Prisma.ResortInventoryItemUncheckedCreateNestedManyWithoutResortProfileInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUncheckedCreateNestedManyWithoutResortProfileInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUncheckedCreateNestedManyWithoutResortProfileInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUncheckedCreateNestedManyWithoutResortProfileInput
+  laundryJobs?: Prisma.ResortLaundryJobUncheckedCreateNestedManyWithoutResortProfileInput
+  staffProfiles?: Prisma.ResortStaffProfileUncheckedCreateNestedManyWithoutResortProfileInput
+  accessRoles?: Prisma.ResortAccessRoleUncheckedCreateNestedManyWithoutResortProfileInput
+  staffInvitations?: Prisma.ResortStaffInvitationUncheckedCreateNestedManyWithoutResortProfileInput
+  timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
+  payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
+  payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
+}
+
+export type ResortProfileCreateOrConnectWithoutLeaveBalancesInput = {
+  where: Prisma.ResortProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResortProfileCreateWithoutLeaveBalancesInput, Prisma.ResortProfileUncheckedCreateWithoutLeaveBalancesInput>
+}
+
+export type ResortProfileUpsertWithoutLeaveBalancesInput = {
+  update: Prisma.XOR<Prisma.ResortProfileUpdateWithoutLeaveBalancesInput, Prisma.ResortProfileUncheckedUpdateWithoutLeaveBalancesInput>
+  create: Prisma.XOR<Prisma.ResortProfileCreateWithoutLeaveBalancesInput, Prisma.ResortProfileUncheckedCreateWithoutLeaveBalancesInput>
+  where?: Prisma.ResortProfileWhereInput
+}
+
+export type ResortProfileUpdateToOneWithWhereWithoutLeaveBalancesInput = {
+  where?: Prisma.ResortProfileWhereInput
+  data: Prisma.XOR<Prisma.ResortProfileUpdateWithoutLeaveBalancesInput, Prisma.ResortProfileUncheckedUpdateWithoutLeaveBalancesInput>
+}
+
+export type ResortProfileUpdateWithoutLeaveBalancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.StringFieldUpdateOperationsInput | string
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appUser?: Prisma.AppUserUpdateOneRequiredWithoutResortProfileNestedInput
+  departments?: Prisma.ResortDepartmentUpdateManyWithoutResortProfileNestedInput
+  amenities?: Prisma.ResortAmenityUpdateManyWithoutResortProfileNestedInput
+  rooms?: Prisma.ResortRoomUpdateManyWithoutResortProfileNestedInput
+  reservations?: Prisma.ResortReservationUpdateManyWithoutResortProfileNestedInput
+  services?: Prisma.ResortServiceUpdateManyWithoutResortProfileNestedInput
+  packages?: Prisma.ResortPackageUpdateManyWithoutResortProfileNestedInput
+  invoices?: Prisma.ResortInvoiceUpdateManyWithoutResortProfileNestedInput
+  financeEntries?: Prisma.ResortFinanceEntryUpdateManyWithoutResortProfileNestedInput
+  transactionExports?: Prisma.ResortTransactionExportUpdateManyWithoutResortProfileNestedInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUpdateManyWithoutResortProfileNestedInput
+  leads?: Prisma.ResortLeadUpdateManyWithoutResortProfileNestedInput
+  contactInquiries?: Prisma.ResortContactInquiryUpdateManyWithoutResortProfileNestedInput
+  folioCharges?: Prisma.ResortFolioChargeUpdateManyWithoutResortProfileNestedInput
+  paymentLogs?: Prisma.ResortPaymentLogUpdateManyWithoutResortProfileNestedInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUpdateManyWithoutResortProfileNestedInput
+  receptionRequests?: Prisma.ResortReceptionRequestUpdateManyWithoutResortProfileNestedInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUpdateManyWithoutResortProfileNestedInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUpdateManyWithoutResortProfileNestedInput
+  inventoryItems?: Prisma.ResortInventoryItemUpdateManyWithoutResortProfileNestedInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUpdateManyWithoutResortProfileNestedInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUpdateManyWithoutResortProfileNestedInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUpdateManyWithoutResortProfileNestedInput
+  laundryJobs?: Prisma.ResortLaundryJobUpdateManyWithoutResortProfileNestedInput
+  staffProfiles?: Prisma.ResortStaffProfileUpdateManyWithoutResortProfileNestedInput
+  accessRoles?: Prisma.ResortAccessRoleUpdateManyWithoutResortProfileNestedInput
+  staffInvitations?: Prisma.ResortStaffInvitationUpdateManyWithoutResortProfileNestedInput
+  timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
+  leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
+  payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
+  payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
+}
+
+export type ResortProfileUncheckedUpdateWithoutLeaveBalancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  resortName?: Prisma.StringFieldUpdateOperationsInput | string
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  region?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  province?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  municipality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barangay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.ResortDepartmentUncheckedUpdateManyWithoutResortProfileNestedInput
+  amenities?: Prisma.ResortAmenityUncheckedUpdateManyWithoutResortProfileNestedInput
+  rooms?: Prisma.ResortRoomUncheckedUpdateManyWithoutResortProfileNestedInput
+  reservations?: Prisma.ResortReservationUncheckedUpdateManyWithoutResortProfileNestedInput
+  services?: Prisma.ResortServiceUncheckedUpdateManyWithoutResortProfileNestedInput
+  packages?: Prisma.ResortPackageUncheckedUpdateManyWithoutResortProfileNestedInput
+  invoices?: Prisma.ResortInvoiceUncheckedUpdateManyWithoutResortProfileNestedInput
+  financeEntries?: Prisma.ResortFinanceEntryUncheckedUpdateManyWithoutResortProfileNestedInput
+  transactionExports?: Prisma.ResortTransactionExportUncheckedUpdateManyWithoutResortProfileNestedInput
+  messengerIntegrations?: Prisma.ResortMessengerIntegrationUncheckedUpdateManyWithoutResortProfileNestedInput
+  leads?: Prisma.ResortLeadUncheckedUpdateManyWithoutResortProfileNestedInput
+  contactInquiries?: Prisma.ResortContactInquiryUncheckedUpdateManyWithoutResortProfileNestedInput
+  folioCharges?: Prisma.ResortFolioChargeUncheckedUpdateManyWithoutResortProfileNestedInput
+  paymentLogs?: Prisma.ResortPaymentLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  paymentCheckouts?: Prisma.ResortPaymentCheckoutUncheckedUpdateManyWithoutResortProfileNestedInput
+  receptionRequests?: Prisma.ResortReceptionRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  receptionShiftNotes?: Prisma.ResortReceptionShiftNoteUncheckedUpdateManyWithoutResortProfileNestedInput
+  maintenanceRequests?: Prisma.ResortMaintenanceRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  inventoryItems?: Prisma.ResortInventoryItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  inventoryMovements?: Prisma.ResortInventoryMovementUncheckedUpdateManyWithoutResortProfileNestedInput
+  housekeepingRooms?: Prisma.ResortHousekeepingRoomUncheckedUpdateManyWithoutResortProfileNestedInput
+  housekeepingDamageReports?: Prisma.ResortHousekeepingDamageReportUncheckedUpdateManyWithoutResortProfileNestedInput
+  laundryJobs?: Prisma.ResortLaundryJobUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffProfiles?: Prisma.ResortStaffProfileUncheckedUpdateManyWithoutResortProfileNestedInput
+  accessRoles?: Prisma.ResortAccessRoleUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffInvitations?: Prisma.ResortStaffInvitationUncheckedUpdateManyWithoutResortProfileNestedInput
+  timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
+  payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
+  payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
+  staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutOtUndertimeEntriesInput = {
@@ -3404,9 +4560,13 @@ export type ResortProfileCreateWithoutOtUndertimeEntriesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutOtUndertimeEntriesInput = {
@@ -3453,9 +4613,13 @@ export type ResortProfileUncheckedCreateWithoutOtUndertimeEntriesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutOtUndertimeEntriesInput = {
@@ -3518,9 +4682,13 @@ export type ResortProfileUpdateWithoutOtUndertimeEntriesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutOtUndertimeEntriesInput = {
@@ -3567,9 +4735,13 @@ export type ResortProfileUncheckedUpdateWithoutOtUndertimeEntriesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutPayrollRunsInput = {
@@ -3616,9 +4788,13 @@ export type ResortProfileCreateWithoutPayrollRunsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutPayrollRunsInput = {
@@ -3665,9 +4841,13 @@ export type ResortProfileUncheckedCreateWithoutPayrollRunsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutPayrollRunsInput = {
@@ -3730,9 +4910,13 @@ export type ResortProfileUpdateWithoutPayrollRunsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutPayrollRunsInput = {
@@ -3779,9 +4963,13 @@ export type ResortProfileUncheckedUpdateWithoutPayrollRunsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutPayrollItemsInput = {
@@ -3828,9 +5016,13 @@ export type ResortProfileCreateWithoutPayrollItemsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutPayrollItemsInput = {
@@ -3877,9 +5069,13 @@ export type ResortProfileUncheckedCreateWithoutPayrollItemsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutPayrollItemsInput = {
@@ -3942,9 +5138,13 @@ export type ResortProfileUpdateWithoutPayrollItemsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutPayrollItemsInput = {
@@ -3991,9 +5191,13 @@ export type ResortProfileUncheckedUpdateWithoutPayrollItemsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutDepartmentsInput = {
@@ -4039,10 +5243,14 @@ export type ResortProfileCreateWithoutDepartmentsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutDepartmentsInput = {
@@ -4088,10 +5296,14 @@ export type ResortProfileUncheckedCreateWithoutDepartmentsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutDepartmentsInput = {
@@ -4153,10 +5365,14 @@ export type ResortProfileUpdateWithoutDepartmentsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutDepartmentsInput = {
@@ -4202,10 +5418,14 @@ export type ResortProfileUncheckedUpdateWithoutDepartmentsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutStaffInvitationsInput = {
@@ -4251,10 +5471,14 @@ export type ResortProfileCreateWithoutStaffInvitationsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutStaffInvitationsInput = {
@@ -4300,10 +5524,14 @@ export type ResortProfileUncheckedCreateWithoutStaffInvitationsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutStaffInvitationsInput = {
@@ -4365,10 +5593,14 @@ export type ResortProfileUpdateWithoutStaffInvitationsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutStaffInvitationsInput = {
@@ -4414,10 +5646,14 @@ export type ResortProfileUncheckedUpdateWithoutStaffInvitationsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutAmenitiesInput = {
@@ -4463,10 +5699,14 @@ export type ResortProfileCreateWithoutAmenitiesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutAmenitiesInput = {
@@ -4512,10 +5752,14 @@ export type ResortProfileUncheckedCreateWithoutAmenitiesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutAmenitiesInput = {
@@ -4577,10 +5821,14 @@ export type ResortProfileUpdateWithoutAmenitiesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutAmenitiesInput = {
@@ -4626,10 +5874,14 @@ export type ResortProfileUncheckedUpdateWithoutAmenitiesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutRoomsInput = {
@@ -4675,10 +5927,14 @@ export type ResortProfileCreateWithoutRoomsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutRoomsInput = {
@@ -4724,10 +5980,14 @@ export type ResortProfileUncheckedCreateWithoutRoomsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutRoomsInput = {
@@ -4789,10 +6049,14 @@ export type ResortProfileUpdateWithoutRoomsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutRoomsInput = {
@@ -4838,10 +6102,14 @@ export type ResortProfileUncheckedUpdateWithoutRoomsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutHousekeepingRoomsInput = {
@@ -4887,10 +6155,14 @@ export type ResortProfileCreateWithoutHousekeepingRoomsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutHousekeepingRoomsInput = {
@@ -4936,10 +6208,14 @@ export type ResortProfileUncheckedCreateWithoutHousekeepingRoomsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutHousekeepingRoomsInput = {
@@ -5001,10 +6277,14 @@ export type ResortProfileUpdateWithoutHousekeepingRoomsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutHousekeepingRoomsInput = {
@@ -5050,10 +6330,14 @@ export type ResortProfileUncheckedUpdateWithoutHousekeepingRoomsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutHousekeepingDamageReportsInput = {
@@ -5099,10 +6383,14 @@ export type ResortProfileCreateWithoutHousekeepingDamageReportsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutHousekeepingDamageReportsInput = {
@@ -5148,10 +6436,14 @@ export type ResortProfileUncheckedCreateWithoutHousekeepingDamageReportsInput = 
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutHousekeepingDamageReportsInput = {
@@ -5213,10 +6505,14 @@ export type ResortProfileUpdateWithoutHousekeepingDamageReportsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutHousekeepingDamageReportsInput = {
@@ -5262,10 +6558,14 @@ export type ResortProfileUncheckedUpdateWithoutHousekeepingDamageReportsInput = 
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutLaundryJobsInput = {
@@ -5311,10 +6611,14 @@ export type ResortProfileCreateWithoutLaundryJobsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutLaundryJobsInput = {
@@ -5360,10 +6664,14 @@ export type ResortProfileUncheckedCreateWithoutLaundryJobsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutLaundryJobsInput = {
@@ -5425,10 +6733,14 @@ export type ResortProfileUpdateWithoutLaundryJobsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutLaundryJobsInput = {
@@ -5474,10 +6786,14 @@ export type ResortProfileUncheckedUpdateWithoutLaundryJobsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutReservationsInput = {
@@ -5523,10 +6839,14 @@ export type ResortProfileCreateWithoutReservationsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutReservationsInput = {
@@ -5572,10 +6892,14 @@ export type ResortProfileUncheckedCreateWithoutReservationsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutReservationsInput = {
@@ -5637,10 +6961,14 @@ export type ResortProfileUpdateWithoutReservationsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutReservationsInput = {
@@ -5686,10 +7014,14 @@ export type ResortProfileUncheckedUpdateWithoutReservationsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutReceptionRequestsInput = {
@@ -5735,10 +7067,14 @@ export type ResortProfileCreateWithoutReceptionRequestsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutReceptionRequestsInput = {
@@ -5784,10 +7120,14 @@ export type ResortProfileUncheckedCreateWithoutReceptionRequestsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutReceptionRequestsInput = {
@@ -5849,10 +7189,14 @@ export type ResortProfileUpdateWithoutReceptionRequestsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutReceptionRequestsInput = {
@@ -5898,10 +7242,14 @@ export type ResortProfileUncheckedUpdateWithoutReceptionRequestsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutReceptionShiftNotesInput = {
@@ -5947,10 +7295,14 @@ export type ResortProfileCreateWithoutReceptionShiftNotesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutReceptionShiftNotesInput = {
@@ -5996,10 +7348,14 @@ export type ResortProfileUncheckedCreateWithoutReceptionShiftNotesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutReceptionShiftNotesInput = {
@@ -6061,10 +7417,14 @@ export type ResortProfileUpdateWithoutReceptionShiftNotesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutReceptionShiftNotesInput = {
@@ -6110,10 +7470,14 @@ export type ResortProfileUncheckedUpdateWithoutReceptionShiftNotesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutMaintenanceRequestsInput = {
@@ -6159,10 +7523,14 @@ export type ResortProfileCreateWithoutMaintenanceRequestsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutMaintenanceRequestsInput = {
@@ -6208,10 +7576,14 @@ export type ResortProfileUncheckedCreateWithoutMaintenanceRequestsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutMaintenanceRequestsInput = {
@@ -6273,10 +7645,14 @@ export type ResortProfileUpdateWithoutMaintenanceRequestsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutMaintenanceRequestsInput = {
@@ -6322,10 +7698,14 @@ export type ResortProfileUncheckedUpdateWithoutMaintenanceRequestsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutInventoryItemsInput = {
@@ -6371,10 +7751,14 @@ export type ResortProfileCreateWithoutInventoryItemsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutInventoryItemsInput = {
@@ -6420,10 +7804,14 @@ export type ResortProfileUncheckedCreateWithoutInventoryItemsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutInventoryItemsInput = {
@@ -6485,10 +7873,14 @@ export type ResortProfileUpdateWithoutInventoryItemsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutInventoryItemsInput = {
@@ -6534,10 +7926,14 @@ export type ResortProfileUncheckedUpdateWithoutInventoryItemsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutInventoryMovementsInput = {
@@ -6583,10 +7979,14 @@ export type ResortProfileCreateWithoutInventoryMovementsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutInventoryMovementsInput = {
@@ -6632,10 +8032,14 @@ export type ResortProfileUncheckedCreateWithoutInventoryMovementsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutInventoryMovementsInput = {
@@ -6697,10 +8101,14 @@ export type ResortProfileUpdateWithoutInventoryMovementsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutInventoryMovementsInput = {
@@ -6746,10 +8154,14 @@ export type ResortProfileUncheckedUpdateWithoutInventoryMovementsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutServicesInput = {
@@ -6795,10 +8207,14 @@ export type ResortProfileCreateWithoutServicesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutServicesInput = {
@@ -6844,10 +8260,14 @@ export type ResortProfileUncheckedCreateWithoutServicesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutServicesInput = {
@@ -6909,10 +8329,14 @@ export type ResortProfileUpdateWithoutServicesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutServicesInput = {
@@ -6958,10 +8382,14 @@ export type ResortProfileUncheckedUpdateWithoutServicesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutPackagesInput = {
@@ -7007,10 +8435,14 @@ export type ResortProfileCreateWithoutPackagesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutPackagesInput = {
@@ -7056,10 +8488,14 @@ export type ResortProfileUncheckedCreateWithoutPackagesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutPackagesInput = {
@@ -7121,10 +8557,14 @@ export type ResortProfileUpdateWithoutPackagesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutPackagesInput = {
@@ -7170,10 +8610,14 @@ export type ResortProfileUncheckedUpdateWithoutPackagesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutInvoicesInput = {
@@ -7219,10 +8663,14 @@ export type ResortProfileCreateWithoutInvoicesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutInvoicesInput = {
@@ -7268,10 +8716,14 @@ export type ResortProfileUncheckedCreateWithoutInvoicesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutInvoicesInput = {
@@ -7333,10 +8785,14 @@ export type ResortProfileUpdateWithoutInvoicesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutInvoicesInput = {
@@ -7382,10 +8838,14 @@ export type ResortProfileUncheckedUpdateWithoutInvoicesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutFolioChargesInput = {
@@ -7431,10 +8891,14 @@ export type ResortProfileCreateWithoutFolioChargesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutFolioChargesInput = {
@@ -7480,10 +8944,14 @@ export type ResortProfileUncheckedCreateWithoutFolioChargesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutFolioChargesInput = {
@@ -7545,10 +9013,14 @@ export type ResortProfileUpdateWithoutFolioChargesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutFolioChargesInput = {
@@ -7594,10 +9066,14 @@ export type ResortProfileUncheckedUpdateWithoutFolioChargesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutPaymentLogsInput = {
@@ -7643,10 +9119,14 @@ export type ResortProfileCreateWithoutPaymentLogsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutPaymentLogsInput = {
@@ -7692,10 +9172,14 @@ export type ResortProfileUncheckedCreateWithoutPaymentLogsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutPaymentLogsInput = {
@@ -7757,10 +9241,14 @@ export type ResortProfileUpdateWithoutPaymentLogsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutPaymentLogsInput = {
@@ -7806,10 +9294,14 @@ export type ResortProfileUncheckedUpdateWithoutPaymentLogsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutPaymentCheckoutsInput = {
@@ -7855,10 +9347,14 @@ export type ResortProfileCreateWithoutPaymentCheckoutsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutPaymentCheckoutsInput = {
@@ -7904,10 +9400,14 @@ export type ResortProfileUncheckedCreateWithoutPaymentCheckoutsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutPaymentCheckoutsInput = {
@@ -7969,10 +9469,14 @@ export type ResortProfileUpdateWithoutPaymentCheckoutsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutPaymentCheckoutsInput = {
@@ -8018,10 +9522,14 @@ export type ResortProfileUncheckedUpdateWithoutPaymentCheckoutsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutFinanceEntriesInput = {
@@ -8067,10 +9575,14 @@ export type ResortProfileCreateWithoutFinanceEntriesInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutFinanceEntriesInput = {
@@ -8116,10 +9628,14 @@ export type ResortProfileUncheckedCreateWithoutFinanceEntriesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutFinanceEntriesInput = {
@@ -8181,10 +9697,14 @@ export type ResortProfileUpdateWithoutFinanceEntriesInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutFinanceEntriesInput = {
@@ -8230,10 +9750,14 @@ export type ResortProfileUncheckedUpdateWithoutFinanceEntriesInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileCreateWithoutTransactionExportsInput = {
@@ -8279,10 +9803,14 @@ export type ResortProfileCreateWithoutTransactionExportsInput = {
   timeLogs?: Prisma.ResortTimeLogCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileUncheckedCreateWithoutTransactionExportsInput = {
@@ -8328,10 +9856,14 @@ export type ResortProfileUncheckedCreateWithoutTransactionExportsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedCreateNestedManyWithoutResortProfileInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedCreateNestedManyWithoutResortProfileInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedCreateNestedManyWithoutResortProfileInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedCreateNestedManyWithoutResortProfileInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedCreateNestedManyWithoutResortProfileInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedCreateNestedManyWithoutResortProfileInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedCreateNestedManyWithoutResortProfileInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedCreateNestedManyWithoutResortProfileInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedCreateNestedManyWithoutResortProfileInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedCreateNestedManyWithoutResortProfileInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedCreateNestedOneWithoutResortProfileInput
 }
 
 export type ResortProfileCreateOrConnectWithoutTransactionExportsInput = {
@@ -8393,10 +9925,14 @@ export type ResortProfileUpdateWithoutTransactionExportsInput = {
   timeLogs?: Prisma.ResortTimeLogUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUpdateOneWithoutResortProfileNestedInput
 }
 
 export type ResortProfileUncheckedUpdateWithoutTransactionExportsInput = {
@@ -8442,10 +9978,14 @@ export type ResortProfileUncheckedUpdateWithoutTransactionExportsInput = {
   timeLogs?: Prisma.ResortTimeLogUncheckedUpdateManyWithoutResortProfileNestedInput
   scheduleShifts?: Prisma.ResortScheduleShiftUncheckedUpdateManyWithoutResortProfileNestedInput
   leaveRequests?: Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileNestedInput
+  leavePolicies?: Prisma.ResortLeavePolicyUncheckedUpdateManyWithoutResortProfileNestedInput
+  leaveBalances?: Prisma.ResortLeaveBalanceUncheckedUpdateManyWithoutResortProfileNestedInput
   otUndertimeEntries?: Prisma.ResortOtUndertimeEntryUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollRuns?: Prisma.ResortPayrollRunUncheckedUpdateManyWithoutResortProfileNestedInput
   payrollItems?: Prisma.ResortPayrollItemUncheckedUpdateManyWithoutResortProfileNestedInput
   staffActivityLogs?: Prisma.ResortStaffActivityLogUncheckedUpdateManyWithoutResortProfileNestedInput
+  developerSettings?: Prisma.ResortDeveloperSettingUncheckedUpdateManyWithoutResortProfileNestedInput
+  landingBranding?: Prisma.ResortLandingBrandingUncheckedUpdateOneWithoutResortProfileNestedInput
 }
 
 
@@ -8483,10 +10023,13 @@ export type ResortProfileCountOutputType = {
   timeLogs: number
   scheduleShifts: number
   leaveRequests: number
+  leavePolicies: number
+  leaveBalances: number
   otUndertimeEntries: number
   payrollRuns: number
   payrollItems: number
   staffActivityLogs: number
+  developerSettings: number
 }
 
 export type ResortProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -8519,10 +10062,13 @@ export type ResortProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   timeLogs?: boolean | ResortProfileCountOutputTypeCountTimeLogsArgs
   scheduleShifts?: boolean | ResortProfileCountOutputTypeCountScheduleShiftsArgs
   leaveRequests?: boolean | ResortProfileCountOutputTypeCountLeaveRequestsArgs
+  leavePolicies?: boolean | ResortProfileCountOutputTypeCountLeavePoliciesArgs
+  leaveBalances?: boolean | ResortProfileCountOutputTypeCountLeaveBalancesArgs
   otUndertimeEntries?: boolean | ResortProfileCountOutputTypeCountOtUndertimeEntriesArgs
   payrollRuns?: boolean | ResortProfileCountOutputTypeCountPayrollRunsArgs
   payrollItems?: boolean | ResortProfileCountOutputTypeCountPayrollItemsArgs
   staffActivityLogs?: boolean | ResortProfileCountOutputTypeCountStaffActivityLogsArgs
+  developerSettings?: boolean | ResortProfileCountOutputTypeCountDeveloperSettingsArgs
 }
 
 /**
@@ -8741,6 +10287,20 @@ export type ResortProfileCountOutputTypeCountLeaveRequestsArgs<ExtArgs extends r
 /**
  * ResortProfileCountOutputType without action
  */
+export type ResortProfileCountOutputTypeCountLeavePoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ResortLeavePolicyWhereInput
+}
+
+/**
+ * ResortProfileCountOutputType without action
+ */
+export type ResortProfileCountOutputTypeCountLeaveBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ResortLeaveBalanceWhereInput
+}
+
+/**
+ * ResortProfileCountOutputType without action
+ */
 export type ResortProfileCountOutputTypeCountOtUndertimeEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ResortOtUndertimeEntryWhereInput
 }
@@ -8764,6 +10324,13 @@ export type ResortProfileCountOutputTypeCountPayrollItemsArgs<ExtArgs extends ru
  */
 export type ResortProfileCountOutputTypeCountStaffActivityLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ResortStaffActivityLogWhereInput
+}
+
+/**
+ * ResortProfileCountOutputType without action
+ */
+export type ResortProfileCountOutputTypeCountDeveloperSettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ResortDeveloperSettingWhereInput
 }
 
 
@@ -8812,10 +10379,14 @@ export type ResortProfileSelect<ExtArgs extends runtime.Types.Extensions.Interna
   timeLogs?: boolean | Prisma.ResortProfile$timeLogsArgs<ExtArgs>
   scheduleShifts?: boolean | Prisma.ResortProfile$scheduleShiftsArgs<ExtArgs>
   leaveRequests?: boolean | Prisma.ResortProfile$leaveRequestsArgs<ExtArgs>
+  leavePolicies?: boolean | Prisma.ResortProfile$leavePoliciesArgs<ExtArgs>
+  leaveBalances?: boolean | Prisma.ResortProfile$leaveBalancesArgs<ExtArgs>
   otUndertimeEntries?: boolean | Prisma.ResortProfile$otUndertimeEntriesArgs<ExtArgs>
   payrollRuns?: boolean | Prisma.ResortProfile$payrollRunsArgs<ExtArgs>
   payrollItems?: boolean | Prisma.ResortProfile$payrollItemsArgs<ExtArgs>
   staffActivityLogs?: boolean | Prisma.ResortProfile$staffActivityLogsArgs<ExtArgs>
+  developerSettings?: boolean | Prisma.ResortProfile$developerSettingsArgs<ExtArgs>
+  landingBranding?: boolean | Prisma.ResortProfile$landingBrandingArgs<ExtArgs>
   _count?: boolean | Prisma.ResortProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resortProfile"]>
 
@@ -8904,10 +10475,14 @@ export type ResortProfileInclude<ExtArgs extends runtime.Types.Extensions.Intern
   timeLogs?: boolean | Prisma.ResortProfile$timeLogsArgs<ExtArgs>
   scheduleShifts?: boolean | Prisma.ResortProfile$scheduleShiftsArgs<ExtArgs>
   leaveRequests?: boolean | Prisma.ResortProfile$leaveRequestsArgs<ExtArgs>
+  leavePolicies?: boolean | Prisma.ResortProfile$leavePoliciesArgs<ExtArgs>
+  leaveBalances?: boolean | Prisma.ResortProfile$leaveBalancesArgs<ExtArgs>
   otUndertimeEntries?: boolean | Prisma.ResortProfile$otUndertimeEntriesArgs<ExtArgs>
   payrollRuns?: boolean | Prisma.ResortProfile$payrollRunsArgs<ExtArgs>
   payrollItems?: boolean | Prisma.ResortProfile$payrollItemsArgs<ExtArgs>
   staffActivityLogs?: boolean | Prisma.ResortProfile$staffActivityLogsArgs<ExtArgs>
+  developerSettings?: boolean | Prisma.ResortProfile$developerSettingsArgs<ExtArgs>
+  landingBranding?: boolean | Prisma.ResortProfile$landingBrandingArgs<ExtArgs>
   _count?: boolean | Prisma.ResortProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ResortProfileIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -8950,10 +10525,14 @@ export type $ResortProfilePayload<ExtArgs extends runtime.Types.Extensions.Inter
     timeLogs: Prisma.$ResortTimeLogPayload<ExtArgs>[]
     scheduleShifts: Prisma.$ResortScheduleShiftPayload<ExtArgs>[]
     leaveRequests: Prisma.$ResortLeaveRequestPayload<ExtArgs>[]
+    leavePolicies: Prisma.$ResortLeavePolicyPayload<ExtArgs>[]
+    leaveBalances: Prisma.$ResortLeaveBalancePayload<ExtArgs>[]
     otUndertimeEntries: Prisma.$ResortOtUndertimeEntryPayload<ExtArgs>[]
     payrollRuns: Prisma.$ResortPayrollRunPayload<ExtArgs>[]
     payrollItems: Prisma.$ResortPayrollItemPayload<ExtArgs>[]
     staffActivityLogs: Prisma.$ResortStaffActivityLogPayload<ExtArgs>[]
+    developerSettings: Prisma.$ResortDeveloperSettingPayload<ExtArgs>[]
+    landingBranding: Prisma.$ResortLandingBrandingPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -9394,10 +10973,14 @@ export interface Prisma__ResortProfileClient<T, Null = never, ExtArgs extends ru
   timeLogs<T extends Prisma.ResortProfile$timeLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$timeLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortTimeLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   scheduleShifts<T extends Prisma.ResortProfile$scheduleShiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$scheduleShiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortScheduleShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leaveRequests<T extends Prisma.ResortProfile$leaveRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$leaveRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortLeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leavePolicies<T extends Prisma.ResortProfile$leavePoliciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$leavePoliciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortLeavePolicyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leaveBalances<T extends Prisma.ResortProfile$leaveBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$leaveBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortLeaveBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   otUndertimeEntries<T extends Prisma.ResortProfile$otUndertimeEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$otUndertimeEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortOtUndertimeEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payrollRuns<T extends Prisma.ResortProfile$payrollRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$payrollRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortPayrollRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payrollItems<T extends Prisma.ResortProfile$payrollItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$payrollItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortPayrollItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   staffActivityLogs<T extends Prisma.ResortProfile$staffActivityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$staffActivityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortStaffActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  developerSettings<T extends Prisma.ResortProfile$developerSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$developerSettingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResortDeveloperSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  landingBranding<T extends Prisma.ResortProfile$landingBrandingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfile$landingBrandingArgs<ExtArgs>>): Prisma.Prisma__ResortLandingBrandingClient<runtime.Types.Result.GetResult<Prisma.$ResortLandingBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10538,6 +12121,54 @@ export type ResortProfile$leaveRequestsArgs<ExtArgs extends runtime.Types.Extens
 }
 
 /**
+ * ResortProfile.leavePolicies
+ */
+export type ResortProfile$leavePoliciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResortLeavePolicy
+   */
+  select?: Prisma.ResortLeavePolicySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ResortLeavePolicy
+   */
+  omit?: Prisma.ResortLeavePolicyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResortLeavePolicyInclude<ExtArgs> | null
+  where?: Prisma.ResortLeavePolicyWhereInput
+  orderBy?: Prisma.ResortLeavePolicyOrderByWithRelationInput | Prisma.ResortLeavePolicyOrderByWithRelationInput[]
+  cursor?: Prisma.ResortLeavePolicyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ResortLeavePolicyScalarFieldEnum | Prisma.ResortLeavePolicyScalarFieldEnum[]
+}
+
+/**
+ * ResortProfile.leaveBalances
+ */
+export type ResortProfile$leaveBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResortLeaveBalance
+   */
+  select?: Prisma.ResortLeaveBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ResortLeaveBalance
+   */
+  omit?: Prisma.ResortLeaveBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResortLeaveBalanceInclude<ExtArgs> | null
+  where?: Prisma.ResortLeaveBalanceWhereInput
+  orderBy?: Prisma.ResortLeaveBalanceOrderByWithRelationInput | Prisma.ResortLeaveBalanceOrderByWithRelationInput[]
+  cursor?: Prisma.ResortLeaveBalanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ResortLeaveBalanceScalarFieldEnum | Prisma.ResortLeaveBalanceScalarFieldEnum[]
+}
+
+/**
  * ResortProfile.otUndertimeEntries
  */
 export type ResortProfile$otUndertimeEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -10631,6 +12262,49 @@ export type ResortProfile$staffActivityLogsArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.ResortStaffActivityLogScalarFieldEnum | Prisma.ResortStaffActivityLogScalarFieldEnum[]
+}
+
+/**
+ * ResortProfile.developerSettings
+ */
+export type ResortProfile$developerSettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResortDeveloperSetting
+   */
+  select?: Prisma.ResortDeveloperSettingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ResortDeveloperSetting
+   */
+  omit?: Prisma.ResortDeveloperSettingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResortDeveloperSettingInclude<ExtArgs> | null
+  where?: Prisma.ResortDeveloperSettingWhereInput
+  orderBy?: Prisma.ResortDeveloperSettingOrderByWithRelationInput | Prisma.ResortDeveloperSettingOrderByWithRelationInput[]
+  cursor?: Prisma.ResortDeveloperSettingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ResortDeveloperSettingScalarFieldEnum | Prisma.ResortDeveloperSettingScalarFieldEnum[]
+}
+
+/**
+ * ResortProfile.landingBranding
+ */
+export type ResortProfile$landingBrandingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResortLandingBranding
+   */
+  select?: Prisma.ResortLandingBrandingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ResortLandingBranding
+   */
+  omit?: Prisma.ResortLandingBrandingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResortLandingBrandingInclude<ExtArgs> | null
+  where?: Prisma.ResortLandingBrandingWhereInput
 }
 
 /**

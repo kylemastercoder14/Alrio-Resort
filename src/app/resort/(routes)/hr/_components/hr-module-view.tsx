@@ -25,12 +25,12 @@ import {
   Trash2,
   UserCheck,
   Users,
+  WalletCards,
   XCircle,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { ReusableDataTable } from "@/components/reusable/data-table";
-import { CreatableSelect } from "@/components/reusable/creatable-select";
 import { KpiGrid, type KpiGridItem } from "@/components/reusable/kpi-grid";
 import { ResortBreadcrumb } from "@/components/resort/resort-breadcrumb";
 import {
@@ -71,6 +71,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -82,6 +90,13 @@ type HrModule =
   | "scheduling"
   | "staff-records"
   | "timekeeping";
+
+function hasHrPermission(
+  permissions: readonly string[] | undefined,
+  permission: string,
+) {
+  return Boolean(permissions?.includes("*") || permissions?.includes(permission));
+}
 
 type StaffRow = {
   allowance: number;
@@ -144,12 +159,14 @@ type TimeLogRow = {
   hours: string;
   id: string;
   name: string;
+  recordId: string;
   role: string;
 };
 
 type LeaveRow = {
   balance: string;
   balanceDays: number;
+  leavePolicyId: string | null;
   endDate: Date | string;
   id: string;
   name: string;
@@ -162,8 +179,8 @@ type LeaveRow = {
 };
 
 type LeaveFormState = {
-  balanceDays: string;
   endDate: string;
+  leavePolicyId: string;
   reason: string;
   staffProfileId: string;
   startDate: string;
@@ -189,16 +206,6 @@ type OtFormState = {
   staffProfileId: string;
   type: "Overtime" | "Undertime";
 };
-
-const LEAVE_TYPE_OPTIONS = [
-  "Vacation leave",
-  "Sick leave",
-  "Emergency leave",
-  "Maternity leave",
-  "Paternity leave",
-  "Bereavement leave",
-  "Unpaid leave",
-] as const;
 
 const moduleContent: Record<
   HrModule,
@@ -255,7 +262,10 @@ export function HrModuleView({ module }: { module: HrModule }) {
         ) : module === "scheduling" ? (
           <AssignShiftDialog />
         ) : module === "leave-requests" ? (
-          <NewLeaveDialog />
+          <div className="flex items-center gap-2">
+            <LeaveBalancesSheet />
+            <NewLeaveDialog />
+          </div>
         ) : module === "ot-undertime" ? (
           <LogOtUndertimeDialog />
         ) : (
@@ -349,7 +359,6 @@ function AssignShiftDialog({
   const activeStaff = (staffRecords.data ?? []).filter(
     (staff) => staff.status === "Active",
   );
-
   function updateForm(patch: Partial<ShiftFormState>) {
     setForm((current) => ({ ...current, ...patch }));
   }
@@ -529,6 +538,195 @@ function AssignShiftDialog({
   );
 }
 
+function LeaveBalancesSheet() {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [policyForm, setPolicyForm] = useState({
+    name: "",
+    annualEntitlement: "5",
+    carryOverLimit: "0",
+  });
+  const [allocationForm, setAllocationForm] = useState({
+    staffProfileId: "",
+    leavePolicyId: "",
+    openingDays: "0",
+    allocatedDays: "",
+    adjustmentDays: "0",
+  });
+  const profile = useQuery({ ...trpc.auth.profile.queryOptions(), retry: false });
+  const canManage = hasHrPermission(profile.data?.permissions, "hr.leaveRequests.manage");
+  const policies = useQuery({
+    ...trpc.resort.leaveBalances.policies.queryOptions(),
+    enabled: open,
+    retry: false,
+  });
+  const balances = useQuery({
+    ...trpc.resort.leaveBalances.list.queryOptions(),
+    enabled: open,
+    retry: false,
+  });
+  const staffRecords = useQuery({
+    ...trpc.resort.staffRecords.list.queryOptions(),
+    enabled: open && canManage,
+    retry: false,
+  });
+  const invalidate = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries(trpc.resort.leaveBalances.policies.queryFilter()),
+      queryClient.invalidateQueries(trpc.resort.leaveBalances.list.queryFilter()),
+      queryClient.invalidateQueries(trpc.resort.leaveRequests.list.queryFilter()),
+    ]);
+  };
+  const savePolicy = useMutation(
+    trpc.resort.leaveBalances.savePolicy.mutationOptions({
+      onSuccess: async () => {
+        await invalidate();
+        setPolicyForm({ name: "", annualEntitlement: "5", carryOverLimit: "0" });
+        toast.success("Leave policy created.");
+      },
+      onError: (error) => toast.error(error.message),
+    }),
+  );
+  const saveAllocation = useMutation(
+    trpc.resort.leaveBalances.saveAllocation.mutationOptions({
+      onSuccess: async () => {
+        await invalidate();
+        setAllocationForm({ staffProfileId: "", leavePolicyId: "", openingDays: "0", allocatedDays: "", adjustmentDays: "0" });
+        toast.success("Leave balance saved.");
+      },
+      onError: (error) => toast.error(error.message),
+    }),
+  );
+  const activeStaff = (staffRecords.data ?? []).filter((staff) => staff.status === "Active");
+
+  function submitPolicy(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    savePolicy.mutate({
+      name: policyForm.name,
+      annualEntitlement: Number(policyForm.annualEntitlement),
+      carryOverLimit: Number(policyForm.carryOverLimit),
+      isActive: true,
+    });
+  }
+
+  function submitAllocation(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!allocationForm.staffProfileId || !allocationForm.leavePolicyId) {
+      toast.error("Choose both a staff member and leave policy.");
+      return;
+    }
+    saveAllocation.mutate({
+      staffProfileId: allocationForm.staffProfileId,
+      leavePolicyId: allocationForm.leavePolicyId,
+      year: new Date().getFullYear(),
+      openingDays: Number(allocationForm.openingDays || 0),
+      allocatedDays: Number(allocationForm.allocatedDays || 0),
+      adjustmentDays: Number(allocationForm.adjustmentDays || 0),
+    });
+  }
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button size="sm" variant="outline">
+          <WalletCards className="size-4" />
+          {canManage ? "Leave balances" : "My leave balance"}
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="w-full overflow-y-auto max-w-xl!">
+        <SheetHeader className="px-6 pt-6">
+          <SheetTitle>Leave balances</SheetTitle>
+          <SheetDescription>
+            {canManage
+              ? "Create leave policies, then allocate yearly credits to each staff member. Approved leave automatically deducts from the allocation."
+              : "Your current leave credits and the amount already used this year."}
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="space-y-6 px-6 pb-8">
+          {canManage ? (
+            <>
+              <Card className="space-y-4 p-4">
+                <div>
+                  <h3 className="font-semibold">Create leave policy</h3>
+                  <p className="text-sm text-muted-foreground">Examples: Vacation leave, Sick leave, or Emergency leave.</p>
+                </div>
+                <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitPolicy}>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="policy-name">Policy name</Label>
+                    <Input id="policy-name" onChange={(event) => setPolicyForm((current) => ({ ...current, name: event.target.value }))} placeholder="Vacation leave" required value={policyForm.name} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="policy-entitlement">Annual days</Label>
+                    <Input id="policy-entitlement" min="0" onChange={(event) => setPolicyForm((current) => ({ ...current, annualEntitlement: event.target.value }))} required type="number" value={policyForm.annualEntitlement} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="policy-carryover">Carry-over limit</Label>
+                    <Input id="policy-carryover" min="0" onChange={(event) => setPolicyForm((current) => ({ ...current, carryOverLimit: event.target.value }))} required type="number" value={policyForm.carryOverLimit} />
+                  </div>
+                  <Button className="sm:col-span-2" disabled={savePolicy.isPending} type="submit">
+                    {savePolicy.isPending ? "Creating..." : "Create policy"}
+                  </Button>
+                </form>
+              </Card>
+
+              <Card className="space-y-4 p-4">
+                <div>
+                  <h3 className="font-semibold">Allocate or adjust balance</h3>
+                  <p className="text-sm text-muted-foreground">Set this calendar year&apos;s available credits. Updates keep days already used.</p>
+                </div>
+                <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitAllocation}>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label>Staff member</Label>
+                    <Select onValueChange={(value) => setAllocationForm((current) => ({ ...current, staffProfileId: value }))} value={allocationForm.staffProfileId}>
+                      <SelectTrigger className="w-full"><SelectValue placeholder="Select staff" /></SelectTrigger>
+                      <SelectContent>{activeStaff.map((staff) => <SelectItem key={staff.id} value={staff.id}>{staff.displayName}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label>Leave policy</Label>
+                    <Select onValueChange={(value) => {
+                      const selected = (policies.data ?? []).find((policy) => policy.id === value);
+                      setAllocationForm((current) => ({ ...current, leavePolicyId: value, allocatedDays: selected ? String(selected.annualEntitlement) : current.allocatedDays }));
+                    }} value={allocationForm.leavePolicyId}>
+                      <SelectTrigger className="w-full"><SelectValue placeholder="Select leave policy" /></SelectTrigger>
+                      <SelectContent>{(policies.data ?? []).filter((policy) => policy.isActive).map((policy) => <SelectItem key={policy.id} value={policy.id}>{policy.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2"><Label htmlFor="opening-days">Opening days</Label><Input id="opening-days" min="0" onChange={(event) => setAllocationForm((current) => ({ ...current, openingDays: event.target.value }))} type="number" value={allocationForm.openingDays} /></div>
+                  <div className="space-y-2"><Label htmlFor="allocated-days">Allocated days</Label><Input id="allocated-days" min="0" onChange={(event) => setAllocationForm((current) => ({ ...current, allocatedDays: event.target.value }))} required type="number" value={allocationForm.allocatedDays} /></div>
+                  <div className="space-y-2 sm:col-span-2"><Label htmlFor="adjustment-days">Adjustment days</Label><Input id="adjustment-days" onChange={(event) => setAllocationForm((current) => ({ ...current, adjustmentDays: event.target.value }))} type="number" value={allocationForm.adjustmentDays} /></div>
+                  <Button className="sm:col-span-2" disabled={saveAllocation.isPending} type="submit">{saveAllocation.isPending ? "Saving..." : "Save allocation"}</Button>
+                </form>
+              </Card>
+            </>
+          ) : null}
+
+          <div className="space-y-3">
+            <div>
+              <h3 className="font-semibold">{new Date().getFullYear()} balances</h3>
+              <p className="text-sm text-muted-foreground">Available = opening + allocated + adjustments − used.</p>
+            </div>
+            {balances.isPending ? <Skeleton className="h-24 w-full" /> : (balances.data ?? []).length === 0 ? (
+              <Card className="p-4 text-sm text-muted-foreground">No leave credits have been allocated for this year yet.</Card>
+            ) : (
+              <div className="space-y-2">
+                {(balances.data ?? []).map((balance) => (
+                  <Card className="flex items-center justify-between gap-3 p-3" key={balance.id}>
+                    <div className="min-w-0"><p className="font-medium">{balance.policyName}</p>{canManage ? <p className="truncate text-xs text-muted-foreground">{balance.staffName}</p> : null}</div>
+                    <div className="text-right"><p className="font-semibold">{balance.availableDays} days</p><p className="text-xs text-muted-foreground">{balance.usedDays} used</p></div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 function NewLeaveDialog({
   mode = "create",
   request,
@@ -544,16 +742,36 @@ function NewLeaveDialog({
   const [form, setForm] = useState<LeaveFormState>(() =>
     request ? getLeaveFormFromRow(request) : getDefaultLeaveForm(),
   );
+  const profile = useQuery({
+    ...trpc.auth.profile.queryOptions(),
+    retry: false,
+  });
+  const canManageLeaveRequests = hasHrPermission(
+    profile.data?.permissions,
+    "hr.leaveRequests.manage",
+  );
   const staffRecords = useQuery({
     ...trpc.resort.staffRecords.list.queryOptions(),
+    enabled: canManageLeaveRequests && open,
+    retry: false,
+  });
+  const leavePolicies = useQuery({
+    ...trpc.resort.leaveBalances.policies.queryOptions(),
+    enabled: open,
+    retry: false,
+  });
+  const leaveBalances = useQuery({
+    ...trpc.resort.leaveBalances.list.queryOptions(),
+    enabled: open,
     retry: false,
   });
   const saveLeave = useMutation(
     trpc.resort.leaveRequests.save.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(
-          trpc.resort.leaveRequests.list.queryFilter(),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(trpc.resort.leaveRequests.list.queryFilter()),
+          queryClient.invalidateQueries(trpc.resort.leaveBalances.list.queryFilter()),
+        ]);
         setForm(request ? getLeaveFormFromRow(request) : getDefaultLeaveForm());
         setOpen(false);
         toast.success(mode === "edit" ? "Leave request updated." : "Leave request saved.");
@@ -564,6 +782,14 @@ function NewLeaveDialog({
   const activeStaff = (staffRecords.data ?? []).filter(
     (staff) => staff.status === "Active",
   );
+  const selectedPolicy = (leavePolicies.data ?? []).find(
+    (policy) => policy.id === form.leavePolicyId,
+  );
+  const selectedBalance = (leaveBalances.data ?? []).find(
+    (balance) =>
+      balance.leavePolicyId === form.leavePolicyId &&
+      (!canManageLeaveRequests || balance.staffProfileId === form.staffProfileId),
+  );
 
   function updateForm(patch: Partial<LeaveFormState>) {
     setForm((current) => ({ ...current, ...patch }));
@@ -571,14 +797,22 @@ function NewLeaveDialog({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (canManageLeaveRequests && !form.staffProfileId) {
+      toast.error("Select the staff member for this leave request.");
+      return;
+    }
+    if (!form.leavePolicyId) {
+      toast.error("Select the leave policy to use for this request.");
+      return;
+    }
     saveLeave.mutate({
-      balanceDays: Number(form.balanceDays || 0),
       endDate: new Date(form.endDate),
       id: mode === "edit" ? request?.recordId : undefined,
+      leavePolicyId: form.leavePolicyId || undefined,
       reason: form.reason,
       staffProfileId: form.staffProfileId,
       startDate: new Date(form.startDate),
-      type: form.type,
+      type: selectedPolicy?.name ?? form.type,
     });
   }
 
@@ -606,47 +840,59 @@ function NewLeaveDialog({
           </DialogHeader>
 
           <div className="grid gap-4 md:grid-cols-2">
+            {canManageLeaveRequests ? (
+              <div className="space-y-2 md:col-span-2">
+                <Label>Staff</Label>
+                <Select
+                  disabled={staffRecords.isPending}
+                  onValueChange={(value) => updateForm({ staffProfileId: value })}
+                  value={form.staffProfileId}
+                >
+                  <SelectTrigger className="w-full rounded-lg">
+                    <SelectValue placeholder="Select staff" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeStaff.map((staff) => (
+                      <SelectItem key={staff.id} value={staff.id}>
+                        {staff.displayName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-600 md:col-span-2">
+                This request will be assigned to your staff profile.
+              </div>
+            )}
             <div className="space-y-2 md:col-span-2">
-              <Label>Staff</Label>
+              <Label htmlFor="leave-type">Leave type</Label>
               <Select
-                disabled={staffRecords.isPending}
-                onValueChange={(value) => updateForm({ staffProfileId: value })}
-                value={form.staffProfileId}
+                disabled={leavePolicies.isPending}
+                onValueChange={(value) =>
+                  updateForm({
+                    leavePolicyId: value,
+                    type: (leavePolicies.data ?? []).find((policy) => policy.id === value)?.name ?? "",
+                  })
+                }
+                value={form.leavePolicyId}
               >
                 <SelectTrigger className="w-full rounded-lg">
-                  <SelectValue placeholder="Select staff" />
+                  <SelectValue placeholder="Select a leave policy" />
                 </SelectTrigger>
                 <SelectContent>
-                  {activeStaff.map((staff) => (
-                    <SelectItem key={staff.id} value={staff.id}>
-                      {staff.displayName}
+                  {(leavePolicies.data ?? []).filter((policy) => policy.isActive).map((policy) => (
+                    <SelectItem key={policy.id} value={policy.id}>
+                      {policy.name} · {policy.annualEntitlement} days/year
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="leave-type">Leave type</Label>
-              <CreatableSelect
-                createLabel={(value) => `Create leave type "${value}"`}
-                onChange={(value) => updateForm({ type: value })}
-                options={LEAVE_TYPE_OPTIONS}
-                placeholder="Vacation leave"
-                searchPlaceholder="Search or create leave type..."
-                value={form.type}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="leave-balance">Balance days</Label>
-              <Input
-                className="rounded-lg"
-                id="leave-balance"
-                min="0"
-                onChange={(event) => updateForm({ balanceDays: event.target.value })}
-                required
-                type="number"
-                value={form.balanceDays}
-              />
+              <p className="text-xs text-muted-foreground">
+                {selectedBalance
+                  ? `${selectedBalance.availableDays} day${selectedBalance.availableDays === 1 ? "" : "s"} currently available.`
+                  : "Choose a policy and staff member with an allocated balance."}
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="leave-start">Start date</Label>
@@ -698,12 +944,17 @@ function LogOtUndertimeDialog() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<OtFormState>(() => getDefaultOtForm());
-  const staffRecords = useQuery({
-    ...trpc.resort.staffRecords.list.queryOptions(),
+  const profile = useQuery({
+    ...trpc.auth.profile.queryOptions(),
     retry: false,
   });
-  const staffSession = useQuery({
-    ...trpc.resort.timekeeping.me.queryOptions(),
+  const canManageOtUndertime = hasHrPermission(
+    profile.data?.permissions,
+    "hr.otUndertime.manage",
+  );
+  const staffRecords = useQuery({
+    ...trpc.resort.staffRecords.list.queryOptions(),
+    enabled: canManageOtUndertime && open,
     retry: false,
   });
   const saveEntry = useMutation(
@@ -722,7 +973,7 @@ function LogOtUndertimeDialog() {
   const activeStaff = (staffRecords.data ?? []).filter(
     (staff) => staff.status === "Active",
   );
-  const showStaffSelect = staffSession.data?.isStaff === false;
+  const showStaffSelect = canManageOtUndertime;
 
   function updateForm(patch: Partial<OtFormState>) {
     setForm((current) => ({ ...current, ...patch }));
@@ -730,6 +981,10 @@ function LogOtUndertimeDialog() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (showStaffSelect && !form.staffProfileId) {
+      toast.error("Select the staff member for this entry.");
+      return;
+    }
     saveEntry.mutate({
       hours: form.hours,
       payPeriod: form.payPeriod,
@@ -1073,13 +1328,17 @@ function StaffRecordActions({ staff }: { staff: StaffRow }) {
             Edit account
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/resort/hr/scheduling">
           <CalendarDays className="size-4" />
           View schedule
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/resort/hr/timekeeping">
           <Clock3 className="size-4" />
           Open time logs
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -1291,6 +1550,14 @@ function SchedulingTableSkeleton() {
 function TimekeepingView() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const profile = useQuery({
+    ...trpc.auth.profile.queryOptions(),
+    retry: false,
+  });
+  const canManageTimekeeping = hasHrPermission(
+    profile.data?.permissions,
+    "hr.timekeeping.manage",
+  );
   const staffSession = useQuery({
     ...trpc.resort.timekeeping.me.queryOptions(),
     retry: false,
@@ -1317,6 +1584,15 @@ function TimekeepingView() {
       onError: (error) => toast.error(error.message),
     }),
   );
+  const updateFlag = useMutation(
+    trpc.resort.timekeeping.updateFlag.mutationOptions({
+      onSuccess: async () => {
+        await invalidateTimekeeping(queryClient, trpc);
+        toast.success("Time log status updated.");
+      },
+      onError: (error) => toast.error(error.message),
+    }),
+  );
   const tableData = useMemo<TimeLogRow[]>(() => {
     return (timeLogs.data ?? []).map((timeLog, index) => ({
       clockIn: timeLog.clockIn,
@@ -1327,6 +1603,7 @@ function TimekeepingView() {
       hours: timeLog.hours,
       id: `TME-${String(index + 1).padStart(4, "0")}`,
       name: timeLog.name,
+      recordId: timeLog.id,
       role: timeLog.role,
     }));
   }, [timeLogs.data]);
@@ -1372,14 +1649,18 @@ function TimekeepingView() {
       {
         id: "actions",
         header: "",
-        cell: () => (
-          <RowActions
-            labels={["Edit time log", "Mark reviewed", "Flag absence"]}
+        cell: ({ row }) => canManageTimekeeping ? (
+          <TimeLogActions
+            isPending={updateFlag.isPending}
+            onSetFlag={(flag) =>
+              updateFlag.mutate({ id: row.original.recordId, flag })
+            }
+            timeLog={row.original}
           />
-        ),
+        ) : null,
       },
     ],
-    [],
+    [canManageTimekeeping, updateFlag],
   );
 
   if (timeLogs.isPending || staffSession.isPending) {
@@ -1532,6 +1813,14 @@ function TimekeepingTableSkeleton() {
 
 function LeaveRequestsTable() {
   const trpc = useTRPC();
+  const profile = useQuery({
+    ...trpc.auth.profile.queryOptions(),
+    retry: false,
+  });
+  const canManageLeaveRequests = hasHrPermission(
+    profile.data?.permissions,
+    "hr.leaveRequests.manage",
+  );
   const leaveRequests = useQuery({
     ...trpc.resort.leaveRequests.list.queryOptions(),
     retry: false,
@@ -1542,6 +1831,7 @@ function LeaveRequestsTable() {
       balanceDays: request.balanceDays,
       endDate: request.endDate,
       id: `LEV-${String(index + 1).padStart(4, "0")}`,
+      leavePolicyId: request.leavePolicyId,
       name: request.name,
       recordId: request.id,
       reason: request.reason,
@@ -1580,10 +1870,15 @@ function LeaveRequestsTable() {
       {
         id: "actions",
         header: "",
-        cell: ({ row }) => <LeaveRequestActions request={row.original} />,
+        cell: ({ row }) => (
+          <LeaveRequestActions
+            canManage={canManageLeaveRequests}
+            request={row.original}
+          />
+        ),
       },
     ],
-    [],
+    [canManageLeaveRequests],
   );
 
   if (leaveRequests.isPending) {
@@ -1661,16 +1956,23 @@ function LeaveRequestsKpis() {
   );
 }
 
-function LeaveRequestActions({ request }: { request: LeaveRow }) {
+function LeaveRequestActions({
+  canManage,
+  request,
+}: {
+  canManage: boolean;
+  request: LeaveRow;
+}) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const updateStatus = useMutation(
     trpc.resort.leaveRequests.updateStatus.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(
-          trpc.resort.leaveRequests.list.queryFilter(),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(trpc.resort.leaveRequests.list.queryFilter()),
+          queryClient.invalidateQueries(trpc.resort.leaveBalances.list.queryFilter()),
+        ]);
         toast.success("Leave request updated.");
       },
       onError: (error) => toast.error(error.message),
@@ -1679,9 +1981,10 @@ function LeaveRequestActions({ request }: { request: LeaveRow }) {
   const deleteRequest = useMutation(
     trpc.resort.leaveRequests.delete.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(
-          trpc.resort.leaveRequests.list.queryFilter(),
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(trpc.resort.leaveRequests.list.queryFilter()),
+          queryClient.invalidateQueries(trpc.resort.leaveBalances.list.queryFilter()),
+        ]);
         setDeleteOpen(false);
         toast.success("Leave request deleted.");
       },
@@ -1708,25 +2011,29 @@ function LeaveRequestActions({ request }: { request: LeaveRow }) {
               </DropdownMenuItem>
             }
           />
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            disabled={updateStatus.isPending}
-            onClick={() =>
-              updateStatus.mutate({ id: request.recordId, status: "Approved" })
-            }
-          >
-            <CheckCircle2 className="size-4" />
-            Approve request
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={updateStatus.isPending}
-            onClick={() =>
-              updateStatus.mutate({ id: request.recordId, status: "Rejected" })
-            }
-          >
-            <XCircle className="size-4" />
-            Reject request
-          </DropdownMenuItem>
+          {canManage ? (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                disabled={updateStatus.isPending}
+                onClick={() =>
+                  updateStatus.mutate({ id: request.recordId, status: "Approved" })
+                }
+              >
+                <CheckCircle2 className="size-4" />
+                Approve request
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={updateStatus.isPending}
+                onClick={() =>
+                  updateStatus.mutate({ id: request.recordId, status: "Rejected" })
+                }
+              >
+                <XCircle className="size-4" />
+                Reject request
+              </DropdownMenuItem>
+            </>
+          ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-red-600 focus:text-red-600"
@@ -1790,6 +2097,14 @@ function LeaveRequestsTableSkeleton() {
 
 function OtUndertimeTable() {
   const trpc = useTRPC();
+  const profile = useQuery({
+    ...trpc.auth.profile.queryOptions(),
+    retry: false,
+  });
+  const canManageOtUndertime = hasHrPermission(
+    profile.data?.permissions,
+    "hr.otUndertime.manage",
+  );
   const entries = useQuery({
     ...trpc.resort.otUndertime.list.queryOptions(),
     retry: false,
@@ -1831,10 +2146,15 @@ function OtUndertimeTable() {
       {
         id: "actions",
         header: "",
-        cell: ({ row }) => <OtUndertimeActions entry={row.original} />,
+        cell: ({ row }) => (
+          <OtUndertimeActions
+            canManage={canManageOtUndertime}
+            entry={row.original}
+          />
+        ),
       },
     ],
-    [],
+    [canManageOtUndertime],
   );
 
   if (entries.isPending) {
@@ -1883,7 +2203,13 @@ function OtUndertimeKpis() {
   );
 }
 
-function OtUndertimeActions({ entry }: { entry: OtRow }) {
+function OtUndertimeActions({
+  canManage,
+  entry,
+}: {
+  canManage: boolean;
+  entry: OtRow;
+}) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -1920,24 +2246,28 @@ function OtUndertimeActions({ entry }: { entry: OtRow }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem
-            disabled={updateStatus.isPending}
-            onClick={() =>
-              updateStatus.mutate({ id: entry.recordId, status: "Approved" })
-            }
-          >
-            <CheckCircle2 className="size-4" />
-            Approve entry
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={updateStatus.isPending}
-            onClick={() =>
-              updateStatus.mutate({ id: entry.recordId, status: "Rejected" })
-            }
-          >
-            <XCircle className="size-4" />
-            Reject entry
-          </DropdownMenuItem>
+          {canManage ? (
+            <>
+              <DropdownMenuItem
+                disabled={updateStatus.isPending}
+                onClick={() =>
+                  updateStatus.mutate({ id: entry.recordId, status: "Approved" })
+                }
+              >
+                <CheckCircle2 className="size-4" />
+                Approve entry
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={updateStatus.isPending}
+                onClick={() =>
+                  updateStatus.mutate({ id: entry.recordId, status: "Rejected" })
+                }
+              >
+                <XCircle className="size-4" />
+                Reject entry
+              </DropdownMenuItem>
+            </>
+          ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-red-600 focus:text-red-600"
@@ -2046,7 +2376,15 @@ function WeeklySchedule({ shifts }: { shifts: ShiftRow[] }) {
   );
 }
 
-function RowActions({ labels }: { labels: string[] }) {
+function TimeLogActions({
+  isPending,
+  onSetFlag,
+  timeLog,
+}: {
+  isPending: boolean;
+  onSetFlag: (flag: "On time" | "Late" | "Absent") => void;
+  timeLog: TimeLogRow;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -2054,12 +2392,19 @@ function RowActions({ labels }: { labels: string[] }) {
           <MoreVertical className="size-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-44">
-        {labels.map((label, index) => (
-          <div key={label}>
-            {index === labels.length - 1 ? <DropdownMenuSeparator /> : null}
-            <DropdownMenuItem>{label}</DropdownMenuItem>
-          </div>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem disabled>
+          {timeLog.clockIn ? "Attendance status" : "No clock-in recorded"}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        {(["On time", "Late", "Absent"] as const).map((flag) => (
+          <DropdownMenuItem
+            disabled={isPending || timeLog.flag === flag}
+            key={flag}
+            onSelect={() => onSetFlag(flag)}
+          >
+            Mark {flag.toLowerCase()}
+          </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -2345,12 +2690,6 @@ function getStatusTone(status: string) {
   return "outline";
 }
 
-function formatCurrency(value: number) {
-  return `₱${value.toLocaleString("en-PH", {
-    maximumFractionDigits: 2,
-  })}`;
-}
-
 function formatDate(value: Date | string) {
   return new Intl.DateTimeFormat("en-US", {
     day: "numeric",
@@ -2413,8 +2752,8 @@ function getDefaultLeaveForm(): LeaveFormState {
   const today = new Date();
 
   return {
-    balanceDays: "0",
     endDate: toDateInputValue(today),
+    leavePolicyId: "",
     reason: "",
     staffProfileId: "",
     startDate: toDateInputValue(today),
@@ -2424,8 +2763,8 @@ function getDefaultLeaveForm(): LeaveFormState {
 
 function getLeaveFormFromRow(request: LeaveRow): LeaveFormState {
   return {
-    balanceDays: String(request.balanceDays),
     endDate: toDateInputValue(new Date(request.endDate)),
+    leavePolicyId: request.leavePolicyId ?? "",
     reason: request.reason,
     staffProfileId: request.staffProfileId,
     startDate: toDateInputValue(new Date(request.startDate)),

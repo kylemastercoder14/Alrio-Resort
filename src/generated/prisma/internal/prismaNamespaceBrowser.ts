@@ -57,6 +57,8 @@ export const ModelName = {
   Verification: 'Verification',
   AppUser: 'AppUser',
   ResortProfile: 'ResortProfile',
+  ResortDeveloperSetting: 'ResortDeveloperSetting',
+  ResortLandingBranding: 'ResortLandingBranding',
   ResortContactInquiry: 'ResortContactInquiry',
   ResortMessengerIntegration: 'ResortMessengerIntegration',
   ResortLead: 'ResortLead',
@@ -67,6 +69,8 @@ export const ModelName = {
   ResortTimeLog: 'ResortTimeLog',
   ResortScheduleShift: 'ResortScheduleShift',
   ResortLeaveRequest: 'ResortLeaveRequest',
+  ResortLeavePolicy: 'ResortLeavePolicy',
+  ResortLeaveBalance: 'ResortLeaveBalance',
   ResortOtUndertimeEntry: 'ResortOtUndertimeEntry',
   ResortPayrollRun: 'ResortPayrollRun',
   ResortPayrollItem: 'ResortPayrollItem',
@@ -202,6 +206,33 @@ export const ResortProfileScalarFieldEnum = {
 } as const
 
 export type ResortProfileScalarFieldEnum = (typeof ResortProfileScalarFieldEnum)[keyof typeof ResortProfileScalarFieldEnum]
+
+
+export const ResortDeveloperSettingScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
+  key: 'key',
+  encryptedValue: 'encryptedValue',
+  initializationVector: 'initializationVector',
+  authenticationTag: 'authenticationTag',
+  updatedByAuthUserId: 'updatedByAuthUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortDeveloperSettingScalarFieldEnum = (typeof ResortDeveloperSettingScalarFieldEnum)[keyof typeof ResortDeveloperSettingScalarFieldEnum]
+
+
+export const ResortLandingBrandingScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
+  content: 'content',
+  updatedByAuthUserId: 'updatedByAuthUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortLandingBrandingScalarFieldEnum = (typeof ResortLandingBrandingScalarFieldEnum)[keyof typeof ResortLandingBrandingScalarFieldEnum]
 
 
 export const ResortContactInquiryScalarFieldEnum = {
@@ -379,6 +410,7 @@ export const ResortLeaveRequestScalarFieldEnum = {
   endDate: 'endDate',
   reason: 'reason',
   balanceDays: 'balanceDays',
+  leavePolicyId: 'leavePolicyId',
   status: 'status',
   reviewedAt: 'reviewedAt',
   createdAt: 'createdAt',
@@ -386,6 +418,37 @@ export const ResortLeaveRequestScalarFieldEnum = {
 } as const
 
 export type ResortLeaveRequestScalarFieldEnum = (typeof ResortLeaveRequestScalarFieldEnum)[keyof typeof ResortLeaveRequestScalarFieldEnum]
+
+
+export const ResortLeavePolicyScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
+  name: 'name',
+  annualEntitlement: 'annualEntitlement',
+  carryOverLimit: 'carryOverLimit',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortLeavePolicyScalarFieldEnum = (typeof ResortLeavePolicyScalarFieldEnum)[keyof typeof ResortLeavePolicyScalarFieldEnum]
+
+
+export const ResortLeaveBalanceScalarFieldEnum = {
+  id: 'id',
+  resortProfileId: 'resortProfileId',
+  staffProfileId: 'staffProfileId',
+  leavePolicyId: 'leavePolicyId',
+  year: 'year',
+  openingDays: 'openingDays',
+  allocatedDays: 'allocatedDays',
+  adjustmentDays: 'adjustmentDays',
+  usedDays: 'usedDays',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResortLeaveBalanceScalarFieldEnum = (typeof ResortLeaveBalanceScalarFieldEnum)[keyof typeof ResortLeaveBalanceScalarFieldEnum]
 
 
 export const ResortOtUndertimeEntryScalarFieldEnum = {
@@ -438,6 +501,18 @@ export const ResortPayrollRunScalarFieldEnum = {
   employerContributions: 'employerContributions',
   employerCost: 'employerCost',
   options: 'options',
+  backupSnapshot: 'backupSnapshot',
+  lockedAt: 'lockedAt',
+  lockedBy: 'lockedBy',
+  finalizedAt: 'finalizedAt',
+  finalizedBy: 'finalizedBy',
+  payslipNotifiedAt: 'payslipNotifiedAt',
+  paymentStatus: 'paymentStatus',
+  paidAt: 'paidAt',
+  paidBy: 'paidBy',
+  paymentMethod: 'paymentMethod',
+  paymentReference: 'paymentReference',
+  journalEntryId: 'journalEntryId',
   generatedBy: 'generatedBy',
   generatedAt: 'generatedAt',
   createdAt: 'createdAt',

@@ -48,6 +48,11 @@ enum ResortPayrollRunStatus {
   VOIDED
 }
 
+enum ResortPayrollPaymentStatus {
+  UNPAID
+  PAID
+}
+
 enum ResortPayrollPayType {
   REGULAR
   FINAL
@@ -390,12 +395,45 @@ model ResortProfile {
   timeLogs                  ResortTimeLog[]
   scheduleShifts            ResortScheduleShift[]
   leaveRequests             ResortLeaveRequest[]
+  leavePolicies             ResortLeavePolicy[]
+  leaveBalances             ResortLeaveBalance[]
   otUndertimeEntries        ResortOtUndertimeEntry[]
   payrollRuns               ResortPayrollRun[]
   payrollItems              ResortPayrollItem[]
   staffActivityLogs         ResortStaffActivityLog[]
+  developerSettings         ResortDeveloperSetting[]
+  landingBranding           ResortLandingBranding?
 
   @@map("resort_profile")
+}
+
+model ResortDeveloperSetting {
+  id                   String        @id @default(cuid())
+  resortProfileId      String
+  key                  String
+  encryptedValue       String
+  initializationVector String
+  authenticationTag    String
+  updatedByAuthUserId  String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  resortProfile        ResortProfile @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([resortProfileId, key])
+  @@index([resortProfileId])
+  @@map("resort_developer_setting")
+}
+
+model ResortLandingBranding {
+  id                  String        @id @default(cuid())
+  resortProfileId     String        @unique
+  content             Json
+  updatedByAuthUserId String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  resortProfile       ResortProfile @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+
+  @@map("resort_landing_branding")
 }
 
 model ResortContactInquiry {
@@ -522,6 +560,7 @@ model ResortStaffProfile {
   timeLogs               ResortTimeLog[]
   scheduleShifts         ResortScheduleShift[]
   leaveRequests          ResortLeaveRequest[]
+  leaveBalances          ResortLeaveBalance[]
   otUndertimeEntries     ResortOtUndertimeEntry[]
   payrollItems           ResortPayrollItem[]
   activityLogs           ResortStaffActivityLog[]
@@ -623,18 +662,61 @@ model ResortLeaveRequest {
   endDate         DateTime
   reason          String
   balanceDays     Int                      @default(0)
+  leavePolicyId   String?
   status          ResortLeaveRequestStatus @default(PENDING)
   reviewedAt      DateTime?
   createdAt       DateTime                 @default(now())
   updatedAt       DateTime                 @updatedAt
   resortProfile   ResortProfile            @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
   staffProfile    ResortStaffProfile       @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+  leavePolicy     ResortLeavePolicy?       @relation(fields: [leavePolicyId], references: [id], onDelete: SetNull)
 
   @@index([resortProfileId])
   @@index([staffProfileId])
   @@index([status])
   @@index([startDate])
+  @@index([leavePolicyId])
   @@map("resort_leave_request")
+}
+
+model ResortLeavePolicy {
+  id                String               @id @default(cuid())
+  resortProfileId   String
+  name              String
+  annualEntitlement Int                  @default(0)
+  carryOverLimit    Int                  @default(0)
+  isActive          Boolean              @default(true)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  resortProfile     ResortProfile        @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  balances          ResortLeaveBalance[]
+  leaveRequests     ResortLeaveRequest[]
+
+  @@unique([resortProfileId, name])
+  @@index([resortProfileId, isActive])
+  @@map("resort_leave_policy")
+}
+
+model ResortLeaveBalance {
+  id              String             @id @default(cuid())
+  resortProfileId String
+  staffProfileId  String
+  leavePolicyId   String
+  year            Int
+  openingDays     Int                @default(0)
+  allocatedDays   Int                @default(0)
+  adjustmentDays  Int                @default(0)
+  usedDays        Int                @default(0)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  resortProfile   ResortProfile      @relation(fields: [resortProfileId], references: [id], onDelete: Cascade)
+  staffProfile    ResortStaffProfile @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+  leavePolicy     ResortLeavePolicy  @relation(fields: [leavePolicyId], references: [id], onDelete: Cascade)
+
+  @@unique([staffProfileId, leavePolicyId, year])
+  @@index([resortProfileId, year])
+  @@index([leavePolicyId])
+  @@map("resort_leave_balance")
 }
 
 model ResortOtUndertimeEntry {
@@ -692,6 +774,18 @@ model ResortPayrollRun {
   employerContributions     Decimal                @default(0) @db.Decimal(12, 2)
   employerCost              Decimal                @default(0) @db.Decimal(12, 2)
   options                   Json?
+  backupSnapshot            Json?
+  lockedAt                  DateTime?
+  lockedBy                  String?
+  finalizedAt               DateTime?
+  finalizedBy               String?
+  payslipNotifiedAt         DateTime?
+  paymentStatus             ResortPayrollPaymentStatus @default(UNPAID)
+  paidAt                    DateTime?
+  paidBy                    String?
+  paymentMethod             String?
+  paymentReference          String?
+  journalEntryId            String?
   generatedBy               String?
   generatedAt               DateTime?
   createdAt                 DateTime               @default(now())
@@ -703,6 +797,7 @@ model ResortPayrollRun {
   @@index([resortProfileId])
   @@index([periodStart])
   @@index([status])
+  @@index([paymentStatus])
   @@map("resort_payroll_run")
 }
 

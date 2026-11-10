@@ -364,7 +364,7 @@ function FinanceRowActions({ row }: { row: FinanceRow }) {
             <MoreVertical className="size-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuContent align="end" className="w-50">
           <DropdownMenuItem asChild>
             <Link href={`/resort/invoices/new?id=${row.recordId}`}>
               <Edit className="size-4" />

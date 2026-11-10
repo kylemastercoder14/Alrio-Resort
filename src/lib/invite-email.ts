@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 import nodemailer from "nodemailer";
+import { getRuntimeSettingForDefaultResort } from "@/lib/runtime-settings";
 
 type StaffInviteEmailInput = {
   appUrl: string;
@@ -25,8 +26,8 @@ type ReservationConfirmationEmailInput = {
   workspaceName: string;
 };
 
-function getRequiredEnv(name: string) {
-  const value = process.env[name];
+async function getRequiredSetting(name: "SMTP_HOST" | "SMTP_USER" | "SMTP_PASSWORD" | "SMTP_FROM") {
+  const value = await getRuntimeSettingForDefaultResort(name);
 
   if (!value) {
     throw new Error(`${name} is required to send invitation emails.`);
@@ -64,12 +65,12 @@ function getInvitationSupportUrl() {
   return supportUrl.toString();
 }
 
-function createTransporter() {
-  const host = getRequiredEnv("SMTP_HOST");
-  const port = Number(process.env.SMTP_PORT ?? "587");
-  const secure = process.env.SMTP_SECURE === "true";
-  const user = getRequiredEnv("SMTP_USER");
-  const pass = getRequiredEnv("SMTP_PASSWORD");
+async function createTransporter() {
+  const host = await getRequiredSetting("SMTP_HOST");
+  const port = Number((await getRuntimeSettingForDefaultResort("SMTP_PORT")) ?? "587");
+  const secure = (await getRuntimeSettingForDefaultResort("SMTP_SECURE")) === "true";
+  const user = await getRequiredSetting("SMTP_USER");
+  const pass = await getRequiredSetting("SMTP_PASSWORD");
 
   return nodemailer.createTransport({
     host,
@@ -83,10 +84,10 @@ function createTransporter() {
 }
 
 export async function sendStaffInviteEmail(input: StaffInviteEmailInput) {
-  const from = getRequiredEnv("SMTP_FROM");
+  const from = await getRequiredSetting("SMTP_FROM");
   const inviteUrl = getInviteUrl(input.appUrl, input.token);
   const supportUrl = getInvitationSupportUrl();
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
   const html = buildStaffInviteHtml({
     ...input,
     inviteUrl,
@@ -111,8 +112,9 @@ export async function sendPasswordResetEmail(input: {
   email: string;
   url: string;
 }) {
-  await createTransporter().sendMail({
-    from: getRequiredEnv("SMTP_FROM"),
+  const transporter = await createTransporter();
+  await transporter.sendMail({
+    from: await getRequiredSetting("SMTP_FROM"),
     to: input.email,
     subject: "Reset your Alrio Private Resort password",
     text: `Reset your Alrio Private Resort password using this link:\n\n${input.url}\n\nThis link expires in one hour and can be used once. If you did not request a reset, you can ignore this email.`,
@@ -123,9 +125,9 @@ export async function sendPasswordResetEmail(input: {
 export async function sendReservationConfirmationEmail(
   input: ReservationConfirmationEmailInput,
 ) {
-  const from = getRequiredEnv("SMTP_FROM");
+  const from = await getRequiredSetting("SMTP_FROM");
   const bookingUrl = new URL("/", input.appUrl).toString();
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
   const html = buildReservationConfirmationHtml({
     ...input,
     bookingUrl,

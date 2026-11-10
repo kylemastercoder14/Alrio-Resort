@@ -8,6 +8,7 @@ import {
   inferMessengerLeadStage,
 } from "@/lib/messenger-leads";
 import { prisma } from "@/lib/prisma";
+import { getRuntimeSettingForDefaultResort } from "@/lib/runtime-settings";
 
 export const runtime = "nodejs";
 
@@ -47,7 +48,7 @@ export async function GET(request: Request) {
   const token = url.searchParams.get("hub.verify_token");
   const challenge = url.searchParams.get("hub.challenge");
 
-  if (mode === "subscribe" && token === process.env.META_VERIFY_TOKEN) {
+  if (mode === "subscribe" && token === await getRuntimeSettingForDefaultResort("META_VERIFY_TOKEN")) {
     return new Response(challenge ?? "", { status: 200 });
   }
 
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const rawBody = await request.text();
 
-  if (!isValidMetaSignature(rawBody, request.headers)) {
+  if (!(await isValidMetaSignature(rawBody, request.headers))) {
     return NextResponse.json(
       { error: "Invalid Messenger webhook signature." },
       { status: 401 },
@@ -96,8 +97,8 @@ export async function POST(request: Request) {
   });
 }
 
-function isValidMetaSignature(rawBody: string, headers: Headers) {
-  const appSecret = process.env.META_APP_SECRET;
+async function isValidMetaSignature(rawBody: string, headers: Headers) {
+  const appSecret = await getRuntimeSettingForDefaultResort("META_APP_SECRET");
 
   if (!appSecret) {
     return process.env.NODE_ENV !== "production";
@@ -139,7 +140,7 @@ async function persistMessengerEvent(
 ) {
   const senderId = event.sender?.id;
   const recipientId = event.recipient?.id;
-  const pageId = entry.id ?? process.env.META_PAGE_ID;
+  const pageId = entry.id ?? await getRuntimeSettingForDefaultResort("META_PAGE_ID");
   const text = event.message?.text ?? event.postback?.title ?? null;
   const postbackPayload = event.postback?.payload ?? null;
   const attachments = event.message?.attachments ?? null;
@@ -169,7 +170,7 @@ async function persistMessengerEvent(
 
   const profile = integration.pageAccessToken
     ? await fetchMessengerProfile({
-        graphVersion: process.env.META_GRAPH_API_VERSION ?? "v25.0",
+        graphVersion: (await getRuntimeSettingForDefaultResort("META_GRAPH_API_VERSION")) ?? "v25.0",
         pageAccessToken: integration.pageAccessToken,
         psid: leadPsid,
       })
@@ -269,7 +270,7 @@ async function getOrCreateMessengerIntegration(pageId: string) {
     return existing;
   }
 
-  if (pageId !== process.env.META_PAGE_ID) {
+  if (pageId !== await getRuntimeSettingForDefaultResort("META_PAGE_ID")) {
     return null;
   }
 
@@ -285,11 +286,11 @@ async function getOrCreateMessengerIntegration(pageId: string) {
 
   return prisma.resortMessengerIntegration.create({
     data: {
-      pageAccessToken: process.env.META_PAGE_ACCESS_TOKEN,
+      pageAccessToken: await getRuntimeSettingForDefaultResort("META_PAGE_ACCESS_TOKEN"),
       pageId,
       subscribedFields: ["messages", "messaging_postbacks", "messaging_referrals"],
       resortProfileId: resortProfile.id,
-      verifyToken: process.env.META_VERIFY_TOKEN,
+      verifyToken: await getRuntimeSettingForDefaultResort("META_VERIFY_TOKEN"),
     },
   });
 }

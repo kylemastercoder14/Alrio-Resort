@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { runInvoiceReminderCron } from "@/lib/invoice-reminders";
+import { getRuntimeSettingForDefaultResort } from "@/lib/runtime-settings";
 
 export async function GET(request: Request) {
   return handleInvoiceReminderCron(request);
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
 }
 
 async function handleInvoiceReminderCron(request: Request) {
-  const configuredSecret = process.env.CRON_SECRET;
+  const configuredSecret = await getRuntimeSettingForDefaultResort("CRON_SECRET");
 
   if (configuredSecret) {
     const authorization = request.headers.get("authorization");

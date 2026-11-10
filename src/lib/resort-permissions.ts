@@ -24,11 +24,12 @@ export function hasAnyResortPermission(
 export function getResortRoutePermission(pathname: string) {
   const path = pathname.replace(/\/$/, "");
 
-  if (path === "/resort/dashboard") return null;
+  if (path === "/resort/dashboard") return "dashboard.view";
   if (path.startsWith("/resort/access/users")) return "usersRoles.view";
   if (path.startsWith("/resort/access/roles")) return "usersRoles.permissions.manage";
   if (path.startsWith("/resort/access/departments")) return "departments.view";
   if (path.startsWith("/resort/guests")) return "guestExperience.profiles.manage";
+  if (path.startsWith("/resort/reservations/new")) return "reservations.create";
   if (path.startsWith("/resort/reservations")) return "reservations.view";
   if (path.startsWith("/resort/services/rooms")) return "rooms.view";
   if (path.startsWith("/resort/services/amenities")) return "amenities.view";
@@ -54,7 +55,9 @@ export function getResortRoutePermission(pathname: string) {
   if (path.startsWith("/resort/operations/laundry")) return "operations.laundry.manage";
   if (path.startsWith("/resort/operations/inventory")) return "operations.inventory.manage";
   if (path.startsWith("/resort/analytics")) return "analytics.reports.view";
-  if (path.startsWith("/resort/settings")) return "settings.general.manage";
+  if (path.startsWith("/resort/settings/branding")) return "settings.branding.manage";
+  if (path.startsWith("/resort/settings/developer")) return "settings.developer.manage";
+  if (path.startsWith("/resort/settings")) return "settings.developer.manage";
 
   return null;
 }

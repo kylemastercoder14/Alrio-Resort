@@ -478,6 +478,13 @@ export type EnumResortPayrollRunStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumResortPayrollRunStatusFilter<$PrismaModel> | $Enums.ResortPayrollRunStatus
 }
 
+export type EnumResortPayrollPaymentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResortPayrollPaymentStatus | Prisma.EnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResortPayrollPaymentStatus[] | Prisma.ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResortPayrollPaymentStatus[] | Prisma.ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResortPayrollPaymentStatusFilter<$PrismaModel> | $Enums.ResortPayrollPaymentStatus
+}
+
 export type EnumResortPayrollPayTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ResortPayrollPayType | Prisma.EnumResortPayrollPayTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ResortPayrollPayType[] | Prisma.ListEnumResortPayrollPayTypeFieldRefInput<$PrismaModel>
@@ -506,6 +513,16 @@ export type EnumResortPayrollRunStatusWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumResortPayrollRunStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumResortPayrollRunStatusFilter<$PrismaModel>
+}
+
+export type EnumResortPayrollPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResortPayrollPaymentStatus | Prisma.EnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResortPayrollPaymentStatus[] | Prisma.ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResortPayrollPaymentStatus[] | Prisma.ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResortPayrollPaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResortPayrollPaymentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResortPayrollPaymentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResortPayrollPaymentStatusFilter<$PrismaModel>
 }
 
 export type EnumResortDepartmentStatusFilter<$PrismaModel = never> = {
@@ -1485,6 +1502,13 @@ export type NestedEnumResortPayrollRunStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumResortPayrollRunStatusFilter<$PrismaModel> | $Enums.ResortPayrollRunStatus
 }
 
+export type NestedEnumResortPayrollPaymentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResortPayrollPaymentStatus | Prisma.EnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResortPayrollPaymentStatus[] | Prisma.ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResortPayrollPaymentStatus[] | Prisma.ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResortPayrollPaymentStatusFilter<$PrismaModel> | $Enums.ResortPayrollPaymentStatus
+}
+
 export type NestedEnumResortPayrollPayTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ResortPayrollPayType | Prisma.EnumResortPayrollPayTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ResortPayrollPayType[] | Prisma.ListEnumResortPayrollPayTypeFieldRefInput<$PrismaModel>
@@ -1513,6 +1537,16 @@ export type NestedEnumResortPayrollRunStatusWithAggregatesFilter<$PrismaModel = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumResortPayrollRunStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumResortPayrollRunStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumResortPayrollPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResortPayrollPaymentStatus | Prisma.EnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResortPayrollPaymentStatus[] | Prisma.ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResortPayrollPaymentStatus[] | Prisma.ListEnumResortPayrollPaymentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResortPayrollPaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResortPayrollPaymentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResortPayrollPaymentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResortPayrollPaymentStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumResortDepartmentStatusFilter<$PrismaModel = never> = {

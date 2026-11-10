@@ -326,7 +326,7 @@ export default function LaundryPage() {
       />
 
       <Sheet open={isIntakeOpen} onOpenChange={setIsIntakeOpen}>
-        <SheetContent className="w-full p-0 sm:max-w-xl">
+        <SheetContent className="w-full p-0 max-w-xl!">
           <SheetHeader className="border-b border-zinc-200 p-5">
             <SheetTitle className="text-lg font-bold text-zinc-950">
               Laundry intake

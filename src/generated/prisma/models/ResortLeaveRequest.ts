@@ -43,6 +43,7 @@ export type ResortLeaveRequestMinAggregateOutputType = {
   endDate: Date | null
   reason: string | null
   balanceDays: number | null
+  leavePolicyId: string | null
   status: $Enums.ResortLeaveRequestStatus | null
   reviewedAt: Date | null
   createdAt: Date | null
@@ -58,6 +59,7 @@ export type ResortLeaveRequestMaxAggregateOutputType = {
   endDate: Date | null
   reason: string | null
   balanceDays: number | null
+  leavePolicyId: string | null
   status: $Enums.ResortLeaveRequestStatus | null
   reviewedAt: Date | null
   createdAt: Date | null
@@ -73,6 +75,7 @@ export type ResortLeaveRequestCountAggregateOutputType = {
   endDate: number
   reason: number
   balanceDays: number
+  leavePolicyId: number
   status: number
   reviewedAt: number
   createdAt: number
@@ -98,6 +101,7 @@ export type ResortLeaveRequestMinAggregateInputType = {
   endDate?: true
   reason?: true
   balanceDays?: true
+  leavePolicyId?: true
   status?: true
   reviewedAt?: true
   createdAt?: true
@@ -113,6 +117,7 @@ export type ResortLeaveRequestMaxAggregateInputType = {
   endDate?: true
   reason?: true
   balanceDays?: true
+  leavePolicyId?: true
   status?: true
   reviewedAt?: true
   createdAt?: true
@@ -128,6 +133,7 @@ export type ResortLeaveRequestCountAggregateInputType = {
   endDate?: true
   reason?: true
   balanceDays?: true
+  leavePolicyId?: true
   status?: true
   reviewedAt?: true
   createdAt?: true
@@ -230,6 +236,7 @@ export type ResortLeaveRequestGroupByOutputType = {
   endDate: Date
   reason: string
   balanceDays: number
+  leavePolicyId: string | null
   status: $Enums.ResortLeaveRequestStatus
   reviewedAt: Date | null
   createdAt: Date
@@ -268,12 +275,14 @@ export type ResortLeaveRequestWhereInput = {
   endDate?: Prisma.DateTimeFilter<"ResortLeaveRequest"> | Date | string
   reason?: Prisma.StringFilter<"ResortLeaveRequest"> | string
   balanceDays?: Prisma.IntFilter<"ResortLeaveRequest"> | number
+  leavePolicyId?: Prisma.StringNullableFilter<"ResortLeaveRequest"> | string | null
   status?: Prisma.EnumResortLeaveRequestStatusFilter<"ResortLeaveRequest"> | $Enums.ResortLeaveRequestStatus
   reviewedAt?: Prisma.DateTimeNullableFilter<"ResortLeaveRequest"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ResortLeaveRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ResortLeaveRequest"> | Date | string
   resortProfile?: Prisma.XOR<Prisma.ResortProfileScalarRelationFilter, Prisma.ResortProfileWhereInput>
   staffProfile?: Prisma.XOR<Prisma.ResortStaffProfileScalarRelationFilter, Prisma.ResortStaffProfileWhereInput>
+  leavePolicy?: Prisma.XOR<Prisma.ResortLeavePolicyNullableScalarRelationFilter, Prisma.ResortLeavePolicyWhereInput> | null
 }
 
 export type ResortLeaveRequestOrderByWithRelationInput = {
@@ -285,12 +294,14 @@ export type ResortLeaveRequestOrderByWithRelationInput = {
   endDate?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceDays?: Prisma.SortOrder
+  leavePolicyId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   resortProfile?: Prisma.ResortProfileOrderByWithRelationInput
   staffProfile?: Prisma.ResortStaffProfileOrderByWithRelationInput
+  leavePolicy?: Prisma.ResortLeavePolicyOrderByWithRelationInput
 }
 
 export type ResortLeaveRequestWhereUniqueInput = Prisma.AtLeast<{
@@ -305,12 +316,14 @@ export type ResortLeaveRequestWhereUniqueInput = Prisma.AtLeast<{
   endDate?: Prisma.DateTimeFilter<"ResortLeaveRequest"> | Date | string
   reason?: Prisma.StringFilter<"ResortLeaveRequest"> | string
   balanceDays?: Prisma.IntFilter<"ResortLeaveRequest"> | number
+  leavePolicyId?: Prisma.StringNullableFilter<"ResortLeaveRequest"> | string | null
   status?: Prisma.EnumResortLeaveRequestStatusFilter<"ResortLeaveRequest"> | $Enums.ResortLeaveRequestStatus
   reviewedAt?: Prisma.DateTimeNullableFilter<"ResortLeaveRequest"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ResortLeaveRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ResortLeaveRequest"> | Date | string
   resortProfile?: Prisma.XOR<Prisma.ResortProfileScalarRelationFilter, Prisma.ResortProfileWhereInput>
   staffProfile?: Prisma.XOR<Prisma.ResortStaffProfileScalarRelationFilter, Prisma.ResortStaffProfileWhereInput>
+  leavePolicy?: Prisma.XOR<Prisma.ResortLeavePolicyNullableScalarRelationFilter, Prisma.ResortLeavePolicyWhereInput> | null
 }, "id">
 
 export type ResortLeaveRequestOrderByWithAggregationInput = {
@@ -322,6 +335,7 @@ export type ResortLeaveRequestOrderByWithAggregationInput = {
   endDate?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceDays?: Prisma.SortOrder
+  leavePolicyId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -345,6 +359,7 @@ export type ResortLeaveRequestScalarWhereWithAggregatesInput = {
   endDate?: Prisma.DateTimeWithAggregatesFilter<"ResortLeaveRequest"> | Date | string
   reason?: Prisma.StringWithAggregatesFilter<"ResortLeaveRequest"> | string
   balanceDays?: Prisma.IntWithAggregatesFilter<"ResortLeaveRequest"> | number
+  leavePolicyId?: Prisma.StringNullableWithAggregatesFilter<"ResortLeaveRequest"> | string | null
   status?: Prisma.EnumResortLeaveRequestStatusWithAggregatesFilter<"ResortLeaveRequest"> | $Enums.ResortLeaveRequestStatus
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ResortLeaveRequest"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ResortLeaveRequest"> | Date | string
@@ -364,6 +379,7 @@ export type ResortLeaveRequestCreateInput = {
   updatedAt?: Date | string
   resortProfile: Prisma.ResortProfileCreateNestedOneWithoutLeaveRequestsInput
   staffProfile: Prisma.ResortStaffProfileCreateNestedOneWithoutLeaveRequestsInput
+  leavePolicy?: Prisma.ResortLeavePolicyCreateNestedOneWithoutLeaveRequestsInput
 }
 
 export type ResortLeaveRequestUncheckedCreateInput = {
@@ -375,6 +391,7 @@ export type ResortLeaveRequestUncheckedCreateInput = {
   endDate: Date | string
   reason: string
   balanceDays?: number
+  leavePolicyId?: string | null
   status?: $Enums.ResortLeaveRequestStatus
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -394,6 +411,7 @@ export type ResortLeaveRequestUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resortProfile?: Prisma.ResortProfileUpdateOneRequiredWithoutLeaveRequestsNestedInput
   staffProfile?: Prisma.ResortStaffProfileUpdateOneRequiredWithoutLeaveRequestsNestedInput
+  leavePolicy?: Prisma.ResortLeavePolicyUpdateOneWithoutLeaveRequestsNestedInput
 }
 
 export type ResortLeaveRequestUncheckedUpdateInput = {
@@ -405,6 +423,7 @@ export type ResortLeaveRequestUncheckedUpdateInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDays?: Prisma.IntFieldUpdateOperationsInput | number
+  leavePolicyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResortLeaveRequestStatusFieldUpdateOperationsInput | $Enums.ResortLeaveRequestStatus
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -420,6 +439,7 @@ export type ResortLeaveRequestCreateManyInput = {
   endDate: Date | string
   reason: string
   balanceDays?: number
+  leavePolicyId?: string | null
   status?: $Enums.ResortLeaveRequestStatus
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -448,6 +468,7 @@ export type ResortLeaveRequestUncheckedUpdateManyInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDays?: Prisma.IntFieldUpdateOperationsInput | number
+  leavePolicyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResortLeaveRequestStatusFieldUpdateOperationsInput | $Enums.ResortLeaveRequestStatus
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -473,6 +494,7 @@ export type ResortLeaveRequestCountOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceDays?: Prisma.SortOrder
+  leavePolicyId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -492,6 +514,7 @@ export type ResortLeaveRequestMaxOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceDays?: Prisma.SortOrder
+  leavePolicyId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -507,6 +530,7 @@ export type ResortLeaveRequestMinOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceDays?: Prisma.SortOrder
+  leavePolicyId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -613,6 +637,48 @@ export type EnumResortLeaveRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.ResortLeaveRequestStatus
 }
 
+export type ResortLeaveRequestCreateNestedManyWithoutLeavePolicyInput = {
+  create?: Prisma.XOR<Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput, Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput> | Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput[] | Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput[]
+  connectOrCreate?: Prisma.ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput | Prisma.ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput[]
+  createMany?: Prisma.ResortLeaveRequestCreateManyLeavePolicyInputEnvelope
+  connect?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+}
+
+export type ResortLeaveRequestUncheckedCreateNestedManyWithoutLeavePolicyInput = {
+  create?: Prisma.XOR<Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput, Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput> | Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput[] | Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput[]
+  connectOrCreate?: Prisma.ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput | Prisma.ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput[]
+  createMany?: Prisma.ResortLeaveRequestCreateManyLeavePolicyInputEnvelope
+  connect?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+}
+
+export type ResortLeaveRequestUpdateManyWithoutLeavePolicyNestedInput = {
+  create?: Prisma.XOR<Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput, Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput> | Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput[] | Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput[]
+  connectOrCreate?: Prisma.ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput | Prisma.ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput[]
+  upsert?: Prisma.ResortLeaveRequestUpsertWithWhereUniqueWithoutLeavePolicyInput | Prisma.ResortLeaveRequestUpsertWithWhereUniqueWithoutLeavePolicyInput[]
+  createMany?: Prisma.ResortLeaveRequestCreateManyLeavePolicyInputEnvelope
+  set?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+  disconnect?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+  delete?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+  connect?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+  update?: Prisma.ResortLeaveRequestUpdateWithWhereUniqueWithoutLeavePolicyInput | Prisma.ResortLeaveRequestUpdateWithWhereUniqueWithoutLeavePolicyInput[]
+  updateMany?: Prisma.ResortLeaveRequestUpdateManyWithWhereWithoutLeavePolicyInput | Prisma.ResortLeaveRequestUpdateManyWithWhereWithoutLeavePolicyInput[]
+  deleteMany?: Prisma.ResortLeaveRequestScalarWhereInput | Prisma.ResortLeaveRequestScalarWhereInput[]
+}
+
+export type ResortLeaveRequestUncheckedUpdateManyWithoutLeavePolicyNestedInput = {
+  create?: Prisma.XOR<Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput, Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput> | Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput[] | Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput[]
+  connectOrCreate?: Prisma.ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput | Prisma.ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput[]
+  upsert?: Prisma.ResortLeaveRequestUpsertWithWhereUniqueWithoutLeavePolicyInput | Prisma.ResortLeaveRequestUpsertWithWhereUniqueWithoutLeavePolicyInput[]
+  createMany?: Prisma.ResortLeaveRequestCreateManyLeavePolicyInputEnvelope
+  set?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+  disconnect?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+  delete?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+  connect?: Prisma.ResortLeaveRequestWhereUniqueInput | Prisma.ResortLeaveRequestWhereUniqueInput[]
+  update?: Prisma.ResortLeaveRequestUpdateWithWhereUniqueWithoutLeavePolicyInput | Prisma.ResortLeaveRequestUpdateWithWhereUniqueWithoutLeavePolicyInput[]
+  updateMany?: Prisma.ResortLeaveRequestUpdateManyWithWhereWithoutLeavePolicyInput | Prisma.ResortLeaveRequestUpdateManyWithWhereWithoutLeavePolicyInput[]
+  deleteMany?: Prisma.ResortLeaveRequestScalarWhereInput | Prisma.ResortLeaveRequestScalarWhereInput[]
+}
+
 export type ResortLeaveRequestCreateWithoutResortProfileInput = {
   id?: string
   leaveType: string
@@ -625,6 +691,7 @@ export type ResortLeaveRequestCreateWithoutResortProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile: Prisma.ResortStaffProfileCreateNestedOneWithoutLeaveRequestsInput
+  leavePolicy?: Prisma.ResortLeavePolicyCreateNestedOneWithoutLeaveRequestsInput
 }
 
 export type ResortLeaveRequestUncheckedCreateWithoutResortProfileInput = {
@@ -635,6 +702,7 @@ export type ResortLeaveRequestUncheckedCreateWithoutResortProfileInput = {
   endDate: Date | string
   reason: string
   balanceDays?: number
+  leavePolicyId?: string | null
   status?: $Enums.ResortLeaveRequestStatus
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -679,6 +747,7 @@ export type ResortLeaveRequestScalarWhereInput = {
   endDate?: Prisma.DateTimeFilter<"ResortLeaveRequest"> | Date | string
   reason?: Prisma.StringFilter<"ResortLeaveRequest"> | string
   balanceDays?: Prisma.IntFilter<"ResortLeaveRequest"> | number
+  leavePolicyId?: Prisma.StringNullableFilter<"ResortLeaveRequest"> | string | null
   status?: Prisma.EnumResortLeaveRequestStatusFilter<"ResortLeaveRequest"> | $Enums.ResortLeaveRequestStatus
   reviewedAt?: Prisma.DateTimeNullableFilter<"ResortLeaveRequest"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ResortLeaveRequest"> | Date | string
@@ -697,6 +766,7 @@ export type ResortLeaveRequestCreateWithoutStaffProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   resortProfile: Prisma.ResortProfileCreateNestedOneWithoutLeaveRequestsInput
+  leavePolicy?: Prisma.ResortLeavePolicyCreateNestedOneWithoutLeaveRequestsInput
 }
 
 export type ResortLeaveRequestUncheckedCreateWithoutStaffProfileInput = {
@@ -707,6 +777,7 @@ export type ResortLeaveRequestUncheckedCreateWithoutStaffProfileInput = {
   endDate: Date | string
   reason: string
   balanceDays?: number
+  leavePolicyId?: string | null
   status?: $Enums.ResortLeaveRequestStatus
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -739,6 +810,62 @@ export type ResortLeaveRequestUpdateManyWithWhereWithoutStaffProfileInput = {
   data: Prisma.XOR<Prisma.ResortLeaveRequestUpdateManyMutationInput, Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutStaffProfileInput>
 }
 
+export type ResortLeaveRequestCreateWithoutLeavePolicyInput = {
+  id?: string
+  leaveType: string
+  startDate: Date | string
+  endDate: Date | string
+  reason: string
+  balanceDays?: number
+  status?: $Enums.ResortLeaveRequestStatus
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  resortProfile: Prisma.ResortProfileCreateNestedOneWithoutLeaveRequestsInput
+  staffProfile: Prisma.ResortStaffProfileCreateNestedOneWithoutLeaveRequestsInput
+}
+
+export type ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput = {
+  id?: string
+  resortProfileId: string
+  staffProfileId: string
+  leaveType: string
+  startDate: Date | string
+  endDate: Date | string
+  reason: string
+  balanceDays?: number
+  status?: $Enums.ResortLeaveRequestStatus
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ResortLeaveRequestCreateOrConnectWithoutLeavePolicyInput = {
+  where: Prisma.ResortLeaveRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput, Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput>
+}
+
+export type ResortLeaveRequestCreateManyLeavePolicyInputEnvelope = {
+  data: Prisma.ResortLeaveRequestCreateManyLeavePolicyInput | Prisma.ResortLeaveRequestCreateManyLeavePolicyInput[]
+  skipDuplicates?: boolean
+}
+
+export type ResortLeaveRequestUpsertWithWhereUniqueWithoutLeavePolicyInput = {
+  where: Prisma.ResortLeaveRequestWhereUniqueInput
+  update: Prisma.XOR<Prisma.ResortLeaveRequestUpdateWithoutLeavePolicyInput, Prisma.ResortLeaveRequestUncheckedUpdateWithoutLeavePolicyInput>
+  create: Prisma.XOR<Prisma.ResortLeaveRequestCreateWithoutLeavePolicyInput, Prisma.ResortLeaveRequestUncheckedCreateWithoutLeavePolicyInput>
+}
+
+export type ResortLeaveRequestUpdateWithWhereUniqueWithoutLeavePolicyInput = {
+  where: Prisma.ResortLeaveRequestWhereUniqueInput
+  data: Prisma.XOR<Prisma.ResortLeaveRequestUpdateWithoutLeavePolicyInput, Prisma.ResortLeaveRequestUncheckedUpdateWithoutLeavePolicyInput>
+}
+
+export type ResortLeaveRequestUpdateManyWithWhereWithoutLeavePolicyInput = {
+  where: Prisma.ResortLeaveRequestScalarWhereInput
+  data: Prisma.XOR<Prisma.ResortLeaveRequestUpdateManyMutationInput, Prisma.ResortLeaveRequestUncheckedUpdateManyWithoutLeavePolicyInput>
+}
+
 export type ResortLeaveRequestCreateManyResortProfileInput = {
   id?: string
   staffProfileId: string
@@ -747,6 +874,7 @@ export type ResortLeaveRequestCreateManyResortProfileInput = {
   endDate: Date | string
   reason: string
   balanceDays?: number
+  leavePolicyId?: string | null
   status?: $Enums.ResortLeaveRequestStatus
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -765,6 +893,7 @@ export type ResortLeaveRequestUpdateWithoutResortProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.ResortStaffProfileUpdateOneRequiredWithoutLeaveRequestsNestedInput
+  leavePolicy?: Prisma.ResortLeavePolicyUpdateOneWithoutLeaveRequestsNestedInput
 }
 
 export type ResortLeaveRequestUncheckedUpdateWithoutResortProfileInput = {
@@ -775,6 +904,7 @@ export type ResortLeaveRequestUncheckedUpdateWithoutResortProfileInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDays?: Prisma.IntFieldUpdateOperationsInput | number
+  leavePolicyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResortLeaveRequestStatusFieldUpdateOperationsInput | $Enums.ResortLeaveRequestStatus
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -789,6 +919,7 @@ export type ResortLeaveRequestUncheckedUpdateManyWithoutResortProfileInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDays?: Prisma.IntFieldUpdateOperationsInput | number
+  leavePolicyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResortLeaveRequestStatusFieldUpdateOperationsInput | $Enums.ResortLeaveRequestStatus
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -803,6 +934,7 @@ export type ResortLeaveRequestCreateManyStaffProfileInput = {
   endDate: Date | string
   reason: string
   balanceDays?: number
+  leavePolicyId?: string | null
   status?: $Enums.ResortLeaveRequestStatus
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -821,11 +953,73 @@ export type ResortLeaveRequestUpdateWithoutStaffProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resortProfile?: Prisma.ResortProfileUpdateOneRequiredWithoutLeaveRequestsNestedInput
+  leavePolicy?: Prisma.ResortLeavePolicyUpdateOneWithoutLeaveRequestsNestedInput
 }
 
 export type ResortLeaveRequestUncheckedUpdateWithoutStaffProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   resortProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  leaveType?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDays?: Prisma.IntFieldUpdateOperationsInput | number
+  leavePolicyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumResortLeaveRequestStatusFieldUpdateOperationsInput | $Enums.ResortLeaveRequestStatus
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ResortLeaveRequestUncheckedUpdateManyWithoutStaffProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  resortProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  leaveType?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDays?: Prisma.IntFieldUpdateOperationsInput | number
+  leavePolicyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumResortLeaveRequestStatusFieldUpdateOperationsInput | $Enums.ResortLeaveRequestStatus
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ResortLeaveRequestCreateManyLeavePolicyInput = {
+  id?: string
+  resortProfileId: string
+  staffProfileId: string
+  leaveType: string
+  startDate: Date | string
+  endDate: Date | string
+  reason: string
+  balanceDays?: number
+  status?: $Enums.ResortLeaveRequestStatus
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ResortLeaveRequestUpdateWithoutLeavePolicyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leaveType?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDays?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumResortLeaveRequestStatusFieldUpdateOperationsInput | $Enums.ResortLeaveRequestStatus
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resortProfile?: Prisma.ResortProfileUpdateOneRequiredWithoutLeaveRequestsNestedInput
+  staffProfile?: Prisma.ResortStaffProfileUpdateOneRequiredWithoutLeaveRequestsNestedInput
+}
+
+export type ResortLeaveRequestUncheckedUpdateWithoutLeavePolicyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  resortProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   leaveType?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -837,9 +1031,10 @@ export type ResortLeaveRequestUncheckedUpdateWithoutStaffProfileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ResortLeaveRequestUncheckedUpdateManyWithoutStaffProfileInput = {
+export type ResortLeaveRequestUncheckedUpdateManyWithoutLeavePolicyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   resortProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   leaveType?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -862,12 +1057,14 @@ export type ResortLeaveRequestSelect<ExtArgs extends runtime.Types.Extensions.In
   endDate?: boolean
   reason?: boolean
   balanceDays?: boolean
+  leavePolicyId?: boolean
   status?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   resortProfile?: boolean | Prisma.ResortProfileDefaultArgs<ExtArgs>
   staffProfile?: boolean | Prisma.ResortStaffProfileDefaultArgs<ExtArgs>
+  leavePolicy?: boolean | Prisma.ResortLeaveRequest$leavePolicyArgs<ExtArgs>
 }, ExtArgs["result"]["resortLeaveRequest"]>
 
 export type ResortLeaveRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -879,12 +1076,14 @@ export type ResortLeaveRequestSelectCreateManyAndReturn<ExtArgs extends runtime.
   endDate?: boolean
   reason?: boolean
   balanceDays?: boolean
+  leavePolicyId?: boolean
   status?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   resortProfile?: boolean | Prisma.ResortProfileDefaultArgs<ExtArgs>
   staffProfile?: boolean | Prisma.ResortStaffProfileDefaultArgs<ExtArgs>
+  leavePolicy?: boolean | Prisma.ResortLeaveRequest$leavePolicyArgs<ExtArgs>
 }, ExtArgs["result"]["resortLeaveRequest"]>
 
 export type ResortLeaveRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -896,12 +1095,14 @@ export type ResortLeaveRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.
   endDate?: boolean
   reason?: boolean
   balanceDays?: boolean
+  leavePolicyId?: boolean
   status?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   resortProfile?: boolean | Prisma.ResortProfileDefaultArgs<ExtArgs>
   staffProfile?: boolean | Prisma.ResortStaffProfileDefaultArgs<ExtArgs>
+  leavePolicy?: boolean | Prisma.ResortLeaveRequest$leavePolicyArgs<ExtArgs>
 }, ExtArgs["result"]["resortLeaveRequest"]>
 
 export type ResortLeaveRequestSelectScalar = {
@@ -913,24 +1114,28 @@ export type ResortLeaveRequestSelectScalar = {
   endDate?: boolean
   reason?: boolean
   balanceDays?: boolean
+  leavePolicyId?: boolean
   status?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ResortLeaveRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "resortProfileId" | "staffProfileId" | "leaveType" | "startDate" | "endDate" | "reason" | "balanceDays" | "status" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["resortLeaveRequest"]>
+export type ResortLeaveRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "resortProfileId" | "staffProfileId" | "leaveType" | "startDate" | "endDate" | "reason" | "balanceDays" | "leavePolicyId" | "status" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["resortLeaveRequest"]>
 export type ResortLeaveRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resortProfile?: boolean | Prisma.ResortProfileDefaultArgs<ExtArgs>
   staffProfile?: boolean | Prisma.ResortStaffProfileDefaultArgs<ExtArgs>
+  leavePolicy?: boolean | Prisma.ResortLeaveRequest$leavePolicyArgs<ExtArgs>
 }
 export type ResortLeaveRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resortProfile?: boolean | Prisma.ResortProfileDefaultArgs<ExtArgs>
   staffProfile?: boolean | Prisma.ResortStaffProfileDefaultArgs<ExtArgs>
+  leavePolicy?: boolean | Prisma.ResortLeaveRequest$leavePolicyArgs<ExtArgs>
 }
 export type ResortLeaveRequestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resortProfile?: boolean | Prisma.ResortProfileDefaultArgs<ExtArgs>
   staffProfile?: boolean | Prisma.ResortStaffProfileDefaultArgs<ExtArgs>
+  leavePolicy?: boolean | Prisma.ResortLeaveRequest$leavePolicyArgs<ExtArgs>
 }
 
 export type $ResortLeaveRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -938,6 +1143,7 @@ export type $ResortLeaveRequestPayload<ExtArgs extends runtime.Types.Extensions.
   objects: {
     resortProfile: Prisma.$ResortProfilePayload<ExtArgs>
     staffProfile: Prisma.$ResortStaffProfilePayload<ExtArgs>
+    leavePolicy: Prisma.$ResortLeavePolicyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -948,6 +1154,7 @@ export type $ResortLeaveRequestPayload<ExtArgs extends runtime.Types.Extensions.
     endDate: Date
     reason: string
     balanceDays: number
+    leavePolicyId: string | null
     status: $Enums.ResortLeaveRequestStatus
     reviewedAt: Date | null
     createdAt: Date
@@ -1348,6 +1555,7 @@ export interface Prisma__ResortLeaveRequestClient<T, Null = never, ExtArgs exten
   readonly [Symbol.toStringTag]: "PrismaPromise"
   resortProfile<T extends Prisma.ResortProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__ResortProfileClient<runtime.Types.Result.GetResult<Prisma.$ResortProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   staffProfile<T extends Prisma.ResortStaffProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortStaffProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__ResortStaffProfileClient<runtime.Types.Result.GetResult<Prisma.$ResortStaffProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  leavePolicy<T extends Prisma.ResortLeaveRequest$leavePolicyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResortLeaveRequest$leavePolicyArgs<ExtArgs>>): Prisma.Prisma__ResortLeavePolicyClient<runtime.Types.Result.GetResult<Prisma.$ResortLeavePolicyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1385,6 +1593,7 @@ export interface ResortLeaveRequestFieldRefs {
   readonly endDate: Prisma.FieldRef<"ResortLeaveRequest", 'DateTime'>
   readonly reason: Prisma.FieldRef<"ResortLeaveRequest", 'String'>
   readonly balanceDays: Prisma.FieldRef<"ResortLeaveRequest", 'Int'>
+  readonly leavePolicyId: Prisma.FieldRef<"ResortLeaveRequest", 'String'>
   readonly status: Prisma.FieldRef<"ResortLeaveRequest", 'ResortLeaveRequestStatus'>
   readonly reviewedAt: Prisma.FieldRef<"ResortLeaveRequest", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"ResortLeaveRequest", 'DateTime'>
@@ -1787,6 +1996,25 @@ export type ResortLeaveRequestDeleteManyArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many ResortLeaveRequests to delete.
    */
   limit?: number
+}
+
+/**
+ * ResortLeaveRequest.leavePolicy
+ */
+export type ResortLeaveRequest$leavePolicyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResortLeavePolicy
+   */
+  select?: Prisma.ResortLeavePolicySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ResortLeavePolicy
+   */
+  omit?: Prisma.ResortLeavePolicyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResortLeavePolicyInclude<ExtArgs> | null
+  where?: Prisma.ResortLeavePolicyWhereInput
 }
 
 /**

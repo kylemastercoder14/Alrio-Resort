@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const signature = request.headers.get("paymongo-signature") ?? "";
 
   try {
-    if (!verifyPayMongoSignature(rawBody, signature)) {
+    if (!(await verifyPayMongoSignature(rawBody, signature))) {
       return NextResponse.json({ received: false }, { status: 401 });
     }
     const event = JSON.parse(rawBody) as PayMongoWebhook;

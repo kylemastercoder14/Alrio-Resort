@@ -11,6 +11,7 @@ import {
   CalendarCheck2,
   CheckCircle2,
   ClipboardCheck,
+  Code2,
   Coins,
   ListFilter,
   LockKeyhole,
@@ -22,6 +23,7 @@ import {
   Settings,
   ShieldCheck,
   Wrench,
+  LayoutDashboard,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -210,8 +212,8 @@ export function AccountAvatar({
   return (
     <Link
       href="/account"
-      aria-label="Open account settings"
-      title="Account settings"
+      aria-label="Open account"
+      title="Account"
     >
       {avatar}
     </Link>
@@ -229,6 +231,8 @@ function ResortAccountMenu({
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const trpc = useTRPC();
+  const profile = useQuery(trpc.auth.profile.queryOptions());
   const logout = useMutation({
     mutationFn: async () => {
       const result = await authClient.signOut();
@@ -262,9 +266,26 @@ function ResortAccountMenu({
         <DropdownMenuItem asChild>
           <Link href="/resort/account">
             <Settings aria-hidden="true" />
-            Account settings
+            Account
           </Link>
         </DropdownMenuItem>
+        {profile.data?.permissions.includes("*") || profile.data?.permissions.includes("settings.branding.manage") ? (
+          <DropdownMenuItem asChild>
+            <Link href="/resort/settings/branding">
+              <LayoutDashboard aria-hidden="true" />
+              Branding customization
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
+        {profile.data?.permissions.includes("*") || profile.data?.permissions.includes("settings.developer.manage") ? (
+          <DropdownMenuItem asChild>
+            <Link href="/resort/settings/developer">
+              <Code2 aria-hidden="true" />
+              Developer settings
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           disabled={logout.isPending}
           onSelect={(event) => {

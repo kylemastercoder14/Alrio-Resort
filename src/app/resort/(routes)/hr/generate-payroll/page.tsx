@@ -13,6 +13,8 @@ import {
   Pencil,
   Plus,
   RefreshCw,
+  CircleDollarSign,
+  Ban,
   Trash2,
   Users,
   WalletCards,
@@ -56,7 +58,8 @@ type PayrollRun = {
   payPeriod: string;
   payType: string;
   recordId: string;
-  status: "Completed" | "Draft" | "Processing";
+  status: "Completed" | "Draft" | "Voided" | "Processing";
+  paymentStatus: "Paid" | "Unpaid";
   totalNetPay: number;
 };
 
@@ -124,7 +127,7 @@ const columns: ColumnDef<PayrollRun>[] = [
     header: "Status",
     cell: ({ row }) => (
       <div className="min-w-36">
-        <Badge>
+        <Badge variant={row.original.status === "Voided" ? "destructive" : "default"}>
           {row.original.status}
         </Badge>
         <p className="mt-1 text-xs font-medium text-zinc-500">
@@ -198,6 +201,8 @@ function PayrollActions({ payroll }: { payroll: PayrollRun }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [voidOpen, setVoidOpen] = useState(false);
   const deletePayroll = useMutation(
     trpc.resort.payroll.delete.mutationOptions({
       onError: (error) => toast.error(error.message),
@@ -207,6 +212,26 @@ function PayrollActions({ payroll }: { payroll: PayrollRun }) {
         );
         setDeleteOpen(false);
         toast.success("Payroll deleted.");
+      },
+    }),
+  );
+  const recordPayment = useMutation(
+    trpc.resort.payroll.recordPayment.mutationOptions({
+      onError: (error) => toast.error(error.message),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(trpc.resort.payroll.list.queryFilter());
+        setPaymentOpen(false);
+        toast.success("Payroll payout recorded and finance entry cleared.");
+      },
+    }),
+  );
+  const voidPayroll = useMutation(
+    trpc.resort.payroll.void.mutationOptions({
+      onError: (error) => toast.error(error.message),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(trpc.resort.payroll.list.queryFilter());
+        setVoidOpen(false);
+        toast.success("Payroll voided. The audit record was retained.");
       },
     }),
   );
@@ -240,15 +265,17 @@ function PayrollActions({ payroll }: { payroll: PayrollRun }) {
             <Eye className="size-4" />
             View payroll
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={() =>
-              router.push(`/resort/hr/generate-payroll/${payroll.recordId}`)
-            }
-          >
-            <Pencil className="size-4" />
-            Edit payroll
-          </DropdownMenuItem>
+          {payroll.status === "Draft" ? (
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onSelect={() =>
+                router.push(`/resort/hr/generate-payroll/${payroll.recordId}`)
+              }
+            >
+              <Pencil className="size-4" />
+              Edit payroll
+            </DropdownMenuItem>
+          ) : null}
           <DropdownMenuItem
             className="cursor-pointer"
             onSelect={() => void downloadPayslips(payroll)}
@@ -256,11 +283,38 @@ function PayrollActions({ payroll }: { payroll: PayrollRun }) {
             <Download className="size-4" />
             Download payslips
           </DropdownMenuItem>
+          {payroll.status === "Completed" && payroll.paymentStatus === "Unpaid" ? (
+            <DropdownMenuItem
+              className="cursor-pointer"
+              disabled={recordPayment.isPending}
+              onSelect={(event) => {
+                event.preventDefault();
+                setPaymentOpen(true);
+              }}
+            >
+              <CircleDollarSign className="size-4" />
+              Record payout
+            </DropdownMenuItem>
+          ) : null}
+          {payroll.status === "Completed" && payroll.paymentStatus === "Unpaid" ? (
+            <DropdownMenuItem
+              variant="destructive"
+              className="cursor-pointer"
+              disabled={voidPayroll.isPending}
+              onSelect={(event) => {
+                event.preventDefault();
+                setVoidOpen(true);
+              }}
+            >
+              <Ban className="size-4" />
+              Void payroll
+            </DropdownMenuItem>
+          ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             variant="destructive"
             className="cursor-pointer"
-            disabled={deletePayroll.isPending}
+            disabled={deletePayroll.isPending || payroll.status !== "Draft"}
             onSelect={(event) => {
               event.preventDefault();
               setDeleteOpen(true);
@@ -271,10 +325,10 @@ function PayrollActions({ payroll }: { payroll: PayrollRun }) {
           </DropdownMenuItem>
           <DropdownMenuItem
             className="cursor-pointer"
-            onSelect={() => toast(`Rerun queued for ${payroll.id}.`, { icon: "ℹ️" })}
+            onSelect={() => router.push("/resort/hr/generate-payroll/create")}
           >
             <RefreshCw className="size-4" />
-            Re-run payroll
+            Create another payroll
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -301,6 +355,44 @@ function PayrollActions({ payroll }: { payroll: PayrollRun }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <AlertDialog open={paymentOpen} onOpenChange={setPaymentOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Record payroll payout?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This records the full {formatCurrency(payroll.totalNetPay)} payout as a bank transfer and clears its linked payroll expense in Finance. This does not send money through PayMongo.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={recordPayment.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={recordPayment.isPending}
+              onClick={() => recordPayment.mutate({ id: payroll.recordId, paymentMethod: "Bank transfer" })}
+            >
+              {recordPayment.isPending ? "Recording..." : "Record payout"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={voidOpen} onOpenChange={setVoidOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Void this payroll run?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The payroll and its audit trail stay on record, but it can no longer be paid. Create a corrected payroll run afterward.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={voidPayroll.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={voidPayroll.isPending}
+              onClick={() => voidPayroll.mutate({ id: payroll.recordId, reason: "Voided from payroll registry." })}
+            >
+              {voidPayroll.isPending ? "Voiding..." : "Void payroll"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -315,6 +407,7 @@ function toPayrollRunRow(run: {
   payPeriod: string;
   payType: string;
   status: string;
+  paymentStatus?: string;
   items?: PayrollRunItem[];
   totals: {
     includedEmployees: number;
@@ -334,9 +427,10 @@ function toPayrollRunRow(run: {
     payType: run.payType,
     recordId: run.id,
     status:
-      run.status === "Completed" || run.status === "Draft"
+      run.status === "Completed" || run.status === "Draft" || run.status === "Voided"
         ? run.status
         : "Processing",
+    paymentStatus: run.paymentStatus === "Paid" ? "Paid" : "Unpaid",
     totalNetPay: run.totals.totalNetPay,
   };
 }

@@ -222,24 +222,33 @@ function ReminderRowActions({ reminder }: { reminder: ReminderRecord }) {
   };
   const sendReminder = useMutation(
     trpc.resort.invoices.sendReminder.mutationOptions({
-      onSuccess: async () => {
+      onMutate: () => ({ toastId: toast.loading("Sending payment reminder...") }),
+      onSuccess: async (_data, _variables, context) => {
         await invalidateInvoices();
-        toast.success("Reminder email sent.");
+        toast.success("Reminder email sent.", { id: context?.toastId });
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error, _variables, context) =>
+        toast.error(error.message, { id: context?.toastId }),
     }),
   );
   const updateCadence = useMutation(
     trpc.resort.invoices.updateReminderCadence.mutationOptions({
-      onSuccess: async (_data, variables) => {
+      onMutate: (variables) => ({
+        toastId: toast.loading(
+          variables.reminderCadence === "Paused" ? "Pausing reminders..." : "Resuming reminders...",
+        ),
+      }),
+      onSuccess: async (_data, variables, context) => {
         await invalidateInvoices();
         toast.success(
           variables.reminderCadence === "Paused"
             ? "Reminders paused."
             : "Reminders resumed.",
+          { id: context?.toastId },
         );
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error, _variables, context) =>
+        toast.error(error.message, { id: context?.toastId }),
     }),
   );
   const isPaused = reminder.cadence === "Paused";

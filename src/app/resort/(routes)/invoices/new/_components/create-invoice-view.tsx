@@ -104,13 +104,17 @@ export function CreateInvoiceView({ invoiceId }: CreateInvoiceViewProps) {
   });
   const saveInvoice = useMutation(
     trpc.resort.invoices.save.mutationOptions({
-      onSuccess: async () => {
+      onMutate: () => ({ toastId: toast.loading(isEdit ? "Saving invoice changes..." : "Creating invoice...") }),
+      onSuccess: async (_data, _variables, context) => {
         await queryClient.invalidateQueries(trpc.resort.invoices.list.queryFilter());
         await queryClient.invalidateQueries(trpc.resort.invoices.nextCode.queryFilter());
-        toast.success("Invoice saved.");
+        toast.success(isEdit ? "Invoice changes saved." : "Invoice created as a draft.", {
+          id: context?.toastId,
+        });
         router.push("/resort/invoices");
       },
-      onError: (error) => toast.error(error.message),
+      onError: (error, _variables, context) =>
+        toast.error(error.message, { id: context?.toastId }),
     }),
   );
   const [values, setValues] = useState<InvoiceValues>(EMPTY_VALUES);
