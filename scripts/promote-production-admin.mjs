@@ -58,12 +58,31 @@ try {
     requestedResortId ? [requestedResortId] : [],
   );
 
-  const resort = resortResult.rows[0];
+  let resort = resortResult.rows[0];
 
   if (!resort) {
-    throw new Error(
-      "No resort profile was found. Run the production migrations and create the Alrio resort profile before promoting an administrator.",
+    if (requestedResortId) {
+      throw new Error(`No resort profile was found with RESORT_ID=${requestedResortId}.`);
+    }
+
+    resort = {
+      id: randomUUID(),
+      resortName: "Alrio Private Resort",
+    };
+
+    await client.query(
+      `INSERT INTO "resort_profile" (
+        id, "appUserId", "resortName", "propertyType", "shortDescription", "createdAt", "updatedAt"
+      ) VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
+      [
+        resort.id,
+        appUser.authUserId,
+        resort.resortName,
+        "Private resort",
+        "A private resort for family getaways, celebrations, and restful stays.",
+      ],
     );
+    console.log("Created the Alrio Private Resort profile.");
   }
 
   const existingStaffResult = await client.query(
